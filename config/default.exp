@@ -1,0 +1,10 @@
+# Copyright (C) 2014 Embecosm Limited.
+#
+# Contributor Pierre Langlois <pierre.langlois@embecosm.com>
+#
+# This file is part of Embench and was formerly part of the Bristol/Embecosm
+# Embedded Benchmark Suite.
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+load_lib "standard.exp"

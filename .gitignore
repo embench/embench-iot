@@ -1,0 +1,14 @@
+# Build out of tree or binaries will clutter you up.
+
+# Temporaries and backups from emacs
+*~
+\#*
+.\#*
+
+# Temporary vim files
+*.swp
+*.tmp
+
+# Autotools things
+autom4te.cache
+

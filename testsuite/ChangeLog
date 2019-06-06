@@ -1,0 +1,23 @@
+2019-04-28  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Initial commit as a snapshot from the main BEEBS repo at
+	https://github.com/mageec/beebs.
+
+	* ChangeLog: Created.
+	* Makefile.am: Created.
+	* Makefile.in: Created.
+	* beebs-conf.exp: Created.
+	* beebs.test/Makefile.am: Created.
+	* beebs.test/Makefile.in: Created.
+	* beebs.test/execute.exp: Created.
+	* beebs.test/size.exp: Created.
+	* config/Makefile.am: Created.
+	* config/Makefile.in: Created.
+	* config/generic.exp: Created.
+	* config/none.exp: Created.
+	* config/ri5cyverilator.exp: Created.
+	* lib/Makefile.am: Created.
+	* lib/Makefile.in: Created.
+	* lib/beebs.exp: Created.
+	* lib/mageec-wand.exp: Created.
+	* lib/perf-stat.exp: Created.

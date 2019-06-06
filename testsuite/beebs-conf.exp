@@ -1,0 +1,19 @@
+# Configure input file for DejaGnu site.exp
+
+# Copyright (C) 2013-2014 Embecosm Limited and the University of Bristol
+
+# Contributor Pierre Langlois <pierre.langlois@embecosm.com>
+
+# This file is part of Embench and was formerly part of the Bristol/Embecosm
+# Embedded Benchmark Suite.
+
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+if ![info exists boards_dir] {
+  lappend boards_dir "$srcdir"
+} else {
+  set boards_dir "$srcdir"
+}
+lappend boards_dir "$srcdir/config"
+lappend boards_dir "$srcdir/lib"
+verbose "Boards dir ${boards_dir}"

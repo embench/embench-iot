@@ -1,0 +1,31 @@
+# Makefile.am for building a BEEBS benchmark
+#
+# Copyright (C) 2014 Embecosm Limited and University of Bristol
+#
+# This file is part of Embench and was formerly part of the Bristol/Embecosm
+# Embedded Benchmark Suite.
+
+#
+# Contributor: James Pallister <james.pallister@bristol.ac.uk>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+if ENABLED_BENCHMARK_UD
+
+include $(top_srcdir)/src/common.mk.am
+
+bin_PROGRAMS       = ud
+noinst_LTLIBRARIES = libud.la
+
+ud_SOURCES         =
+libud_la_SOURCES = libud.c
+
+ud_LDADD           = $(DUMMY_CRT0) \
+                     $(top_builddir)/support/libsupport.la \
+                     libud.la \
+                     $(top_builddir)/support/libbeebsc.la \
+                      $(DUMMY_LIBC) $(DUMMY_LIBGCC) $(DUMMY_COMPILERRT)
+
+
+
+endif
