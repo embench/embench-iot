@@ -16,7 +16,9 @@
 AM_CPPFLAGS = -I $(top_srcdir)/support \
               -I $(top_srcdir)/config/@ARCH@/boards/@BOARD@ \
               -I $(top_srcdir)/config/@ARCH@/chips/@CHIP@ \
-              @CPPFLAGS@
+              @EMBENCH_CPPFLAGS@
+AM_CFLAGS   = @EMBENCH_CFLAGS@
+AM_LDFLAGS  = @EMBENCH_LDFLAGS@
 
 # Setup a $(LIBM) variable that we can use instead of either
 # $(DUMMY_LIBM) or -lm.  This way we don't risk pulling in

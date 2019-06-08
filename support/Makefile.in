@@ -124,17 +124,31 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libdummyc_la_LIBADD =
-am_libdummyc_la_OBJECTS = dummy-libc.lo
+am_libdummyc_la_OBJECTS = libdummyc_la-dummy-libc.lo
 libdummyc_la_OBJECTS = $(am_libdummyc_la_OBJECTS)
+libdummyc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libdummyc_la_CFLAGS) \
+	$(CFLAGS) $(libdummyc_la_LDFLAGS) $(LDFLAGS) -o $@
 libdummycrt0_la_LIBADD =
-am_libdummycrt0_la_OBJECTS = dummy-crt0.lo
+am_libdummycrt0_la_OBJECTS = libdummycrt0_la-dummy-crt0.lo
 libdummycrt0_la_OBJECTS = $(am_libdummycrt0_la_OBJECTS)
+libdummycrt0_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libdummycrt0_la_CFLAGS) $(CFLAGS) $(libdummycrt0_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 libdummygcc_la_LIBADD =
-am_libdummygcc_la_OBJECTS = dummy-libgcc.lo
+am_libdummygcc_la_OBJECTS = libdummygcc_la-dummy-libgcc.lo
 libdummygcc_la_OBJECTS = $(am_libdummygcc_la_OBJECTS)
+libdummygcc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libdummygcc_la_CFLAGS) $(CFLAGS) $(libdummygcc_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 libdummym_la_LIBADD =
-am_libdummym_la_OBJECTS = dummy-libm.lo
+am_libdummym_la_OBJECTS = libdummym_la-dummy-libm.lo
 libdummym_la_OBJECTS = $(am_libdummym_la_OBJECTS)
+libdummym_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libdummym_la_CFLAGS) \
+	$(CFLAGS) $(libdummym_la_LDFLAGS) $(LDFLAGS) -o $@
 libsupport_la_LIBADD =
 am__libsupport_la_SOURCES_DIST = main.c board.c support.h chip.c
 @CHIPSUPPORT_C_TRUE@am__objects_1 = libsupport_la-chip.lo
@@ -234,8 +248,11 @@ DEJAGNU = @DEJAGNU@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
+DUMMY_CFLAGS = @DUMMY_CFLAGS@
 DUMMY_COMPILERRT = @DUMMY_COMPILERRT@
+DUMMY_CPPFLAGS = @DUMMY_CPPFLAGS@
 DUMMY_CRT0 = @DUMMY_CRT0@
+DUMMY_LDFLAGS = @DUMMY_LDFLAGS@
 DUMMY_LIBC = @DUMMY_LIBC@
 DUMMY_LIBGCC = @DUMMY_LIBGCC@
 DUMMY_LIBM = @DUMMY_LIBM@
@@ -244,6 +261,9 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
+EMBENCH_CFLAGS = @EMBENCH_CFLAGS@
+EMBENCH_CPPFLAGS = @EMBENCH_CPPFLAGS@
+EMBENCH_LDFLAGS = @EMBENCH_LDFLAGS@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GREP = @GREP@
@@ -342,23 +362,38 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CPPFLAGS = @EMBENCH_CPPFLAGS@
+AM_CFLAGS = @EMBENCH_CFLAGS@
+AM_LDFLAGS = @EMBENCH_LDFLAGS@
 noinst_LTLIBRARIES = libbeebsc.la    \
 		     libdummycrt0.la \
                      libdummygcc.la  \
                      libdummyc.la    \
                      libdummym.la    \
-		     libsupport.la
+		         libsupport.la
 
 libbeebsc_la_SOURCES = beebsc.c \
-			  beebsc.h
+			   beebsc.h
 
 libdummycrt0_la_SOURCES = dummy-crt0.c
 libdummygcc_la_SOURCES = dummy-libgcc.c
 libdummyc_la_SOURCES = dummy-libc.c
 libdummym_la_SOURCES = dummy-libm.c
+libdummycrt0_la_CPPFLAGS = @DUMMY_CPPFLAGS@
+libdummygcc_la_CPPFLAGS = @DUMMY_CPPFLAGS@
+libdummyc_la_CPPFLAGS = @DUMMY_CPPFLAGS@
+libdummym_la_CPPFLAGS = @DUMMY_CPPFLAGS@
+libdummycrt0_la_CFLAGS = @DUMMY_CFLAGS@
+libdummygcc_la_CFLAGS = @DUMMY_CFLAGS@
+libdummyc_la_CFLAGS = @DUMMY_CFLAGS@
+libdummym_la_CFLAGS = @DUMMY_CFLAGS@
+libdummycrt0_la_LDFLAGS = @DUMMY_LDFLAGS@
+libdummygcc_la_LDFLAGS = @DUMMY_LDFLAGS@
+libdummyc_la_LDFLAGS = @DUMMY_LDFLAGS@
+libdummym_la_LDFLAGS = @DUMMY_LDFLAGS@
 libsupport_la_SOURCES = main.c board.c support.h $(am__append_1)
 libsupport_la_CPPFLAGS = -I$(top_srcdir)/config/@ARCH@/boards/@BOARD@ \
-                         -I$(top_srcdir)/config/@ARCH@/chips/@CHIP@
+                           -I$(top_srcdir)/config/@ARCH@/chips/@CHIP@
 
 all: all-am
 
@@ -409,16 +444,16 @@ libbeebsc.la: $(libbeebsc_la_OBJECTS) $(libbeebsc_la_DEPENDENCIES) $(EXTRA_libbe
 	$(AM_V_CCLD)$(LINK)  $(libbeebsc_la_OBJECTS) $(libbeebsc_la_LIBADD) $(LIBS)
 
 libdummyc.la: $(libdummyc_la_OBJECTS) $(libdummyc_la_DEPENDENCIES) $(EXTRA_libdummyc_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libdummyc_la_OBJECTS) $(libdummyc_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libdummyc_la_LINK)  $(libdummyc_la_OBJECTS) $(libdummyc_la_LIBADD) $(LIBS)
 
 libdummycrt0.la: $(libdummycrt0_la_OBJECTS) $(libdummycrt0_la_DEPENDENCIES) $(EXTRA_libdummycrt0_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libdummycrt0_la_OBJECTS) $(libdummycrt0_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libdummycrt0_la_LINK)  $(libdummycrt0_la_OBJECTS) $(libdummycrt0_la_LIBADD) $(LIBS)
 
 libdummygcc.la: $(libdummygcc_la_OBJECTS) $(libdummygcc_la_DEPENDENCIES) $(EXTRA_libdummygcc_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libdummygcc_la_OBJECTS) $(libdummygcc_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libdummygcc_la_LINK)  $(libdummygcc_la_OBJECTS) $(libdummygcc_la_LIBADD) $(LIBS)
 
 libdummym.la: $(libdummym_la_OBJECTS) $(libdummym_la_DEPENDENCIES) $(EXTRA_libdummym_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libdummym_la_OBJECTS) $(libdummym_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libdummym_la_LINK)  $(libdummym_la_OBJECTS) $(libdummym_la_LIBADD) $(LIBS)
 
 libsupport.la: $(libsupport_la_OBJECTS) $(libsupport_la_DEPENDENCIES) $(EXTRA_libsupport_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libsupport_la_OBJECTS) $(libsupport_la_LIBADD) $(LIBS)
@@ -430,10 +465,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/beebsc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy-crt0.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy-libc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy-libgcc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy-libm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdummyc_la-dummy-libc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdummycrt0_la-dummy-crt0.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdummygcc_la-dummy-libgcc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libdummym_la-dummy-libm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsupport_la-board.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsupport_la-chip.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsupport_la-main.Plo@am__quote@
@@ -458,6 +493,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+libdummyc_la-dummy-libc.lo: dummy-libc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummyc_la_CPPFLAGS) $(CPPFLAGS) $(libdummyc_la_CFLAGS) $(CFLAGS) -MT libdummyc_la-dummy-libc.lo -MD -MP -MF $(DEPDIR)/libdummyc_la-dummy-libc.Tpo -c -o libdummyc_la-dummy-libc.lo `test -f 'dummy-libc.c' || echo '$(srcdir)/'`dummy-libc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdummyc_la-dummy-libc.Tpo $(DEPDIR)/libdummyc_la-dummy-libc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dummy-libc.c' object='libdummyc_la-dummy-libc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummyc_la_CPPFLAGS) $(CPPFLAGS) $(libdummyc_la_CFLAGS) $(CFLAGS) -c -o libdummyc_la-dummy-libc.lo `test -f 'dummy-libc.c' || echo '$(srcdir)/'`dummy-libc.c
+
+libdummycrt0_la-dummy-crt0.lo: dummy-crt0.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummycrt0_la_CPPFLAGS) $(CPPFLAGS) $(libdummycrt0_la_CFLAGS) $(CFLAGS) -MT libdummycrt0_la-dummy-crt0.lo -MD -MP -MF $(DEPDIR)/libdummycrt0_la-dummy-crt0.Tpo -c -o libdummycrt0_la-dummy-crt0.lo `test -f 'dummy-crt0.c' || echo '$(srcdir)/'`dummy-crt0.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdummycrt0_la-dummy-crt0.Tpo $(DEPDIR)/libdummycrt0_la-dummy-crt0.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dummy-crt0.c' object='libdummycrt0_la-dummy-crt0.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummycrt0_la_CPPFLAGS) $(CPPFLAGS) $(libdummycrt0_la_CFLAGS) $(CFLAGS) -c -o libdummycrt0_la-dummy-crt0.lo `test -f 'dummy-crt0.c' || echo '$(srcdir)/'`dummy-crt0.c
+
+libdummygcc_la-dummy-libgcc.lo: dummy-libgcc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummygcc_la_CPPFLAGS) $(CPPFLAGS) $(libdummygcc_la_CFLAGS) $(CFLAGS) -MT libdummygcc_la-dummy-libgcc.lo -MD -MP -MF $(DEPDIR)/libdummygcc_la-dummy-libgcc.Tpo -c -o libdummygcc_la-dummy-libgcc.lo `test -f 'dummy-libgcc.c' || echo '$(srcdir)/'`dummy-libgcc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdummygcc_la-dummy-libgcc.Tpo $(DEPDIR)/libdummygcc_la-dummy-libgcc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dummy-libgcc.c' object='libdummygcc_la-dummy-libgcc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummygcc_la_CPPFLAGS) $(CPPFLAGS) $(libdummygcc_la_CFLAGS) $(CFLAGS) -c -o libdummygcc_la-dummy-libgcc.lo `test -f 'dummy-libgcc.c' || echo '$(srcdir)/'`dummy-libgcc.c
+
+libdummym_la-dummy-libm.lo: dummy-libm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummym_la_CPPFLAGS) $(CPPFLAGS) $(libdummym_la_CFLAGS) $(CFLAGS) -MT libdummym_la-dummy-libm.lo -MD -MP -MF $(DEPDIR)/libdummym_la-dummy-libm.Tpo -c -o libdummym_la-dummy-libm.lo `test -f 'dummy-libm.c' || echo '$(srcdir)/'`dummy-libm.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libdummym_la-dummy-libm.Tpo $(DEPDIR)/libdummym_la-dummy-libm.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dummy-libm.c' object='libdummym_la-dummy-libm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdummym_la_CPPFLAGS) $(CPPFLAGS) $(libdummym_la_CFLAGS) $(CFLAGS) -c -o libdummym_la-dummy-libm.lo `test -f 'dummy-libm.c' || echo '$(srcdir)/'`dummy-libm.c
 
 libsupport_la-main.lo: main.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsupport_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsupport_la-main.lo -MD -MP -MF $(DEPDIR)/libsupport_la-main.Tpo -c -o libsupport_la-main.lo `test -f 'main.c' || echo '$(srcdir)/'`main.c

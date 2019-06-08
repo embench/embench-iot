@@ -31,7 +31,8 @@ char *_ctype_;
 
 struct _reent *_impure_ptr;
 
-void __attribute__ ((noreturn)) abort (void)
+void __attribute__ ((noreturn))
+abort (void)
 {
   while (1)
     ;

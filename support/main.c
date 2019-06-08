@@ -14,7 +14,7 @@
 #include "support.h"
 
 
-int
+int __attribute__ ((used))
 main (int argc __attribute__ ((unused)),
       char *argv[] __attribute__ ((unused)))
 {

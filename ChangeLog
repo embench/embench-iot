@@ -1,3 +1,63 @@
+2019-06-08  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Fix LTO problems in the build system.
+
+	Attempting to use Embench with BEEBS identified some key issues,
+	notably around the handling of flags. CFLAGS should not be
+	overridden in configure.ac or Makefile.am.
+
+	There appears to be a bug in LTO, whereby not all functions in a
+	library are retained, so dummy libraries are always compiled with
+	LTO turned off.
+
+	* Makefile.in: Regenerated.
+	* config/riscv32/boards/ri5cyverilator/boardsupport.c
+	(initialise_board): Clean up layout
+	(start_trigger, stop_trigger): Add function attributes noinline
+	and externally_visible to avoid being trampled by LTO.
+	* configure: Regenerated.
+	* configure.ac: Save and restore CFLAGS, so no values are set if
+	user sets none, use EMBENCH_CPPFLAGS, EMBENCH_CFLAGS and
+	EMBENCH_LDFLAGS to pass custom flags to buidls and DUMMY_CPPFLAGS,
+	DUMMY_CFLAGS and DUMMY_LDFLAGS to remove any LTO flag when
+	building dummy libraries to avoid a LTO issue.
+	* doc/Makefile.in: Regenerated.
+	* src/Makefile.in: Regenerated.
+	* src/aha-mont64/Makefile.in: Regenerated.
+	* src/common.mk.am: Pass EMBENCH_CPPFLAGS, EMBENCH_CFLAGS and
+	EMBENCH_LDFLAGS to AM_CPPFLAGS, AM_CFLAGS and AM_LDFLAGS
+	respectively.
+	* src/crc32/Makefile.in: Regenerated.
+	* src/cubic/Makefile.in: Regenerated.
+	* src/edn/Makefile.in: Regenerated.
+	* src/huffbench/Makefile.in: Regenerated.
+	* src/matmult-int/Makefile.in: Regenerated.
+	* src/minver/Makefile.in: Regenerated.
+	* src/nbody/Makefile.in: Regenerated.
+	* src/nettle-aes/Makefile.in: Regenerated.
+	* src/nettle-sha256/Makefile.in: Regenerated.
+	* src/nsichneu/Makefile.in: Regenerated.
+	* src/picojpeg/Makefile.in: Regenerated.
+	* src/qrduino/Makefile.in: Regenerated.
+	* src/sglib-combined/Makefile.in: Regenerated.
+	* src/slre/Makefile.in: Regenerated.
+	* src/st/Makefile.in: Regenerated.
+	* src/statemate/Makefile.in: Regenerated.
+	* src/ud/Makefile.in: Regenerated.
+	* src/wikisort/Makefile.in: Regenerated. Regenerated.
+	* support/Makefile.am:Pass EMBENCH_CPPFLAGS, EMBENCH_CFLAGS and
+	EMBENCH_LDFLAGS to AM_CPPFLAGS, AM_CFLAGS and AM_LDFLAGS
+	respectively, override with DUMMY_CPPFLAGS, DUMMY_CFLAGS and
+	DUMMY_LDFLAGS for dummy libraries
+	* support/Makefile.in: Regenerated.
+	* support/dummy-libc.c (abort): Fix layout.
+	* support/main.c (main): Mark with attribute used to ensure
+	start_trigger and stop_trigger are retained.
+	* testsuite/Makefile.in: Regenerated.
+	* testsuite/beebs.test/Makefile.in: Regenerated.
+	* testsuite/config/Makefile.in: Regenerated.
+	* testsuite/lib/Makefile.in: Regenerated.
+
 2019-06-06  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Initial commit of the new repository.

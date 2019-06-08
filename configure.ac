@@ -15,6 +15,12 @@
 
 AC_PREREQ([2.68])
 
+# AC_PROG_CC and other commands will set CFLAGS to "-O2 -g", which in this
+# case we don't want untless the user has explicitly requested, so we save and
+# restore flags across this call.
+
+OLD_CFLAGS=$CFLAGS
+
 AC_INIT([beebs], [3.0], [beebs@mageec.org])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -430,18 +436,22 @@ test -f $srcdir/config/$arch/boards/$board/boardsupport.h && \
 test -f $srcdir/config/$arch/chips/$chip/chipsupport.h && \
     AC_DEFINE([HAVE_CHIPSUPPORT_H], [1], [Chip support header is present])
 
-# Architecture, board and chip specific and user CFLAGS and LDFLAGS. Note that
-# we always compile with debug info, although this can be overridden by
-# USER_CFLAGS
-CFLAGS="$CFLAGS $ARCH_CFLAGS $CHIP_CFLAGS $BOARD_CFLAGS -g3 $USER_CFLAGS"
-LDFLAGS="$LDFLAGS $ARCH_LDFLAGS $CHIP_LDFLAGS $BOARD_LDFLAGS $USER_LDFLAGS"
+# Architecture, board and chip specific CPPFLAGS, CFLAGS and LDFLAGS. Convention is that one does not override CFLAGS, to allow
+EMBENCH_CPPFLAGS="$ARCH_CPPFLAGS $CHIP_CPPFLAGS $BOARD_CPPFLAGS"
+EMBENCH_CFLAGS="$ARCH_CFLAGS $CHIP_CFLAGS $BOARD_CFLAGS"
+EMBENCH_LDFLAGS="$ARCH_LDFLAGS $CHIP_LDFLAGS $BOARD_LDFLAGS"
+
+# There is a bug in LTO which breaks library building, so for now we turn off
+# LTO for the dummy libraries
+DUMMY_CPPFLAGS="$EMBENCH_CPPFLAGS"
+DUMMY_CFLAGS="$EMBENCH_CFLAGS -fno-lto"
+DUMMY_LDFLAGS="$EMBENCH_LDFLAGS -fno-lto"
 
 LT_INIT
 AC_SUBST([LIBTOOL_DEPS])
 
 AC_PROG_CC()
 AM_PROG_AS
-AC_PROG_CC_C99
 
 # Set up testing
 
@@ -450,10 +460,21 @@ then
     DEJAGNU="\$(top_srcdir)/testsuite/beebs-conf.exp"
 fi
 
+# Restore the CFLAGS
+
+CFLAGS=$OLD_CFLAGS
+
 # Substitute flags
 
+AC_SUBST([CPPFLAGS])
 AC_SUBST([CFLAGS])
 AC_SUBST([LDFLAGS])
+AC_SUBST([EMBENCH_CPPFLAGS])
+AC_SUBST([EMBENCH_CFLAGS])
+AC_SUBST([EMBENCH_LDFLAGS])
+AC_SUBST([DUMMY_CPPFLAGS])
+AC_SUBST([DUMMY_CFLAGS])
+AC_SUBST([DUMMY_LDFLAGS])
 
 # Substitute dummy libraries
 
