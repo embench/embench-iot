@@ -1,3 +1,10 @@
+2019-06-13  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Clean up a couple of annoyances
+
+	* INSTALL: Change to reference doc/README.adoc
+	* NEWS: Replace BEEBS content with Embench content.
+
 2019-06-08  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Fix LTO problems in the build system.
