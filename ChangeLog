@@ -1,3 +1,19 @@
+2019-07-10  Maxim Blinov  <maxim.blinov@embecosm.com>
+
+	Fix failure to find GCC if libgcc is not installed.
+
+	AC_PROG_CC internally tries to find GCC by attempting to compile
+	a trivial main() program with an optional hardcoded LDFLAGS variable.
+	If we don't have libgcc and other runtime libs, then this fact must be
+	reflected in LDFLAGS by populating it with flags from `chip.cfg'.
+	Otherwise, the configure step fails.
+
+	This is neccesary when using embench-iot with freestanding
+	toolchain environments.
+
+	* configure: Regenerated.
+	* configure.ac: Add LDFLAGS variable.
+
 2019-06-13  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Clean up a couple of annoyances

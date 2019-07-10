@@ -18,8 +18,12 @@ AC_PREREQ([2.68])
 # AC_PROG_CC and other commands will set CFLAGS to "-O2 -g", which in this
 # case we don't want untless the user has explicitly requested, so we save and
 # restore flags across this call.
+# Also save LDFLAGS, because we need to use it in order for AC_PROG_CC
+# to be invoked with the correct parameters in the case that we're
+# a freestanding cross-compiler.
 
 OLD_CFLAGS=$CFLAGS
+OLD_LDFLAGS=$LDFLAGS
 
 AC_INIT([beebs], [3.0], [beebs@mageec.org])
 AC_CONFIG_MACRO_DIR([m4])
@@ -447,6 +451,12 @@ DUMMY_CPPFLAGS="$EMBENCH_CPPFLAGS"
 DUMMY_CFLAGS="$EMBENCH_CFLAGS -fno-lto"
 DUMMY_LDFLAGS="$EMBENCH_LDFLAGS -fno-lto"
 
+# AC_PROG_CC detects GCC by trying to compile a "main" program
+# with optional CFLAGS, CXXFLAGS, and LDFLAGS. We may not have a libc/libgcc/crt*,
+# so we need to set LDFLAGS to EMBENCH_LDFLAGS here to permit the use for a stage1
+# runtime-less compiler.
+LDFLAGS="$EMBENCH_LDFLAGS"
+
 LT_INIT
 AC_SUBST([LIBTOOL_DEPS])
 
@@ -460,9 +470,10 @@ then
     DEJAGNU="\$(top_srcdir)/testsuite/beebs-conf.exp"
 fi
 
-# Restore the CFLAGS
+# Restore the CFLAGS and LDFLAGS
 
 CFLAGS=$OLD_CFLAGS
+LDFLAGS=$OLD_LDFLAGS
 
 # Substitute flags
 
