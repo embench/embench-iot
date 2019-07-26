@@ -12,3 +12,6 @@
 # Autotools things
 autom4te.cache
 
+# Default build and log directories
+bd/
+logs/

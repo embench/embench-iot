@@ -1,3 +1,20 @@
+2019-07-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Initial attempt at a Python build script.
+
+	The configuration files are modified to set Python dictionary
+	entries.  The script is designed to build out-of-tree just like
+	autotools.
+
+	* .gitignore: Add bd and logs as default build and log directories
+	for new script.
+	* build-all.py: Created.
+	* config/riscv32/arch.cfg: Converted to Python dictionary entries.
+	* config/riscv32/boards/ri5cyverilator/board.cfg: Likewise.
+	* config/riscv32/chips/size-test-gcc/chip.cfg: Likewise.
+	* config/riscv32/chips/size-test-llvm/chip.cfg: Likewise.
+	* config/riscv32/chips/speed-test/chip.cfg: Likewise.
+
 2019-06-13  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Clean up a couple of annoyances
