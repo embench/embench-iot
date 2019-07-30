@@ -1,3 +1,10 @@
+2019-07-30  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Add a script to compute the size benchmark.
+
+	* benchmark-size.py: Created.
+	* build-all.py (build_parser): Clearer docstring.
+
 2019-07-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Initial attempt at a Python build script.

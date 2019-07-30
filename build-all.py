@@ -33,7 +33,7 @@ benchmarks = []
 def build_parser():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(
-        description='Build a parser for all the arguments')
+        description='Build all the benchmarks')
 
     parser.add_argument(
         '--arch', type=str, required=True,
