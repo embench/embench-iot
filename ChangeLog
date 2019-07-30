@@ -1,5 +1,16 @@
 2019-07-30  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	Fix riscv32 size-test-llvm configuration to match upstream.
+
+	The -msave-restore option is not yet in upstream Clang/LLVM.
+	Should be added back once this is available, since it is a
+	signficant win for Clang/LLVM.
+
+	* config/riscv32/chips/size-test-llvm/chip.cfg: Remove
+	-msave-restore from cflags and ldflags.
+
+2019-07-30  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	Add a script to compute the size benchmark.
 
 	* benchmark-size.py: Created.
