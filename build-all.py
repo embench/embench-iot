@@ -36,6 +36,14 @@ def build_parser():
         description='Build all the benchmarks')
 
     parser.add_argument(
+        '--builddir', type=str, default='bd',
+        help='Directory in which to build'
+    )
+    parser.add_argument(
+        '--logdir', type=str, default='logs',
+        help='Directory in which to store logs',
+    )
+    parser.add_argument(
         '--arch', type=str, required=True,
         help='The architecture for which to build'
     )
@@ -48,62 +56,53 @@ def build_parser():
         help='The board for which to build'
     )
     parser.add_argument(
-        '--cc', type=str, default='cc', help='C compiler to use'
+        '--cc', type=str, help='C compiler to use'
     )
     parser.add_argument(
         '--ld', type=str, help='Linker to use'
     )
     parser.add_argument(
-        '--user-cppflags', type=str,
-                        help='Additional C pre-processor flags to use'
+        '--cflags', type=str, help='Additional C compiler flags to use'
     )
     parser.add_argument(
-        '--user-cflags', type=str, help='Additional C compiler flags to use'
+        '--ldflags', type=str, help='Additional linker flags to use'
     )
     parser.add_argument(
-        '--user-ldflags', type=str,
-                        help='Additional linker flags to use'
-    )
+        '--cc-define-pattern', type=str,
+        help='Pattern to define constant for compiler'
+        )
+    parser.add_argument(
+        '--cc-include-pattern', type=str,
+        help='Pattern to specify include directory for the compiler'
+        )
+    parser.add_argument(
+        '--cc-input-pattern', type=str,
+        help='Pattern to specify compiler input file'
+        )
+    parser.add_argument(
+        '--cc-output-pattern', type=str,
+        help='Pattern to specify compiler output file'
+        )
+    parser.add_argument(
+        '--ld-input-pattern', type=str,
+        help='Pattern to specify linker input file'
+        )
+    parser.add_argument(
+        '--ld-output-pattern', type=str,
+        help='Pattern to specify linker output file'
+        )
     parser.add_argument(
         '--user-libs', type=str, help='Additional libraries to use'
     )
-
-    # Note that we don't use store_true, since if the argument is not
-    # specified, we do not want a value specified.
     parser.add_argument(
-        '--use-dummy-crt0', action='store_const', const=True,
-        help='Use dummy C runtime startup'
+        '--dummy-libs', type=str, help='Dummy libraries to build and link'
     )
     parser.add_argument(
-        '--use-dummy-libc', action='store_const', const=True,
-        help='Use dummy standard C library'
-    )
-    parser.add_argument(
-        '--use-dummy-libgcc', action='store_const', const=True,
-        help='Use dummy GCC emulation library'
-    )
-    parser.add_argument(
-        '--use-dummy-compilerrt', action='store_const', const=True,
-        help='Use dummy LLVM emulation library'
-    )
-    parser.add_argument(
-        '--use-dummy-libm', action='store_const', const=True,
-        help='Use dummy standard C math library'
+        '--warmup-heat', type=int,
+        help='Number of warmup loops to execute before benchmark'
     )
     parser.add_argument(
         '--clean', action='store_true', help='Rebuild everything'
-    )
-    parser.add_argument(
-        '--builddir', type=str, default='bd',
-        help='Directory in which to build'
-    )
-    parser.add_argument(
-        '--logdir', type=str, default='logs',
-        help='Directory in which to store logs',
-    )
-    parser.add_argument(
-        '--warmup-heat', type=int, default='1',
-        help='Number of warmup loops to execute before benchmark'
     )
 
     return parser
@@ -143,31 +142,25 @@ def log_args(args):
     """Record all the argument values"""
     log.debug('Supplied arguments')
     log.debug('==================')
-    log.debug(f'Architecture:         {args.arch}')
-    log.debug(f'Chip:                 {args.chip}')
-    log.debug(f'Board:                {args.board}')
-    log.debug(f'C compiler:           {args.cc}')
-    log.debug(f'Linker:               {args.ld}')
-    if args.user_cppflags:
-        log.debug(f'User CPPFLAGS:        {args.user_cppflags}')
-    if args.user_cflags:
-        log.debug(f'User CFLAGS:          {args.user_cflags}')
-    if args.user_ldflags:
-        log.debug(f'User LDFLAGS:         {args.user_ldflags}')
-    if args.user_libs:
-        log.debug(f'User libraries:       {args.user_libs}')
-    if args.use_dummy_crt0:
-        log.debug(f'Use dummy CRT0:       {args.use_dummy_crt0}')
-    if args.use_dummy_libc:
-        log.debug(f'Use dummy libc:       {args.use_dummy_libc}')
-    if args.use_dummy_libgcc:
-        log.debug(f'Use dummy libgcc:     {args.use_dummy_libgcc}')
-    if args.use_dummy_compilerrt:
-        log.debug(f'Use dummy CompilerRT: {args.use_dummy_compilerrt}')
-    if args.use_dummy_libm:
-        log.debug(f'Use dummy libm:       {args.use_dummy_libm}')
-    log.debug(f'Build directory:      {args.builddir}')
-    log.debug(f'Log directory:        {args.logdir}')
+    log.debug(f'Build directory:          {args.builddir}')
+    log.debug(f'Log directory:            {args.logdir}')
+    log.debug(f'Architecture:             {args.arch}')
+    log.debug(f'Chip:                     {args.chip}')
+    log.debug(f'Board:                    {args.board}')
+    log.debug(f'C compiler:               {args.cc}')
+    log.debug(f'Linker:                   {args.ld}')
+    log.debug(f'Compiler flags:           {args.user_cflags}')
+    log.debug(f'Linker flags:             {args.user_ldflags}')
+    log.debug(f'Compiler define pattern:  {args.cc_define_pattern}')
+    log.debug(f'Compiler include pattern: {args.cc_include_pattern}')
+    log.debug(f'Compiler input pattern:   {args.cc_input_pattern}')
+    log.debug(f'Compiler output pattern   {args.cc_output_pattern}')
+    log.debug(f'Linker input pattern:     {args.ld_input_pattern}')
+    log.debug(f'Linker output pattern     {args.ld_output_pattern}')
+    log.debug(f'Extra libraries           {args.libs}')
+    log.debug(f'Dummy libraries           {args.dummy_libs}')
+    log.debug(f'Warmup heat               {args.warmup_heat}')
+    log.debug(f'Clean build               {args.clean}')
     log.debug('')
 
 
@@ -231,24 +224,7 @@ def validate_args(args):
         )
         sys.exit(1)
 
-    # C compiler
-    if shutil.which(args.cc):
-        gp['cc'] = args.cc
-    else:
-        log.error(f'ERROR: Compiler {args.cc} not found on path: exiting')
-        sys.exit(1)
-
-    # Linker - if not specified defaults to C compiler
-    if args.ld:
-        gp['ld'] = args.ld
-    else:
-        gp['ld'] = args.cc
-
-    if not shutil.which(gp['ld']):
-        log.error(f'ERROR: Linker {gp["ld"]} not found on path: exiting')
-        sys.exit(1)
-
-    # Flags are always OK
+    # Other args validated later.
 
 
 def create_builddir(builddir, clean):
@@ -314,22 +290,22 @@ def log_benchmarks():
 
 def set_parameters(args):
     """Determine all remaining parameters"""
+
+    # Directories we need
     gp['supportdir']    = os.path.join(gp['rootdir'], 'support')
     gp['bd_supportdir'] = os.path.join(gp['bd'], 'support')
 
-    gp['cppflags']             = [
-        f'-I{gp["supportdir"]}', f'-I{gp["boarddir"]}', f'-I{gp["chipdir"]}',
-        f'-I{gp["archdir"]}', f'-DWARMUP_HEAT={args.warmup_heat}'
-    ]
-    gp['cflags']               = []
-    gp['ldflags']              = []
-    gp['libs']                 = []
-    gp['use_dummy_crt0']       = False
-    gp['use_dummy_libc']       = False
-    gp['use_dummy_libgcc']     = False
-    gp['use_dummy_compilerrt'] = False
-    gp['use_dummy_libm']       = False
+    gp['cflags']     = []
+    gp['ldflags']    = []
+    gp['libs']       = []
+    gp['dummy_libs'] = []
 
+    # Read any architecture, chip and board specific config
+    config = {
+        'default' : {},
+        'arch' : {},
+        'chip' : {},
+        
     # Architecture specific flags may be defined in a file which may create the
     # dictionary arch_config. We define an empty dictionary in case it is not
     # set. These flags take priority over the internal flags, since they are
@@ -348,30 +324,27 @@ def set_parameters(args):
                 sys.exit(1)
 
         # Parse the configuration
-        if 'arch_cppflags' in arch_config:
-            gp['cppflags'].extend(arch_config['arch_cppflags'])
+        if 'arch_cc_input_flag' in arch_config:
+            gp['cc_input_flag'] = arch_config['cc_input_flag']
+        if 'arch_cc_output_flag' in arch_config:
+            gp['cc_output_flag'] = arch_config['cc_output_flag']
+        if 'arch_ld_input_flag' in arch_config:
+            gp['ld_input_flag'] = arch_config['ld_input_flag']
+        if 'arch_ld_output_flag' in arch_config:
+            gp['ld_output_flag'] = arch_config['ld_output_flag']
         if 'arch_cflags' in arch_config:
             gp['cflags'].extend(arch_config['arch_cflags'])
         if 'arch_ldflags' in arch_config:
             gp['ldflags'].extend(arch_config['arch_ldflags'])
         if 'arch_libs' in arch_config:
             gp['libs'].extend(arch_config['arch_libs'])
-
-        if 'use_dummy_crt0' in arch_config:
-            gp['use_dummy_crt0'] = arch_config['use_dummy_crt0']
-        if 'use_dummy_libc' in arch_config:
-            gp['use_dummy_libc'] = arch_config['use_dummy_libc']
-        if 'use_dummy_libgcc' in arch_config:
-            gp['use_dummy_libgcc'] = arch_config['use_dummy_libgcc']
-        if 'use_dummy_compilerrt' in arch_config:
-            gp['use_dummy_compilerrt'] = arch_config['use_dummy_compilerrt']
-        if 'use_dummy_libm' in arch_config:
-            gp['use_dummy_libm'] = arch_config['use_dummy_libm']
+        if 'arch_dummylibs' in arch_config:
+            gp['dummy_libs'] = arch_config['arch_libs']
 
     # Check if architecture support file exists
     arch_header = os.path.join(gp['archdir'], 'archsupport.h')
     if os.path.isfile(arch_header):
-        gp['cppflags'].append('-DHAVE_ARCHSUPPORT_H')
+        gp['cflags'].append('-DHAVE_ARCHSUPPORT_H')
 
     # Chip specific flags may be defined in a file which may create the
     # dictionary chip_config. We define an empty dictionary in case it is not
@@ -391,30 +364,27 @@ def set_parameters(args):
                 sys.exit(1)
 
         # Parse the configuration
-        if 'chip_cppflags' in chip_config:
-            gp['cppflags'].extend(chip_config['chip_cppflags'])
+        if 'chip_cc_input_flag' in chip_config:
+            gp['cc_input_flag'] = chip_config['cc_input_flag']
+        if 'chip_cc_output_flag' in chip_config:
+            gp['cc_output_flag'] = chip_config['cc_output_flag']
+        if 'chip_ld_input_flag' in chip_config:
+            gp['ld_input_flag'] = chip_config['ld_input_flag']
+        if 'chip_ld_output_flag' in chip_config:
+            gp['ld_output_flag'] = chip_config['ld_output_flag']
         if 'chip_cflags' in chip_config:
             gp['cflags'].extend(chip_config['chip_cflags'])
         if 'chip_ldflags' in chip_config:
             gp['ldflags'].extend(chip_config['chip_ldflags'])
         if 'chip_libs' in chip_config:
             gp['libs'].extend(chip_config['chip_libs'])
-
-        if 'use_dummy_crt0' in chip_config:
-            gp['use_dummy_crt0'] = chip_config['use_dummy_crt0']
-        if 'use_dummy_libc' in chip_config:
-            gp['use_dummy_libc'] = chip_config['use_dummy_libc']
-        if 'use_dummy_libgcc' in chip_config:
-            gp['use_dummy_libgcc'] = chip_config['use_dummy_libgcc']
-        if 'use_dummy_compilerrt' in chip_config:
-            gp['use_dummy_compilerrt'] = chip_config['use_dummy_compilerrt']
-        if 'use_dummy_libm' in chip_config:
-            gp['use_dummy_libm'] = chip_config['use_dummy_libm']
+        if 'chip_dummylibs' in chip_config:
+            gp['dummy_libs'] = chip_config['chip_libs']
 
     # Check if chip support file exists
     chip_header = os.path.join(gp['chipdir'], 'chipsupport.h')
     if os.path.isfile(chip_header):
-        gp['cppflags'].append('-DHAVE_CHIPSUPPORT_H')
+        gp['cflags'].append('-DHAVE_CHIPSUPPORT_H')
 
     # Board specific flags may be defined in a file which may create the
     # dictionary board_config. We define an empty dictionary in case it is not
@@ -434,37 +404,40 @@ def set_parameters(args):
                 sys.exit(1)
 
         # Parse the configuration
-        if 'board_cppflags' in board_config:
-            gp['cppflags'].extend(board_config['board_cppflags'])
+        if 'board_cc_input_flag' in board_config:
+            gp['cc_input_flag'] = board_config['cc_input_flag']
+        if 'board_cc_output_flag' in board_config:
+            gp['cc_output_flag'] = board_config['cc_output_flag']
+        if 'board_ld_input_flag' in board_config:
+            gp['ld_input_flag'] = board_config['ld_input_flag']
+        if 'board_ld_output_flag' in board_config:
+            gp['ld_output_flag'] = board_config['ld_output_flag']
         if 'board_cflags' in board_config:
             gp['cflags'].extend(board_config['board_cflags'])
         if 'board_ldflags' in board_config:
             gp['ldflags'].extend(board_config['board_ldflags'])
         if 'board_libs' in board_config:
             gp['libs'].extend(board_config['board_libs'])
-
-        if 'use_dummy_crt0' in board_config:
-            gp['use_dummy_crt0'] = board_config['use_dummy_crt0']
-        if 'use_dummy_libc' in board_config:
-            gp['use_dummy_libc'] = board_config['use_dummy_libc']
-        if 'use_dummy_libgcc' in board_config:
-            gp['use_dummy_libgcc'] = board_config['use_dummy_libgcc']
-        if 'use_dummy_compilerrt' in board_config:
-            gp['use_dummy_compilerrt'] = board_config['use_dummy_compilerrt']
-        if 'use_dummy_libm' in board_config:
-            gp['use_dummy_libm'] = board_config['use_dummy_libm']
+        if 'board_dummylibs' in board_config:
+            gp['dummy_libs'] = board_config['board_libs']
 
     # Check if board support file exists
     board_header = os.path.join(gp['boarddir'], 'boardsupport.h')
     if os.path.isfile(board_header):
-        gp['cppflags'].append('-DHAVE_BOARDSUPPORT_H')
+        gp['cflags'].append('-DHAVE_BOARDSUPPORT_H')
 
     # User specified flags are defined on the command line. These are placed
     # last in the command line, so take priority over all other flags.
 
     # Parse the arguments
-    if args.user_cppflags:
-        gp['cppflags'].extend(args.user_cppflags.split(sep=' '))
+    if args.cc_input_flag:
+        gp['cc_input_flag'] = args.cc_input_flag
+    if args.cc_output_flag:
+        gp['cc_output_flag'] = args.cc_output_flag
+    if args.ld_input_flag:
+        gp['ld_input_flag'] = args.ld_input_flag
+    if args.ld_output_flag:
+        gp['ld_output_flag'] = args.ld_output_flag
     if args.user_cflags:
         gp['cflags'].extend(args.user_cflags.split(sep=' '))
     if args.user_ldflags:
@@ -472,17 +445,32 @@ def set_parameters(args):
     if args.user_libs:
         gp['libs'].extend(args.user_libs.split(sep=' '))
 
-    if args.use_dummy_crt0:
-        gp['use_dummy_crt0'] = True
-    if args.use_dummy_libc:
-        gp['use_dummy_libc'] = True
-    if args.use_dummy_libgcc:
-        gp['use_dummy_libgcc'] = True
-    if args.use_dummy_compilerrt:
-        gp['use_dummy_compilerrt'] = True
-    if args.use_dummy_libm:
-        gp['use_dummy_libm'] = True
+    if len(args.dummy_lib) > 0:
+        gp['dummy_libs'] = args.dummy_lib
 
+    gp['cppflags']             = [
+        f'-I{gp["supportdir"]}', f'-I{gp["boarddir"]}', f'-I{gp["chipdir"]}',
+        f'-I{gp["archdir"]}', f'-DWARMUP_HEAT={args.warmup_heat}'
+    ]
+
+    # C compiler
+    if shutil.which(args.cc):
+        gp['cc'] = args.cc
+    else:
+        log.error(f'ERROR: Compiler {args.cc} not found on path: exiting')
+        sys.exit(1)
+
+    # Linker - if not specified defaults to C compiler
+    if args.ld:
+        gp['ld'] = args.ld
+    else:
+        gp['ld'] = args.cc
+
+    if not shutil.which(gp['ld']):
+        log.error(f'ERROR: Linker {gp["ld"]} not found on path: exiting')
+        sys.exit(1)
+
+    # Flags are always OK
 
 def log_parameters():
     """Record all the global parameters in the log"""
@@ -506,10 +494,14 @@ def compile_file(f_root, srcdir, bindir):
     abs_bin = os.path.join(f'{bindir}', f'{f_root}.o')
 
     # Construct the argument list
-    arglist = [f'{gp["cc"]}', '-c']
-    arglist.extend(gp['cppflags'])
+    arglist = [f'{gp["cc"]}', ]
     arglist.extend(gp['cflags'])
-    arglist.extend(['-o', f'{f_root}.o', abs_src])
+    if 'cc_output_flag' in gp:
+        arglist.append(gp['cc_output_flag'])
+    arglist.append(f'{f_root}.o')
+    if 'cc_input_flag' in gp:
+        arglist.append(gp['cc_input_flag'])
+    arglist.append(abs_src)
 
     # Run the compilation, but only if the source file is newer than the
     # binary.
@@ -594,11 +586,10 @@ def compile_support():
     succeeded &= compile_file('main', gp['supportdir'], gp['bd_supportdir'])
 
     # Compile dummy files that are needed
-    for d in {'crt0', 'libc', 'libgcc', 'compilerrt', 'libm'}:
-        if gp['use_dummy_' + d]:
-            succeeded &= compile_file(
-                'dummy-' + d, gp['supportdir'], gp['bd_supportdir']
-            )
+    for d in gp[dummy_libs]:
+        succeeded &= compile_file(
+            'dummy-' + d, gp['supportdir'], gp['bd_supportdir']
+        )
 
     # Compile architecture, chip and board specific files.  Note that we only
     # create the build directory if it is needed here.
@@ -640,37 +631,46 @@ def link_benchmark(b):
     binlist = []
     for f in os.listdir(abs_bd_b):
         if f.endswith('.o'):
+            if 'ld_input_flag' in gp:
+                binlist.append(gp['ld_input_flag'])
             binlist.append(f)
 
     # Add arch, chip and board binaries
     for d in {'arch', 'chip', 'board'}:
         f = os.path.join(gp[f'bd_{d}dir'], f'{d}support.o')
         if os.path.isfile(f):
+            if 'ld_input_flag' in gp:
+                binlist.append(gp['ld_input_flag'])
             binlist.append(f)
 
     # Add generic support
     for d in {'main', 'beebsc'}:
         f = os.path.join(gp['bd_supportdir'], f'{d}.o')
         if os.path.isfile(f):
+            if 'ld_input_flag' in gp:
+                binlist.append(gp['ld_input_flag'])
             binlist.append(f)
         else:
             succeeded = False
             log.warning(f'Warning: Unable to find support library {f}')
 
     # Add dummy binaries
-    for d in {'crt0', 'libc', 'libgcc', 'compilerrt', 'libm'}:
-        if gp['use_dummy_' + d]:
-            f = os.path.join(gp['bd_supportdir'], f'dummy-{d}.o')
-            if os.path.isfile(f):
-                binlist.append(f)
-            else:
-                succeeded = False
-                log.warning(f'Warning: Unable to find dummy library {f}')
+    for d in gp['dummy_libs']:
+        f = os.path.join(gp['bd_supportdir'], f'dummy-{d}.o')
+        if os.path.isfile(f):
+            if 'ld_input_flag' in gp:
+                binlist.append(gp['ld_input_flag'])
+            binlist.append(f)
+        else:
+            succeeded = False
+            log.warning(f'Warning: Unable to find dummy library {f}')
 
     # Construct the argument list
-    arglist = [f'{gp["ld"]}']
+    arglist = [gp['ld']]
     arglist.extend(gp['ldflags'])
-    arglist.extend(['-o', b])
+    if 'ld_output_flag' in gp:
+        arglist.append(gp['ld_output_flag'])
+    arglist.append(b)
     arglist.extend(binlist)
     arglist.extend(gp['libs'])
 

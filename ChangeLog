@@ -1,3 +1,18 @@
+2019-08-01  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	WIP on making more generic.
+
+	We switch to allowing patterns to be used to specify how key
+	arguments are added to the command line (input file, output file,
+	defined constant, include directory).
+
+	* build-all.py (build_parser): Revise argument set
+	(log_args): Revise argument to match build_parser.
+	(validate_args): WIP on reorganization to more logical structure.
+	(set_parameters, log_parameters): WIP on reorganization.
+	(compile_support, link_benchmark): WIP to be more generic command
+	line construction.
+
 2019-07-30  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Fix riscv32 size-test-llvm configuration to match upstream.
