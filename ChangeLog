@@ -1,3 +1,55 @@
+2019-08-02  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Clean up of the build-all.py script
+
+	This tries to abstract away the details of building a commmand
+	line, although the defaults are GCC/LLVM centric. So long as a
+	compiler and linker accept arguments on the command line, it
+	should be possible to drive a build using this script.
+
+	The code is also much more compliant with Python coding standards.
+
+	* build-all.py: Remove unused traceback import, define gp as empty
+	dictionary.
+	(build_parser): Revise arguments to command.
+	(create_logdir): Remove extraneous space character.
+	(setup_logging): Use PEP8 compliant variable names.
+	(log_args): Rewritten for new set of arguments.
+	(validate_args): Remove extraneous space, don't use len to test
+	for empty arguments.
+	(create_builddir): Use explicit exception names, don't raise new
+	exceptions.
+	(find-benchmarks): Remove extraneous space and use PEP8 compliant
+	variable names.
+	(log_benchmarks): Use PEP8 compliant variable names.
+	(populate_defaults, populate_user_commands, populate_user_flags)
+	(populate_user_pattersn, populate_user_libs, populate_user_defs)
+	(populate_user, add_internal_flags, validate_tools): Created.
+	(set_parameters): Rewritten to use subsidiary
+	functionspopulate_defaults, populate_user_commands,
+	populate_user_flags, populate_user_pattersn, populate_user_libs,
+	populate_user_defs, populate_user, add_internal_flags and
+	validate_tools; remove extraneous space and use PEP8 compliant
+	variable names.
+	(log_parameters): Use PEP8 compliant variable names.
+	(compile_file): Use patterns to construct argument list,
+	rename TimeoutExpired as subprocess.TimeoutExpired, reverse return
+	code tests,
+	(compile_benchmark, compile_support): Use PEP8 compliant variable
+	names, remove extraneous space, use explicit exception names.
+	(create_link_binlist, create_link_arglist): Created.
+	(link_benchmark): Simplified by using functions
+	create_link_binlist and create_link_arglist
+	(main): Use PEP8 compliant variable names, remove extraneous
+	space.
+	* config/riscv32/arch.cfg: Rewritten as a set of variable
+	definitions to be accessed using exec() to populate a local
+	dictionary.
+	* config/riscv32/boards/ri5cyverilator/board.cfg: Likewise.
+	* config/riscv32/chips/size-test-gcc/chip.cfg: Likewise.
+	* config/riscv32/chips/size-test-llvm/chip.cfg: Likewise.
+	* config/riscv32/chips/speed-test/chip.cfg: Likewise.
+
 2019-08-01  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	WIP on making more generic.

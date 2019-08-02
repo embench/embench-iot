@@ -9,7 +9,6 @@
 #
 # This file is part of Embench.
 
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -19,7 +18,7 @@ import shutil
 import subprocess
 import sys
 import time
-import traceback
+
 
 # Handle for the logger
 log = logging.getLogger()
@@ -29,6 +28,7 @@ gp = dict()
 
 # All the benchmarks
 benchmarks = []
+
 
 def build_parser():
     """Build a parser for all the arguments"""
@@ -68,11 +68,15 @@ def build_parser():
         '--ldflags', type=str, help='Additional linker flags to use'
     )
     parser.add_argument(
-        '--cc-define-pattern', type=str,
+        '--cc-define1-pattern', type=str,
         help='Pattern to define constant for compiler'
         )
     parser.add_argument(
-        '--cc-include-pattern', type=str,
+        '--cc-define2-pattern', type=str,
+        help='Pattern to define constant to a specific value for compiler'
+        )
+    parser.add_argument(
+        '--cc-incdir-pattern', type=str,
         help='Pattern to specify include directory for the compiler'
         )
     parser.add_argument(
@@ -98,6 +102,9 @@ def build_parser():
         '--dummy-libs', type=str, help='Dummy libraries to build and link'
     )
     parser.add_argument(
+        '--cpu-mhz', type=int, help='Processor clock speed in MHz'
+    )
+    parser.add_argument(
         '--warmup-heat', type=int,
         help='Number of warmup loops to execute before benchmark'
     )
@@ -112,7 +119,7 @@ def create_logdir(logdir):
     """Create the log directory, which can be relative to the current directory
        or absolute"""
     if not os.path.isabs(logdir):
-        logdir = os.path.join (gp['rootdir'], logdir)
+        logdir = os.path.join(gp['rootdir'], logdir)
 
     if not os.path.isdir(logdir):
         try:
@@ -130,37 +137,39 @@ def setup_logging(logfile):
     """Set up logging. Debug messages only go to file, everything else
        also goes to the console."""
     log.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    log.addHandler(ch)
-    fh = logging.FileHandler(logfile)
-    fh.setLevel(logging.DEBUG)
-    log.addHandler(fh)
+    cons_h = logging.StreamHandler(sys.stdout)
+    cons_h.setLevel(logging.INFO)
+    log.addHandler(cons_h)
+    file_h = logging.FileHandler(logfile)
+    file_h.setLevel(logging.DEBUG)
+    log.addHandler(file_h)
 
 
 def log_args(args):
     """Record all the argument values"""
     log.debug('Supplied arguments')
     log.debug('==================')
-    log.debug(f'Build directory:          {args.builddir}')
-    log.debug(f'Log directory:            {args.logdir}')
-    log.debug(f'Architecture:             {args.arch}')
-    log.debug(f'Chip:                     {args.chip}')
-    log.debug(f'Board:                    {args.board}')
-    log.debug(f'C compiler:               {args.cc}')
-    log.debug(f'Linker:                   {args.ld}')
-    log.debug(f'Compiler flags:           {args.user_cflags}')
-    log.debug(f'Linker flags:             {args.user_ldflags}')
-    log.debug(f'Compiler define pattern:  {args.cc_define_pattern}')
-    log.debug(f'Compiler include pattern: {args.cc_include_pattern}')
-    log.debug(f'Compiler input pattern:   {args.cc_input_pattern}')
-    log.debug(f'Compiler output pattern   {args.cc_output_pattern}')
-    log.debug(f'Linker input pattern:     {args.ld_input_pattern}')
-    log.debug(f'Linker output pattern     {args.ld_output_pattern}')
-    log.debug(f'Extra libraries           {args.libs}')
-    log.debug(f'Dummy libraries           {args.dummy_libs}')
-    log.debug(f'Warmup heat               {args.warmup_heat}')
-    log.debug(f'Clean build               {args.clean}')
+    log.debug(f'Build directory:                  {args.builddir}')
+    log.debug(f'Log directory:                    {args.logdir}')
+    log.debug(f'Architecture:                     {args.arch}')
+    log.debug(f'Chip:                             {args.chip}')
+    log.debug(f'Board:                            {args.board}')
+    log.debug(f'C compiler:                       {args.cc}')
+    log.debug(f'Linker:                           {args.ld}')
+    log.debug(f'Compiler flags:                   {args.cflags}')
+    log.debug(f'Linker flags:                     {args.ldflags}')
+    log.debug(f'Compiler define pattern (1 arg):  {args.cc_define1_pattern}')
+    log.debug(f'Compiler define pattern (2 args): {args.cc_define2_pattern}')
+    log.debug(f'Compiler incdir pattern:          {args.cc_incdir_pattern}')
+    log.debug(f'Compiler input pattern:           {args.cc_input_pattern}')
+    log.debug(f'Compiler output pattern           {args.cc_output_pattern}')
+    log.debug(f'Linker input pattern:             {args.ld_input_pattern}')
+    log.debug(f'Linker output pattern             {args.ld_output_pattern}')
+    log.debug(f'Extra libraries                   {args.user_libs}')
+    log.debug(f'Dummy libraries                   {args.dummy_libs}')
+    log.debug(f'CPU clock speed (MHz)             {args.cpu_mhz}')
+    log.debug(f'Warmup heat                       {args.warmup_heat}')
+    log.debug(f'Clean build                       {args.clean}')
     log.debug('')
 
 
@@ -170,16 +179,15 @@ def validate_args(args):
        that will be checked when we create it.
 
        Update the gp dictionary with all the useful info"""
-    gp['configdir']    = os.path.join(gp['rootdir'], 'config')
+    gp['configdir'] = os.path.join(gp['rootdir'], 'config')
     gp['bd_configdir'] = os.path.join(gp['bd'], 'config')
-    good_args = True
 
     # Architecture
-    if len(args.arch) == 0:
+    if not args.arch:
         log.error('ERROR: Null achitecture not permitted: exiting')
         sys.exit(1)
 
-    gp['archdir']    = os.path.join(gp['configdir'], args.arch)
+    gp['archdir'] = os.path.join(gp['configdir'], args.arch)
     gp['bd_archdir'] = os.path.join(gp['bd_configdir'], args.arch)
     if not os.path.isdir(gp['archdir']):
         log.error(f'ERROR: Architecture "{args.arch}" not found: exiting')
@@ -189,10 +197,10 @@ def validate_args(args):
         sys.exit(1)
 
     # Chip
-    if len(args.chip) == 0:
+    if not args.chip:
         log.error('ERROR: Null chip not permitted: exiting')
 
-    gp['chipdir']    = os.path.join(gp['archdir'], 'chips', args.chip)
+    gp['chipdir'] = os.path.join(gp['archdir'], 'chips', args.chip)
     gp['bd_chipdir'] = os.path.join(gp['bd_archdir'], 'chips', args.chip)
     if not os.path.isdir(gp['chipdir']):
         log.error(
@@ -208,14 +216,14 @@ def validate_args(args):
         sys.exit(1)
 
     # Board
-    if len(args.board) == 0:
+    if not args.board:
         log.error('ERROR: Null board not permitted: exiting')
 
-    gp['boarddir']    = os.path.join(gp['archdir'], 'boards', args.board)
+    gp['boarddir'] = os.path.join(gp['archdir'], 'boards', args.board)
     gp['bd_boarddir'] = os.path.join(gp['bd_archdir'], 'boards', args.board)
     if not os.path.isdir(gp['boarddir']):
         log.error(f'ERROR: Board "{args.board}" not found for architecture ' +
-               f'"{args.arch}: exiting')
+                  f'"{args.arch}: exiting')
         sys.exit(1)
     if not os.access(gp['boarddir'], os.R_OK):
         log.error(
@@ -236,43 +244,46 @@ def create_builddir(builddir, clean):
     else:
         gp['bd'] = os.path.join(gp['rootdir'], builddir)
 
-    if (os.path.isdir(gp['bd']) and clean):
+    if os.path.isdir(gp['bd']) and clean:
         try:
             shutil.rmtree(gp['bd'])
-        except:
+        except PermissionError:
             log.error(
                 f'ERROR: Unable to clean build directory "{gp["bd"]}: ' +
                 'exiting'
             )
+            sys.exit(1)
 
     if not os.path.isdir(gp['bd']):
         try:
             os.makedirs(gp['bd'])
-        except PermissionError as e:
-            raise PermissionError(
-                f'Unable to create build directory {gp["bd"]}'
+        except PermissionError:
+            log.error(
+                f'ERROR: Unable to create build directory {gp["bd"]}: exiting'
             )
+            sys.exit(1)
 
     if not os.access(gp['bd'], os.W_OK):
-        raise PermissionError(
-            f'Unable to write to build directory {gp["bd"]}'
+        log.error(
+            f'ERROR: Unable to write to build directory {gp["bd"]}, exiting'
         )
+        sys.exit(1)
 
 
 def find_benchmarks():
     """Enumerate all the benchmarks in alphabetical order into the global
        variable, 'benchmarks'. The benchmarks are found in the 'src'
        subdirectory of the benchmarks repo."""
-    gp['benchdir']    = os.path.join(gp['rootdir'], 'src')
+    gp['benchdir'] = os.path.join(gp['rootdir'], 'src')
     gp['bd_benchdir'] = os.path.join(gp['bd'], 'src')
     dirlist = os.listdir(gp['benchdir'])
 
     benchmarks.clear()
 
-    for b in dirlist:
-        abs_b = os.path.join (gp['benchdir'], b)
+    for bench in dirlist:
+        abs_b = os.path.join(gp['benchdir'], bench)
         if os.path.isdir(abs_b):
-            benchmarks.append(b)
+            benchmarks.append(bench)
 
     benchmarks.sort()
 
@@ -282,203 +293,203 @@ def log_benchmarks():
     log.debug('Benchmarks')
     log.debug('==========')
 
-    for b in benchmarks:
-        log.debug(b)
+    for bench in benchmarks:
+        log.debug(bench)
 
     log.debug('')
+
+
+def populate_defaults():
+    """Return a dictionary of default configuration parameters."""
+    conf = {}
+
+    conf['cc'] = 'cc'
+    # ld is not set, to allow it to default to 'cc'
+    conf['cflags'] = {}
+    conf['ldflags'] = {}
+    conf['cc_define1_pattern'] = '-D{0}'
+    conf['cc_define2_pattern'] = '-D{0}={1}'
+    conf['cc_incdir_pattern'] = '-I{0}'
+    conf['cc_input_pattern'] = '{0}'
+    conf['cc_output_pattern'] = '-o {0}'
+    conf['ld_input_pattern'] = '{0}'
+    conf['ld_output_pattern'] = '-o {0}'
+    conf['user_libs'] = {}
+    conf['dummy_libs'] = {}
+    conf['cpu_mhz'] = 1
+    conf['warmup_heat'] = 1
+
+    return conf
+
+
+def populate_user_commands(conf, args):
+    """Populate a dictionary of configuration command parameters, "conf", from
+       values supplied on the command line in the structure, "args"."""
+    if args.cc:
+        conf['cc'] = args.cc
+    if args.ld:
+        conf['ld'] = args.ld
+
+    return conf
+
+
+def populate_user_flags(conf, args):
+    """Populate a dictionary of configuration flag parameters, "conf", from
+       values supplied on the command line in the structure, "args"."""
+    conf = {}
+
+    if args.cflags:
+        conf['cflags'] = args.cflags.split(sep=' ')
+    if args.ldflags:
+        conf['ldflags'] = args.ldflags.split(sep=' ')
+
+    return conf
+
+
+def populate_user_patterns(conf, args):
+    """Populate a dictionary of configuration pattern parameters, "conf", from
+       values supplied on the command line in the structure, "args"."""
+    conf = {}
+
+    if args.cc_define1_pattern:
+        conf['cc_define1_pattern'] = args.cc_define1_pattern
+    if args.cc_define2_pattern:
+        conf['cc_define2_pattern'] = args.cc_define2_pattern
+    if args.cc_incdir_pattern:
+        conf['cc_incdir_pattern'] = args.cc_incdir_pattern
+    if args.cc_input_pattern:
+        conf['cc_input_pattern'] = args.cc_input_pattern
+    if args.cc_output_pattern:
+        conf['cc_output_pattern'] = args.cc_output_pattern
+    if args.ld_input_pattern:
+        conf['ld_input_pattern'] = args.ld_input_pattern
+    if args.ld_output_pattern:
+        conf['ld_output_pattern'] = args.ld_output_pattern
+
+    return conf
+
+
+def populate_user_libs(conf, args):
+    """Populate a dictionary of configuration library parameters, "conf", from
+       values supplied on the command line in the structure, "args"."""
+    conf = {}
+
+    if args.user_libs:
+        conf['user_libs'] = args.user_libs.split(sep=' ')
+    if args.dummy_libs:
+        conf['dummy_libs'] = args.dummy_libs.split(sep=' ')
+
+    return conf
+
+
+def populate_user_defs(conf, args):
+    """Populate a dictionary of configuration definition parameters, "conf", from
+       values supplied on the command line in the structure, "args"."""
+    conf = {}
+
+    if args.cpu_mhz:
+        conf['cpu_mhz'] = args.cpu_mhz
+    if args.warmup_heat:
+        conf['warmup_heat'] = args.warmup_heat
+
+    return conf
+
+
+def populate_user(args):
+    """Return a dictionary of configuration parameters, from values supplied
+       on the command line in the structure, "args"."""
+    conf = {}
+
+    populate_user_commands(conf, args)
+    populate_user_flags(conf, args)
+    populate_user_patterns(conf, args)
+    populate_user_libs(conf, args)
+    populate_user_defs(conf, args)
+
+    return conf
+
+
+def add_internal_flags():
+    """Add internal flag values to the command line."""
+    for dirname in {'supportdir', 'boarddir', 'chipdir', 'archdir'}:
+        flag = gp['cc_incdir_pattern'].format(gp[dirname]).split(sep=' ')
+        gp['cflags'].extend(flag)
+
+    for dirname in {'cpu_mhz', 'warmup_heat'}:
+        dir_u = dirname.upper()
+        flag = gp['cc_define2_pattern'].format(dir_u, gp[dirname]).split(sep=' ')
+        gp['cflags'].extend(flag)
+
+
+def validate_tools():
+    """Check the compiler and linker are available."""
+    # Validate C compiler
+    if not shutil.which(gp['cc']):
+        log.error(f'ERROR: Compiler {gp["cc"]} not found on path: exiting')
+        sys.exit(1)
+
+    # Validate linker
+    if not shutil.which(gp['ld']):
+        log.error(f'ERROR: Linker {gp["ld"]} not found on path: exiting')
+        sys.exit(1)
 
 
 def set_parameters(args):
     """Determine all remaining parameters"""
 
     # Directories we need
-    gp['supportdir']    = os.path.join(gp['rootdir'], 'support')
+    gp['supportdir'] = os.path.join(gp['rootdir'], 'support')
     gp['bd_supportdir'] = os.path.join(gp['bd'], 'support')
 
-    gp['cflags']     = []
-    gp['ldflags']    = []
-    gp['libs']       = []
-    gp['dummy_libs'] = []
+    # Default values of parameters
+    config = {}
+    config['default'] = populate_defaults()
 
-    # Read any architecture, chip and board specific config
-    config = {
-        'default' : {},
-        'arch' : {},
-        'chip' : {},
-        
-    # Architecture specific flags may be defined in a file which may create the
-    # dictionary arch_config. We define an empty dictionary in case it is not
-    # set. These flags take priority over the internal flags, since they are
-    # later in the sequence.
-    arch_config = {}
-    arch_conf_file = os.path.join(gp['archdir'], 'arch.cfg')
-    if os.path.isfile(arch_conf_file):
-        with open(arch_conf_file) as f:
-            try:
-                exec(f.read())
-            except:
-                log.error(
-                    'ERROR: Corrupt architecture config file ' +
-                    f'{arch_conf_file}: exiting'
-                    )
-                sys.exit(1)
+    # Read each config file. Note that we pass in the config file itself as
+    # local dictionary, since then it won't get filled with global variables.
+    for conf in {'arch', 'chip', 'board'}:
+        config[conf] = {}
+        conf_file = os.path.join(gp[conf + 'dir'], conf + '.cfg')
+        if os.path.isfile(conf_file):
+            with open(conf_file) as fileh:
+                try:
+                    exec(fileh.read(), globals(), config[conf])
+                except PermissionError:
+                    log.error('ERROR: Corrupt config file {conf_file}: exiting')
+                    sys.exit(1)
 
-        # Parse the configuration
-        if 'arch_cc_input_flag' in arch_config:
-            gp['cc_input_flag'] = arch_config['cc_input_flag']
-        if 'arch_cc_output_flag' in arch_config:
-            gp['cc_output_flag'] = arch_config['cc_output_flag']
-        if 'arch_ld_input_flag' in arch_config:
-            gp['ld_input_flag'] = arch_config['ld_input_flag']
-        if 'arch_ld_output_flag' in arch_config:
-            gp['ld_output_flag'] = arch_config['ld_output_flag']
-        if 'arch_cflags' in arch_config:
-            gp['cflags'].extend(arch_config['arch_cflags'])
-        if 'arch_ldflags' in arch_config:
-            gp['ldflags'].extend(arch_config['arch_ldflags'])
-        if 'arch_libs' in arch_config:
-            gp['libs'].extend(arch_config['arch_libs'])
-        if 'arch_dummylibs' in arch_config:
-            gp['dummy_libs'] = arch_config['arch_libs']
+    # Populate user values from the command line
+    config['user'] = populate_user(args)
 
-    # Check if architecture support file exists
-    arch_header = os.path.join(gp['archdir'], 'archsupport.h')
-    if os.path.isfile(arch_header):
-        gp['cflags'].append('-DHAVE_ARCHSUPPORT_H')
+    # Priority is in increasing priority: default, arch, chip, board,
+    # user. Flags are different in that they are additive. All others later
+    # values replace earlier ones.
+    gp['cflags'] = []
+    gp['ldflags'] = []
 
-    # Chip specific flags may be defined in a file which may create the
-    # dictionary chip_config. We define an empty dictionary in case it is not
-    # set. These flags tkae priority over the internal and architecture
-    # specific flags, since they are later in the sequence.
-    chip_config = {}
-    chip_conf_file = os.path.join(gp['chipdir'], 'chip.cfg')
-    if os.path.isfile(chip_conf_file):
-        with open(chip_conf_file) as f:
-            try:
-                exec(f.read())
-            except:
-                log.error(
-                    'ERROR: Corrupt chip config file ' +
-                    f'{chip_conf_file}: exiting'
-                    )
-                sys.exit(1)
+    for conf in {'default', 'arch', 'chip', 'board', 'user'}:
+        for key, val in config[conf].items():
+            if (key == 'cflags') or (key == 'ldflags'):
+                gp[key].extend(val)
+            else:
+                gp[key] = val
 
-        # Parse the configuration
-        if 'chip_cc_input_flag' in chip_config:
-            gp['cc_input_flag'] = chip_config['cc_input_flag']
-        if 'chip_cc_output_flag' in chip_config:
-            gp['cc_output_flag'] = chip_config['cc_output_flag']
-        if 'chip_ld_input_flag' in chip_config:
-            gp['ld_input_flag'] = chip_config['ld_input_flag']
-        if 'chip_ld_output_flag' in chip_config:
-            gp['ld_output_flag'] = chip_config['ld_output_flag']
-        if 'chip_cflags' in chip_config:
-            gp['cflags'].extend(chip_config['chip_cflags'])
-        if 'chip_ldflags' in chip_config:
-            gp['ldflags'].extend(chip_config['chip_ldflags'])
-        if 'chip_libs' in chip_config:
-            gp['libs'].extend(chip_config['chip_libs'])
-        if 'chip_dummylibs' in chip_config:
-            gp['dummy_libs'] = chip_config['chip_libs']
+    # Linker should match compiler if it hasn't been set
+    if 'ld' not in gp:
+        gp['ld'] = gp['cc']
 
-    # Check if chip support file exists
-    chip_header = os.path.join(gp['chipdir'], 'chipsupport.h')
-    if os.path.isfile(chip_header):
-        gp['cflags'].append('-DHAVE_CHIPSUPPORT_H')
+    # Add our own flags to the command line, then validate the tools
+    add_internal_flags()
+    validate_tools()
 
-    # Board specific flags may be defined in a file which may create the
-    # dictionary board_config. We define an empty dictionary in case it is not
-    # set. These flags tkae priority over the internal, architecture and chip
-    # specific flags, since they are later in the sequence.
-    board_config = {}
-    board_conf_file = os.path.join(gp['boarddir'], 'board.cfg')
-    if os.path.isfile(board_conf_file):
-        with open(board_conf_file) as f:
-            try:
-                exec(f.read())
-            except:
-                log.error(
-                    'ERROR: Corrupt board config file ' +
-                    f'{board_conf_file}: exiting'
-                    )
-                sys.exit(1)
-
-        # Parse the configuration
-        if 'board_cc_input_flag' in board_config:
-            gp['cc_input_flag'] = board_config['cc_input_flag']
-        if 'board_cc_output_flag' in board_config:
-            gp['cc_output_flag'] = board_config['cc_output_flag']
-        if 'board_ld_input_flag' in board_config:
-            gp['ld_input_flag'] = board_config['ld_input_flag']
-        if 'board_ld_output_flag' in board_config:
-            gp['ld_output_flag'] = board_config['ld_output_flag']
-        if 'board_cflags' in board_config:
-            gp['cflags'].extend(board_config['board_cflags'])
-        if 'board_ldflags' in board_config:
-            gp['ldflags'].extend(board_config['board_ldflags'])
-        if 'board_libs' in board_config:
-            gp['libs'].extend(board_config['board_libs'])
-        if 'board_dummylibs' in board_config:
-            gp['dummy_libs'] = board_config['board_libs']
-
-    # Check if board support file exists
-    board_header = os.path.join(gp['boarddir'], 'boardsupport.h')
-    if os.path.isfile(board_header):
-        gp['cflags'].append('-DHAVE_BOARDSUPPORT_H')
-
-    # User specified flags are defined on the command line. These are placed
-    # last in the command line, so take priority over all other flags.
-
-    # Parse the arguments
-    if args.cc_input_flag:
-        gp['cc_input_flag'] = args.cc_input_flag
-    if args.cc_output_flag:
-        gp['cc_output_flag'] = args.cc_output_flag
-    if args.ld_input_flag:
-        gp['ld_input_flag'] = args.ld_input_flag
-    if args.ld_output_flag:
-        gp['ld_output_flag'] = args.ld_output_flag
-    if args.user_cflags:
-        gp['cflags'].extend(args.user_cflags.split(sep=' '))
-    if args.user_ldflags:
-        gp['ldflags'].extend(args.user_ldflags.split(sep=' '))
-    if args.user_libs:
-        gp['libs'].extend(args.user_libs.split(sep=' '))
-
-    if len(args.dummy_lib) > 0:
-        gp['dummy_libs'] = args.dummy_lib
-
-    gp['cppflags']             = [
-        f'-I{gp["supportdir"]}', f'-I{gp["boarddir"]}', f'-I{gp["chipdir"]}',
-        f'-I{gp["archdir"]}', f'-DWARMUP_HEAT={args.warmup_heat}'
-    ]
-
-    # C compiler
-    if shutil.which(args.cc):
-        gp['cc'] = args.cc
-    else:
-        log.error(f'ERROR: Compiler {args.cc} not found on path: exiting')
-        sys.exit(1)
-
-    # Linker - if not specified defaults to C compiler
-    if args.ld:
-        gp['ld'] = args.ld
-    else:
-        gp['ld'] = args.cc
-
-    if not shutil.which(gp['ld']):
-        log.error(f'ERROR: Linker {gp["ld"]} not found on path: exiting')
-        sys.exit(1)
-
-    # Flags are always OK
 
 def log_parameters():
     """Record all the global parameters in the log"""
     log.debug('Global parameters')
     log.debug('=================')
 
-    for k, v in gp.items():
-        log.debug(f'{k:<21}: {v}')
+    for key, val in gp.items():
+        log.debug(f'{key:<21}: {val}')
 
     log.debug('')
 
@@ -496,19 +507,15 @@ def compile_file(f_root, srcdir, bindir):
     # Construct the argument list
     arglist = [f'{gp["cc"]}', ]
     arglist.extend(gp['cflags'])
-    if 'cc_output_flag' in gp:
-        arglist.append(gp['cc_output_flag'])
-    arglist.append(f'{f_root}.o')
-    if 'cc_input_flag' in gp:
-        arglist.append(gp['cc_input_flag'])
-    arglist.append(abs_src)
+    arglist.extend(gp['cc_output_pattern'].format(f'{f_root}.o').split(sep=' '))
+    arglist.extend(gp['cc_input_pattern'].format(abs_src).split(sep=' '))
 
     # Run the compilation, but only if the source file is newer than the
     # binary.
     succeeded = True
 
     if (not os.path.isfile(abs_bin) or
-        (os.path.getmtime(abs_src) > os.path.getmtime(abs_bin))):
+            (os.path.getmtime(abs_src) > os.path.getmtime(abs_bin))):
         try:
             res = subprocess.run(
                 arglist,
@@ -517,15 +524,14 @@ def compile_file(f_root, srcdir, bindir):
                 cwd=bindir,
                 timeout=5
             )
-        except TimeoutExpired:
+        except subprocess.TimeoutExpired:
             log.warning(
                 f'Warning: Compilation of {f_root}.c from source directory ' +
                 f'{srcdir} to binary directory {bindir} timed out'
             )
             succeeded = False
-            pass
 
-        if 0 != res.returncode:
+        if res.returncode != 0:
             log.warning(
                 f'Warning: Compilation of {f_root}.c from source directory ' +
                 f'{srcdir} to binary directory {bindir} failed'
@@ -541,25 +547,25 @@ def compile_file(f_root, srcdir, bindir):
     return succeeded
 
 
-def compile_benchmark(b):
-    """Compile the benchmark, "b".
+def compile_benchmark(bench):
+    """Compile the benchmark, "bench".
 
        Return True if all files compile successfully, False otherwise."""
-    abs_src_b = os.path.join(gp['benchdir'], b)
-    abs_bd_b  = os.path.join (gp['bd_benchdir'], b)
+    abs_src_b = os.path.join(gp['benchdir'], bench)
+    abs_bd_b = os.path.join(gp['bd_benchdir'], bench)
     succeeded = True
 
     if not os.path.isdir(abs_bd_b):
         try:
             os.makedirs(abs_bd_b)
-        except:
+        except PermissionError:
             log.warning('Warning: Unable to create build directory for ' +
-                        f'benchmark {b}')
+                        f'benchmark {bench}')
             return False
 
     # Compile each file in the benchmark
-    for f in os.listdir(abs_src_b):
-        f_root, ext = os.path.splitext(f)
+    for filename in os.listdir(abs_src_b):
+        f_root, ext = os.path.splitext(filename)
         if ext == '.c':
             succeeded &= compile_file(f_root, abs_src_b, abs_bd_b)
 
@@ -576,7 +582,7 @@ def compile_support():
     if not os.path.isdir(gp['bd_supportdir']):
         try:
             os.makedirs(gp['bd_supportdir'])
-        except:
+        except PermissionError:
             log.warning('Warning: Unable to create support build directory ' +
                         f'{gp["bd_supportdir"]}')
             return False
@@ -586,93 +592,103 @@ def compile_support():
     succeeded &= compile_file('main', gp['supportdir'], gp['bd_supportdir'])
 
     # Compile dummy files that are needed
-    for d in gp[dummy_libs]:
+    for dlib in gp['dummy_libs']:
         succeeded &= compile_file(
-            'dummy-' + d, gp['supportdir'], gp['bd_supportdir']
+            'dummy-' + dlib, gp['supportdir'], gp['bd_supportdir']
         )
 
     # Compile architecture, chip and board specific files.  Note that we only
     # create the build directory if it is needed here.
-    for d in {'arch', 'chip', 'board'}:
-        f = os.path.join(gp[d + 'dir'], d + 'support.c')
-        if os.path.isfile(f):
+    for dirname in {'arch', 'chip', 'board'}:
+        filename = os.path.join(gp[dirname + 'dir'], dirname + 'support.c')
+        if os.path.isfile(filename):
             # Create build directory
-            bd = gp['bd_' + d + 'dir']
-            if not os.path.isdir(bd):
+            builddir = gp['bd_' + dirname + 'dir']
+            if not os.path.isdir(builddir):
                 try:
-                    os.makedirs(bd)
-                except:
+                    os.makedirs(builddir)
+                except PermissionError:
                     log.warning('Warning: Unable to create build directory ' +
-                                f'for {d}, "{bd}')
+                                f'for {dirname}, "{builddir}')
                     return False
 
             succeeded &= compile_file(
-                d + 'support', gp[d + 'dir'], gp['bd_' + d + 'dir']
+                dirname + 'support', gp[dirname + 'dir'],
+                gp['bd_' + dirname + 'dir']
             )
 
     return succeeded
 
 
-def link_benchmark(b):
-    """Link the benchmark, "b".
+def create_link_binlist(abs_bd):
+    """Create a list of all the binaries to be linked, including those in the
+       specified absolute directory, abs_bd.  The binaries in this directory
+       can be specified as relative filenames.  All others will all be
+       absolute addresses, since ultimately we will link in the abs_bd
+       directory.  Return the result binlist, or an empty list on failure."""
+    binlist = []
+    for binf in os.listdir(abs_bd):
+        if binf.endswith('.o'):
+            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+
+    # Add arch, chip and board binaries
+    for dirname in {'arch', 'chip', 'board'}:
+        binf = os.path.join(gp[f'bd_{dirname}dir'], f'{dirname}support.o')
+        if os.path.isfile(binf):
+            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+
+    # Add generic support
+    for supp in {'main', 'beebsc'}:
+        binf = os.path.join(gp['bd_supportdir'], f'{supp}.o')
+        if os.path.isfile(binf):
+            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+        else:
+            log.warning(f'Warning: Unable to find support library {binf}')
+            return []
+
+    # Add dummy binaries
+    for dlib in gp['dummy_libs']:
+        binf = os.path.join(gp['bd_supportdir'], f'dummy-{dlib}.o')
+        if os.path.isfile(binf):
+            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+        else:
+            log.warning(f'Warning: Unable to find dummy library {binf}')
+            return []
+
+    return binlist
+
+
+def create_link_arglist(bench, binlist):
+    """Create the argument list for linking benchmark, "bench", from the binaries
+       in "binlist"."""
+    arglist = [gp['ld']]
+    arglist.extend(gp['ldflags'])
+    arglist.extend(gp['ld_output_pattern'].format(bench).split(sep=' '))
+    arglist.extend(binlist)
+    arglist.extend(gp['user_libs'])
+
+    return arglist
+
+
+def link_benchmark(bench):
+    """Link the benchmark, "bench".
 
        Return True if link is successful, False otherwise."""
-    abs_bd_b  = os.path.join (gp['bd_benchdir'], b)
-    succeeded = True
+    abs_bd_b = os.path.join(gp['bd_benchdir'], bench)
 
     if not os.path.isdir(abs_bd_b):
         log.warning('Warning: Unable to find build directory for ' +
-                        f'benchmark {b}')
+                    f'benchmark {bench}')
         return False
 
-    # Build up a list of files to include in the binary. They are all
-    # absolute, apart from those in the benchmark, since we will link in its
-    # build directory.
-    binlist = []
-    for f in os.listdir(abs_bd_b):
-        if f.endswith('.o'):
-            if 'ld_input_flag' in gp:
-                binlist.append(gp['ld_input_flag'])
-            binlist.append(f)
+    # Use a flag to track warnings, but keep going through warnings.
+    succeeded = True
 
-    # Add arch, chip and board binaries
-    for d in {'arch', 'chip', 'board'}:
-        f = os.path.join(gp[f'bd_{d}dir'], f'{d}support.o')
-        if os.path.isfile(f):
-            if 'ld_input_flag' in gp:
-                binlist.append(gp['ld_input_flag'])
-            binlist.append(f)
-
-    # Add generic support
-    for d in {'main', 'beebsc'}:
-        f = os.path.join(gp['bd_supportdir'], f'{d}.o')
-        if os.path.isfile(f):
-            if 'ld_input_flag' in gp:
-                binlist.append(gp['ld_input_flag'])
-            binlist.append(f)
-        else:
-            succeeded = False
-            log.warning(f'Warning: Unable to find support library {f}')
-
-    # Add dummy binaries
-    for d in gp['dummy_libs']:
-        f = os.path.join(gp['bd_supportdir'], f'dummy-{d}.o')
-        if os.path.isfile(f):
-            if 'ld_input_flag' in gp:
-                binlist.append(gp['ld_input_flag'])
-            binlist.append(f)
-        else:
-            succeeded = False
-            log.warning(f'Warning: Unable to find dummy library {f}')
-
-    # Construct the argument list
-    arglist = [gp['ld']]
-    arglist.extend(gp['ldflags'])
-    if 'ld_output_flag' in gp:
-        arglist.append(gp['ld_output_flag'])
-    arglist.append(b)
-    arglist.extend(binlist)
-    arglist.extend(gp['libs'])
+    # Create the argument list
+    binlist = create_link_binlist(abs_bd_b)
+    if not binlist:
+        succeeded = False
+    arglist = create_link_arglist(bench, binlist)
 
     # Run the link
     try:
@@ -683,13 +699,12 @@ def link_benchmark(b):
             cwd=abs_bd_b,
             timeout=5
         )
-    except TimeoutExpired:
-        log.warning(f'Warning: link of benchmark "{b}" timed out')
+    except subprocess.TimeoutExpired:
+        log.warning(f'Warning: link of benchmark "{bench}" timed out')
         succeeded = False
-        pass
 
-    if 0 != res.returncode:
-        log.warning(f'Warning: Link of benchmark "{b}" failed')
+    if res.returncode != 0:
+        log.warning(f'Warning: Link of benchmark "{bench}" failed')
         succeeded = False
 
     if not succeeded:
@@ -702,23 +717,24 @@ def link_benchmark(b):
 
 
 def main():
+    """Main program to drive building of benchmarks."""
     # Establish the root directory of the repository, since we know this file is
     # in that directory.
     gp['rootdir'] = os.path.abspath(os.path.dirname(__file__))
 
     # Parse arguments using standard technology
     parser = build_parser()
-    args   = parser.parse_args()
+    args = parser.parse_args()
 
     # Establish logging
-    logdir  = create_logdir(args.logdir)
+    logdir = create_logdir(args.logdir)
     logfile = os.path.join(logdir, time.strftime('build-%Y-%m-%d-%H%M%S.log'))
     setup_logging(logfile)
     log_args(args)
     log.debug(f'Log file:        {logfile}\n')
 
     # Establish build directory
-    builddir = create_builddir(args.builddir, args.clean)
+    create_builddir(args.builddir, args.clean)
 
     # Check args are OK (have to have logging and build directory set up first)
     validate_args(args)
@@ -740,16 +756,16 @@ def main():
         log.debug(f'Compilation of support files successful')
 
 
-    for b in benchmarks:
-        res = compile_benchmark(b)
-        successful &=res
+    for bench in benchmarks:
+        res = compile_benchmark(bench)
+        successful &= res
         if res:
-            log.debug(f'Compilation of benchmark "{b}" successful')
-            res = link_benchmark(b)
-            successful &=res
+            log.debug(f'Compilation of benchmark "{bench}" successful')
+            res = link_benchmark(bench)
+            successful &= res
             if res:
-                log.debug(f'Linking of benchmark "{b}" successful')
-                log.info(f'{b}')
+                log.debug(f'Linking of benchmark "{bench}" successful')
+                log.info(f'{bench}')
 
     if successful:
         log.info('All benchmarks built successfully')
