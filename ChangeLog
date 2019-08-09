@@ -1,3 +1,45 @@
+2019-08-09  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Clean up scripts to build benchmarks and run size benchmark.
+
+	This is mostly about linting the code.  However we fix one
+	systemic bug where we were using literal sets rather than literal
+	lists to iterate through dictionaries.
+
+	* baseline-size.json: Created
+	* benchmark-size.py: Remove import of shutil, subprocess and
+	traceback; add import of loads from json.
+	(baseline): Remove as global variable.
+	(build_parser, create_logdir): Standardize layout.
+	(setup_logging): Use longer variable names.
+	(validate_args): Set 'builddir' global param from args; add
+	'absolute' entry to global params.
+	(find_benchmarks): Return benchmarks as list, use longer variable
+	name for benchmark interator.
+	(log_benchmarks): Pass in benchmarks as argument, use longer
+	variable name for benchmark interator.
+	(get_section): Add pydoc string.
+	(benchmark_size): Rename argument to "bench", use longer variable
+	for file handle, standardize layout.
+	(collect_data, compute_geomean, compute_geosd, compute_geomaean)
+	(output_stats): Created.
+	(main): Rewrite statistics computation and output using
+	collect_data, compute_geomean, compute_geosd, compute_geomaean and
+	output_stats.
+	* build-all.py (benchmarks) Remove as global variable.
+	(build_parser, validate_args, create_builddir): Standardize
+	layout.
+	(find_benchmarks): Return benchmark list as result.
+	(log_benchmarks): Take benchmark list as argument.
+	(add_internal_flags, validate_tools, set_parameters): Use lists,
+	not sets when iterating.
+	(compile_file, compile_benchmark, compile_support): Standardize
+	layout.
+	(create_link_binlist): Use lists, not sets when iterating.
+	(link_benchmark): Standardize layout.
+	(main): Pass benchmark list between find_benchmarks and
+	log_benchmarks.
+
 2019-08-02  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Clean up of the build-all.py script

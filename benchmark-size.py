@@ -17,132 +17,12 @@ import codecs
 import logging
 import math
 import os
-import shutil
-import subprocess
 import sys
 import time
-import traceback
 
+from json import loads
 from elftools.elf.elffile import ELFFile
 
-# Reference data
-
-baseline = {
-    'aha-mont64' : {
-        'text' : 1052,
-        'rodata' : 0,
-        'data' : 0,
-        'bss' : 0
-    },
-    'crc32' : {
-        'text' : 230,
-        'rodata' : 1024,
-        'data' : 0,
-        'bss' : 0
-    },
-    'cubic' : {
-        'text' : 2472,
-        'rodata' : 0,
-        'data' : 0,
-        'bss' : 24
-    },
-    'edn' : {
-        'text' : 1452,
-        'rodata' : 1600,
-        'data' : 0,
-        'bss' : 1600
-    },
-    'huffbench' : {
-        'text' : 1628,
-        'rodata' : 1004,
-        'data' : 0,
-        'bss' : 8692
-    },
-    'matmult-int' : {
-        'text' : 420,
-        'rodata' : 1600,
-        'data' : 0,
-        'bss' : 8004
-    },
-    'minver' : {
-        'text' : 1076,
-        'rodata' : 144,
-        'data' : 0,
-        'bss' : 108
-    },
-    'nbody' : {
-        'text' : 708,
-        'rodata' : 320,
-        'data' : 320,
-        'bss' : 0
-    },
-    'nettle-aes' : {
-        'text' : 2880,
-        'rodata' : 10022,
-        'data' : 544,
-        'bss' : 1000
-    },
-    'nettle-sha256' : {
-        'text' : 5564,
-        'rodata' : 448,
-        'data' : 88,
-        'bss' : 32
-    },
-    'nsichneu' : {
-        'text' : 15042,
-        'rodata' : 0,
-        'data' : 0,
-        'bss' : 56
-    },
-    'picojpeg' : {
-        'text' : 8036,
-        'rodata' : 1196,
-        'data' : 0,
-        'bss' : 2320
-    },
-    'qrduino' : {
-        'text' : 6074,
-        'rodata' : 1540,
-        'data' : 0,
-        'bss' : 8232
-    },
-    'sglib-combined' : {
-        'text' : 2324,
-        'rodata' : 800,
-        'data' : 0,
-        'bss' : 8676
-    },
-    'slre' : {
-        'text' : 2428,
-        'rodata' : 64,
-        'data' : 62,
-        'bss' : 16
-    },
-    'st' : {
-        'text' : 880,
-        'rodata' : 0,
-        'data' : 0,
-        'bss' : 1632
-    },
-    'statemate' : {
-        'text' : 3692,
-        'rodata' : 64,
-        'data' : 0,
-        'bss' : 292
-    },
-    'ud' : {
-        'text' : 702,
-        'rodata' : 0,
-        'data' : 0,
-        'bss' : 1764
-    },
-    'wikisort' : {
-        'text' : 4214,
-        'rodata' : 3236,
-        'data' : 0,
-        'bss' : 3200
-    }
-}
 
 # Handle for the logger
 log = logging.getLogger()
@@ -150,25 +30,26 @@ log = logging.getLogger()
 # All the global parameters
 gp = dict()
 
-# All the benchmarks
-benchmarks = []
-
 
 def build_parser():
     """Build a parser for all the arguments"""
-    parser = argparse.ArgumentParser(
-        description='Compute the size benchmark')
+    parser = argparse.ArgumentParser(description='Compute the size benchmark')
 
     parser.add_argument(
-        '--builddir', type=str, default='bd',
-        help='Directory holding all the binaries'
+        '--builddir',
+        type=str,
+        default='bd',
+        help='Directory holding all the binaries',
     )
     parser.add_argument(
-        '--logdir', type=str, default='logs',
+        '--logdir',
+        type=str,
+        default='logs',
         help='Directory in which to store logs',
     )
     parser.add_argument(
-        '--absolute', action='store_true',
+        '--absolute',
+        action='store_true',
         help='Specify to show absolute results',
     )
 
@@ -179,7 +60,7 @@ def create_logdir(logdir):
     """Create the log directory, which can be relative to the current directory
        or absolute"""
     if not os.path.isabs(logdir):
-        logdir = os.path.join (gp['rootdir'], logdir)
+        logdir = os.path.join(gp['rootdir'], logdir)
 
     if not os.path.isdir(logdir):
         try:
@@ -197,12 +78,12 @@ def setup_logging(logfile):
     """Set up logging. Debug messages only go to file, everything else
        also goes to the console."""
     log.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    log.addHandler(ch)
-    fh = logging.FileHandler(logfile)
-    fh.setLevel(logging.DEBUG)
-    log.addHandler(fh)
+    cons_h = logging.StreamHandler(sys.stdout)
+    cons_h.setLevel(logging.INFO)
+    log.addHandler(cons_h)
+    file_h = logging.FileHandler(logfile)
+    file_h.setLevel(logging.DEBUG)
+    log.addHandler(file_h)
 
 
 def log_args(args):
@@ -220,7 +101,7 @@ def validate_args(args):
 
        Update the gp dictionary with all the useful info"""
     if os.path.isabs(args.builddir):
-        gp['bd'] = builddir
+        gp['bd'] = args.builddir
     else:
         gp['bd'] = os.path.join(gp['rootdir'], args.builddir)
 
@@ -232,43 +113,45 @@ def validate_args(args):
         log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
         sys.exit(1)
 
+    gp['absolute'] = args.absolute
+
 
 def find_benchmarks():
-    """Enumerate all the built benchmarks in alphabetical order into the global
+    """Enumerate all the benchmarks in alphabetical order into the global
        variable, 'benchmarks'. The benchmarks are found in the 'src'
-       subdirectory of the benchmarks repo."""
+       subdirectory of the benchmarks repo.
+
+       Return the list of benchmarks."""
+    gp['benchdir'] = os.path.join(gp['rootdir'], 'src')
     gp['bd_benchdir'] = os.path.join(gp['bd'], 'src')
-    dirlist = os.listdir(gp['bd_benchdir'])
+    dirlist = os.listdir(gp['benchdir'])
 
-    benchmarks.clear()
+    benchmarks = []
 
-    for b in dirlist:
-        abs_b_dir = os.path.join(gp['bd_benchdir'], b)
-        abs_b = os.path.join(abs_b_dir, b)
-        # Must be a directory - ignore anything else
-        if os.path.isdir(abs_b_dir):
-            if os.path.isfile(abs_b):
-                benchmarks.append(b)
-            else:
-                log.warning(f'WARNING: Binary not found for benchmark "{b}"')
+    for bench in dirlist:
+        abs_b = os.path.join(gp['benchdir'], bench)
+        if os.path.isdir(abs_b):
+            benchmarks.append(bench)
 
     benchmarks.sort()
 
+    return benchmarks
 
-def log_benchmarks():
+
+def log_benchmarks(benchmarks):
     """Record all the benchmarks in the log"""
     log.debug('Benchmarks')
     log.debug('==========')
 
-    for b in benchmarks:
-        log.debug(b)
+    for bench in benchmarks:
+        log.debug(bench)
 
     log.debug('')
 
 
 def get_section(elf, section_name):
-    # Workaround to use get_section_by_name on pyelftools both pre- and post-
-    # version 0.24 - section names are always decoded in 0.24 onwards
+    """Workaround to use get_section_by_name on pyelftools both pre- and post-
+       version 0.24 - section names are always decoded in 0.24 onwards"""
     section = elf.get_section_by_name(section_name)
     if section:
         return section
@@ -276,17 +159,19 @@ def get_section(elf, section_name):
     return elf.get_section_by_name(encoded_name)
 
 
-def benchmark_size(b):
+def benchmark_size(bench):
     """Compute the sizes of the key sections in a benchmark.  Returns a list
        with the size of .text, .rodata, .data and .bss."""
-    appexe = os.path.join(gp['bd_benchdir'], b, b)
+    appexe = os.path.join(gp['bd_benchdir'], bench, bench)
 
-    with open(appexe, 'rb') as f:
-        elf = ELFFile(f)
+    with open(appexe, 'rb') as fileh:
+        elf = ELFFile(fileh)
 
         text = get_section(elf, '.text')
         if text is None:
-            log.warning('Warning: .text section not found in benchmark "{b}"')
+            log.warning(
+                'Warning: .text section not found in benchmark "{bench}"'
+            )
             text_size = 0
         else:
             text_size = text['sh_size']
@@ -309,10 +194,199 @@ def benchmark_size(b):
         else:
             bss_size = bss['sh_size']
 
-        return { 'text'   : text_size,
-                 'rodata' : rodata_size,
-                 'data'   : data_size,
-                 'bss'    : bss_size }
+        return {
+            'text': text_size,
+            'rodata': rodata_size,
+            'data': data_size,
+            'bss': bss_size,
+        }
+
+
+def collect_data(benchmarks):
+    """Collect and log all the raw and optionally relative data associated with
+       the list of benchmarks supplied in the "benchmarks" argument. Return
+       the raw data and relative data as a list.  The raw data may be empty if
+       there is a failure. The relative data will be empty if only absolute
+       results have been requested."""
+
+    # Baseline data is held external to the script. Import it here.
+    gp['baseline_dir'] = os.path.join(gp['rootdir'], 'baseline-size.json')
+    with open(gp['baseline_dir']) as fileh:
+        baseline = loads(fileh.read())
+
+    # Collect data and output it
+    successful = True
+    raw_data = {}
+    rel_data = {}
+    log.info('Benchmark            Text  R/O Data      Data       BSS')
+    log.info('---------            ----  --------      ----       ---')
+
+    for bench in benchmarks:
+        raw_data[bench] = benchmark_size(bench)
+        rel_data[bench] = {}
+        if raw_data[bench]['text'] == 0:
+            del raw_data[bench]
+            del rel_data[bench]
+            successful = False
+        else:
+            output = {}
+            if gp['absolute']:
+                # Want absolute results. Only include non-zero values
+                for sec in {'text', 'rodata', 'data', 'bss'}:
+                    have_benchmark_data = raw_data[bench][sec] > 0
+                    if have_benchmark_data:
+                        output[sec] = f'{raw_data[bench][sec]:8,}'
+                    else:
+                        del raw_data[bench][sec]
+                        output[sec] = '       0'
+            else:
+                # Want relative results (the default). Only use non-zero values.
+                for sec in ['text', 'rodata', 'data', 'bss']:
+                    have_baseline_data = baseline[bench][sec] > 0
+                    have_benchmark_data = raw_data[bench][sec] > 0
+                    if have_baseline_data and have_benchmark_data:
+                        rel_data[bench][sec] = (
+                            raw_data[bench][sec] / baseline[bench][sec]
+                        )
+                        output[sec] = f'  {rel_data[bench][sec]:6.2f}'
+                    else:
+                        output[sec] = ' -   '
+            log.info(
+                f'{bench:15}  {output["text"]:8}  {output["rodata"]:8}  '
+                + f'{output["data"]:8}  {output["bss"]:8}'
+            )
+
+    if successful:
+        return raw_data, rel_data
+
+    # Otherwise failure return
+    return [], []
+
+
+def compute_geomean(benchmarks, raw_data, rel_data):
+    """Compute the geometric mean and count the number of data points for the
+       supplied benchmarks, raw and optionally relative data. Return a
+       dictionary of geometric mean data and a dictionary of count data, with a
+       entry for each section type."""
+
+    geomean = {'text': 1.0, 'rodata': 1.0, 'data': 1.0, 'bss': 1.0}
+    count = {'text': 0.0, 'rodata': 0.0, 'data': 0.0, 'bss': 0.0}
+
+    for bench in benchmarks:
+        if gp['absolute']:
+            # Want absolute results
+            if bench in raw_data:
+                for sec in ['text', 'rodata', 'data', 'bss']:
+                    if sec in raw_data[bench]:
+                        count[sec] += 1
+                        geomean[sec] *= raw_data[bench][sec]
+        else:
+            # Want relative results (the default).
+            if bench in rel_data:
+                for sec in ['text', 'rodata', 'data', 'bss']:
+                    if sec in rel_data[bench]:
+                        count[sec] += 1
+                        geomean[sec] *= rel_data[bench][sec]
+
+    for sec in ['text', 'rodata', 'data', 'bss']:
+        if count[sec] > 0:
+            geomean[sec] = pow(geomean[sec], 1.0 / count[sec])
+
+    return geomean, count
+
+
+def compute_geosd(benchmarks, raw_data, rel_data, geomean, count):
+    """Compute geometric standard deviation for the given set of benchmarks,
+       using the supplied raw and optinally relative data. This draws on the
+       previously computed geometric mean and count for each benchmark.
+
+       Return a set of geometric standard deviations for each section type."""
+    lnsize = {'text': 0.0, 'rodata': 0.0, 'data': 0.0, 'bss': 0.0}
+    geosd = {}
+
+    for bench in benchmarks:
+        if gp['absolute']:
+            # Want absolute results
+            if bench in raw_data:
+                for sec in ['text', 'rodata', 'data', 'bss']:
+                    if sec in raw_data[bench]:
+                        lnsize[sec] += math.pow(
+                            math.log(raw_data[bench][sec] / geomean[sec]), 2
+                        )
+        else:
+            # Want relative results (the default).
+            if bench in rel_data:
+                for sec in ['text', 'rodata', 'data', 'bss']:
+                    if sec in rel_data[bench]:
+                        lnsize[sec] += math.pow(
+                            math.log(rel_data[bench][sec] / geomean[sec]), 2
+                        )
+
+    # Compute the standard deviation using the lnsize data for each benchmark.
+    for sec in ['text', 'rodata', 'data', 'bss']:
+        if count[sec] > 0:
+            geosd[sec] = math.exp(math.sqrt(lnsize[sec] / count[sec]))
+
+    return geosd
+
+
+def compute_georange(geomean, geosd, count):
+    """Compute the geometric range of one geometric standard deviation around
+       the geometric mean for each section type.  Return a set of data for
+       each section type"""
+
+    georange = {}
+
+    for sec in ['text', 'rodata', 'data', 'bss']:
+        if count[sec] > 0:
+            if geosd[sec] > 0.0:
+                georange[sec] = (
+                    geomean[sec] * geosd[sec] - geomean[sec] / geosd[sec]
+                )
+            else:
+                georange[sec] = 0.0
+
+    return georange
+
+
+def output_stats(geomean, geosd, georange, count):
+    """Output the statistical summary for each seciton type."""
+    geomean_op = {}
+    geosd_op = {}
+    georange_op = {}
+
+    for sec in ['text', 'rodata', 'data', 'bss']:
+        if count[sec] > 0:
+            if gp['absolute']:
+                geomean_op[sec] = f'{round(geomean[sec]):8,}'
+                geosd_op[sec] = f'  {(geosd[sec]):6.2f}'
+                georange_op[sec] = f'{round(georange[sec]):8,}'
+            else:
+                geomean_op[sec] = f'  {geomean[sec]:6.2f}'
+                geosd_op[sec] = f'  {geosd[sec]:6.2f}'
+                georange_op[sec] = f'  {georange[sec]:6.2f}'
+        else:
+            geomean_op[sec] = ' -   '
+            geosd_op[sec] = ' -   '
+            georange_op[sec] = ' -    '
+
+    # Output the results
+    log.info('---------            ----  --------      ----       ---')
+    log.info(
+        f'Geometric mean   {geomean_op["text"]:8}  '
+        + f'{geomean_op["rodata"]:8}  {geomean_op["data"]:8}  '
+        + f'{geomean_op["bss"]:8}'
+    )
+    log.info(
+        f'Geometric SD     {geosd_op["text"]:8}  '
+        + f'{geosd_op["rodata"]:8}  {geosd_op["data"]:8}  '
+        + f'{geosd_op["bss"]:8}'
+    )
+    log.info(
+        f'Geometric range  {georange_op["text"]:8}  '
+        + f'{georange_op["rodata"]:8}  {georange_op["data"]:8}  '
+        + f'{georange_op["bss"]:8}'
+    )
 
 
 def main():
@@ -323,10 +397,10 @@ def main():
 
     # Parse arguments using standard technology
     parser = build_parser()
-    args   = parser.parse_args()
+    args = parser.parse_args()
 
     # Establish logging
-    logdir  = create_logdir(args.logdir)
+    logdir = create_logdir(args.logdir)
     logfile = os.path.join(logdir, time.strftime('size-%Y-%m-%d-%H%M%S.log'))
     setup_logging(logfile)
     log_args(args)
@@ -336,8 +410,8 @@ def main():
     validate_args(args)
 
     # Find the benchmarks
-    find_benchmarks()
-    log_benchmarks()
+    benchmarks = find_benchmarks()
+    log_benchmarks(benchmarks)
 
     # We can't compute geometric SD on the fly, so we need to collect all the
     # data and then process it in two passes. We could do the first processing
@@ -345,133 +419,17 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
 
-    # Collect data and output it
-
-    successful = True
-    raw_data = {}
-    rel_data = {}
-    log.info('Benchmark            Text  R/O Data      Data       BSS')
-    log.info('---------            ----  --------      ----       ---')
-
-    for b in benchmarks:
-        raw_data[b] = benchmark_size(b)
-        rel_data[b] = {}
-        if raw_data[b]['text'] == 0:
-            del raw_data[b]
-            del rel_data[b]
-            successful = False
-        else:
-            output = {}
-            if args.absolute:
-                # Want absolute results. Only include non-zero values
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if raw_data[b][v] > 0:
-                        output[v] = f'{raw_data[b][v]:8,}'
-                    else:
-                        del raw_data[b][v]
-                        output[v] = '       0'
-            else:
-                # Want relative results (the default). Only use non-zero values.
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if (baseline[b][v] > 0) and (raw_data[b][v] > 0):
-                        rel_data[b][v] = raw_data[b][v] / baseline[b][v]
-                        output[v] = f'  {rel_data[b][v]:6.2f}'
-                    else:
-                        output[v] = ' -   '
-            log.info(
-                f'{b:15}  {output["text"]:8}  {output["rodata"]:8}  ' +
-                f'{output["data"]:8}  {output["bss"]:8}'
-            )
-
-    # Compute geometric mean
-    geomean = { 'text' : 1.0, 'rodata' : 1.0, 'data' : 1.0, 'bss' : 1.0 }
-    count   = { 'text' : 0.0, 'rodata' : 0.0, 'data' : 0.0, 'bss' : 0.0 }
-
-    for b in benchmarks:
-        if args.absolute:
-            # Want absolute results
-            if b in raw_data:
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if v in raw_data[b]:
-                        count[v] += 1
-                        geomean[v] *= raw_data[b][v]
-        else:
-            # Want relative results (the default).
-            if b in rel_data:
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if v in rel_data[b]:
-                        count[v] += 1
-                        geomean[v] *= rel_data[b][v]
-
-    for v in { 'text', 'rodata', 'data', 'bss' } :
-        if count[v] > 0:
-            geomean[v] = pow(geomean[v], 1.0 / count[v])
-
-    # Compute geometric SD
-    lnsize = { 'text' : 0.0, 'rodata' : 0.0, 'data' : 0.0, 'bss' : 0.0 }
-    geosd  = {}
-
-    for b in benchmarks:
-        if args.absolute:
-            # Want absolute results
-            if b in raw_data:
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if v in raw_data[b]:
-                        lnsize[v] += math.pow(
-                            math.log(raw_data[b][v] / geomean[v]), 2
-                        )
-        else:
-            # Want relative results (the default).
-            if b in rel_data:
-                for v in { 'text', 'rodata', 'data', 'bss' } :
-                    if v in rel_data[b]:
-                        lnsize[v] += math.pow(
-                            math.log(rel_data[b][v] / geomean[v]), 2
-                        )
-
-    for v in { 'text', 'rodata', 'data', 'bss' } :
-        if count[v] > 0:
-            geosd[v]      = math.exp(math.sqrt(lnsize[v] / count[v]))
-
-    # Do the math
-    range = {}
-    geomean_op = {}
-    geosd_op   = {}
-    range_op   = {}
-
-    for v in { 'text', 'rodata', 'data', 'bss' } :
-        if count[v] > 0 :
-            if geosd[v] > 0.0:
-                range[v] = geomean[v] * geosd[v] - geomean[v] / geosd[v]
-            else:
-                range[v] = 0.0
-            if args.absolute:
-                geomean_op[v] = f'{round(geomean[v]):8,}'
-                geosd_op[v]   = f'  {(geosd[v]):6.2f}'
-                range_op[v]   = f'{round(range[v]):8,}'
-            else:
-                geomean_op[v] = f'  {geomean[v]:6.2f}'
-                geosd_op[v]   = f'  {geosd[v]:6.2f}'
-                range_op[v]   = f'  {range[v]:6.2f}'
-        else:
-            geomean_op[v] = ' -   '
-            geosd_op[v]   = ' -   '
-            range_op[v]   = ' -    '
-
-    # Output the results
-    log.info('---------            ----  --------      ----       ---')
-    log.info(f'Geometric mean   {geomean_op["text"]:8}  ' +
-             f'{geomean_op["rodata"]:8}  {geomean_op["data"]:8}  ' +
-             f'{geomean_op["bss"]:8}')
-    log.info(f'Geometric SD     {geosd_op["text"]:8}  ' +
-             f'{geosd_op["rodata"]:8}  {geosd_op["data"]:8}  ' +
-             f'{geosd_op["bss"]:8}')
-    log.info(f'Geometric range  {range_op["text"]:8}  ' +
-             f'{range_op["rodata"]:8}  {range_op["data"]:8}  ' +
-             f'{range_op["bss"]:8}')
-
-    if successful:
+    raw_data, rel_data = collect_data(benchmarks)
+    if raw_data:
+        geomean, count = compute_geomean(benchmarks, raw_data, rel_data)
+        geosd = compute_geosd(benchmarks, raw_data, rel_data, geomean, count)
+        georange = compute_georange(geomean, geosd, count)
+        output_stats(geomean, geosd, georange, count)
         log.info('All benchmarks sized successfully')
+    else:
+        log.info('ERROR: Failed to compute size benchmarks')
+        sys.exit(1)
+
 
 # Only run if this is the main package
 
