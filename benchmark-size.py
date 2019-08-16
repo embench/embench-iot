@@ -9,26 +9,27 @@
 #
 # This file is part of Embench.
 
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
+
+"""
+Compute the size benchmark for a set of compiled Embench programs.
+"""
 
 import argparse
 import codecs
-import logging
-import math
 import os
 import sys
-import time
 
 from json import loads
 from elftools.elf.elffile import ELFFile
 
-
-# Handle for the logger
-log = logging.getLogger()
-
-# All the global parameters
-gp = dict()
+from embench_core import log
+from embench_core import gp
+from embench_core import setup_logging
+from embench_core import log_args
+from embench_core import find_benchmarks
+from embench_core import log_benchmarks
+from embench_core import embench_stats
 
 
 def build_parser():
@@ -52,47 +53,17 @@ def build_parser():
         action='store_true',
         help='Specify to show absolute results',
     )
+    parser.add_argument(
+        '--sections',
+        type=str,
+        default=[],
+        action='append',
+        choices=['text', 'rodata', 'data', 'bss'],
+        help='Sections to include in metric: one or more of "text", "rodata", '
+        + '"data" or "bss". Default "text"',
+    )
 
     return parser
-
-
-def create_logdir(logdir):
-    """Create the log directory, which can be relative to the current directory
-       or absolute"""
-    if not os.path.isabs(logdir):
-        logdir = os.path.join(gp['rootdir'], logdir)
-
-    if not os.path.isdir(logdir):
-        try:
-            os.makedirs(logdir)
-        except PermissionError:
-            raise PermissionError(f'Unable to create log directory {logdir}')
-
-    if not os.access(logdir, os.W_OK):
-        raise PermissionError(f'Unable to write to log directory {logdir}')
-
-    return logdir
-
-
-def setup_logging(logfile):
-    """Set up logging. Debug messages only go to file, everything else
-       also goes to the console."""
-    log.setLevel(logging.DEBUG)
-    cons_h = logging.StreamHandler(sys.stdout)
-    cons_h.setLevel(logging.INFO)
-    log.addHandler(cons_h)
-    file_h = logging.FileHandler(logfile)
-    file_h.setLevel(logging.DEBUG)
-    log.addHandler(file_h)
-
-
-def log_args(args):
-    """Record all the argument values"""
-    log.debug('Supplied arguments')
-    log.debug('==================')
-    log.debug(f'Build directory:      {args.builddir}')
-    log.debug(f'Log directory:        {args.logdir}')
-    log.debug('')
 
 
 def validate_args(args):
@@ -115,38 +86,11 @@ def validate_args(args):
 
     gp['absolute'] = args.absolute
 
-
-def find_benchmarks():
-    """Enumerate all the benchmarks in alphabetical order into the global
-       variable, 'benchmarks'. The benchmarks are found in the 'src'
-       subdirectory of the benchmarks repo.
-
-       Return the list of benchmarks."""
-    gp['benchdir'] = os.path.join(gp['rootdir'], 'src')
-    gp['bd_benchdir'] = os.path.join(gp['bd'], 'src')
-    dirlist = os.listdir(gp['benchdir'])
-
-    benchmarks = []
-
-    for bench in dirlist:
-        abs_b = os.path.join(gp['benchdir'], bench)
-        if os.path.isdir(abs_b):
-            benchmarks.append(bench)
-
-    benchmarks.sort()
-
-    return benchmarks
-
-
-def log_benchmarks(benchmarks):
-    """Record all the benchmarks in the log"""
-    log.debug('Benchmarks')
-    log.debug('==========')
-
-    for bench in benchmarks:
-        log.debug(bench)
-
-    log.debug('')
+    # If no sections are specified, we just use .text
+    if args.sections:
+        gp['sections'] = args.sections
+    else:
+        gp['sections'] = ['text']
 
 
 def get_section(elf, section_name):
@@ -160,46 +104,21 @@ def get_section(elf, section_name):
 
 
 def benchmark_size(bench):
-    """Compute the sizes of the key sections in a benchmark.  Returns a list
-       with the size of .text, .rodata, .data and .bss."""
+    """Compute the total size of the desired sections in a benchmark.  Returns
+       the size in bytes, which may be zero if the section wasn't found."""
     appexe = os.path.join(gp['bd_benchdir'], bench, bench)
+    sec_size = 0
 
     with open(appexe, 'rb') as fileh:
         elf = ELFFile(fileh)
 
-        text = get_section(elf, '.text')
-        if text is None:
-            log.warning(
-                'Warning: .text section not found in benchmark "{bench}"'
-            )
-            text_size = 0
-        else:
-            text_size = text['sh_size']
+        for sec in gp['sections']:
+            sec = get_section(elf, '.' + sec)
+            if sec:
+                sec_size += sec['sh_size']
 
-        rodata = get_section(elf, '.rodata')
-        if rodata is None:
-            rodata_size = 0
-        else:
-            rodata_size = rodata['sh_size']
-
-        data = get_section(elf, '.data')
-        if data is None:
-            data_size = 0
-        else:
-            data_size = data['sh_size']
-
-        bss = get_section(elf, '.bss')
-        if bss is None:
-            bss_size = 0
-        else:
-            bss_size = bss['sh_size']
-
-        return {
-            'text': text_size,
-            'rodata': rodata_size,
-            'data': data_size,
-            'bss': bss_size,
-        }
+    # Return the section size
+    return sec_size
 
 
 def collect_data(benchmarks):
@@ -212,181 +131,49 @@ def collect_data(benchmarks):
     # Baseline data is held external to the script. Import it here.
     gp['baseline_dir'] = os.path.join(gp['rootdir'], 'baseline-size.json')
     with open(gp['baseline_dir']) as fileh:
-        baseline = loads(fileh.read())
+        baseline_all = loads(fileh.read())
+
+    # Compute the baseline data we need
+    baseline = {}
+
+    for bench, data in baseline_all.items():
+        baseline[bench] = 0
+        for sec in gp['sections']:
+            baseline[bench] += data[sec]
 
     # Collect data and output it
     successful = True
     raw_data = {}
     rel_data = {}
-    log.info('Benchmark            Text  R/O Data      Data       BSS')
-    log.info('---------            ----  --------      ----       ---')
+    log.info('Benchmark            size')
+    log.info('---------            ----')
 
     for bench in benchmarks:
         raw_data[bench] = benchmark_size(bench)
         rel_data[bench] = {}
-        if raw_data[bench]['text'] == 0:
-            del raw_data[bench]
-            del rel_data[bench]
-            successful = False
+        output = {}
+
+        # Zero is a valid section size, although empty .text should be a
+        # concern.
+        if gp['absolute']:
+            # Want absolute results. Only include non-zero values
+            output = f'{raw_data[bench]:8,}'
         else:
-            output = {}
-            if gp['absolute']:
-                # Want absolute results. Only include non-zero values
-                for sec in {'text', 'rodata', 'data', 'bss'}:
-                    have_benchmark_data = raw_data[bench][sec] > 0
-                    if have_benchmark_data:
-                        output[sec] = f'{raw_data[bench][sec]:8,}'
-                    else:
-                        del raw_data[bench][sec]
-                        output[sec] = '       0'
+            # Want relative results (the default). If baseline is zero, just
+            # use 0.0 as the value.
+            if baseline[bench] > 0:
+                rel_data[bench] = raw_data[bench] / baseline[bench]
             else:
-                # Want relative results (the default). Only use non-zero values.
-                for sec in ['text', 'rodata', 'data', 'bss']:
-                    have_baseline_data = baseline[bench][sec] > 0
-                    have_benchmark_data = raw_data[bench][sec] > 0
-                    if have_baseline_data and have_benchmark_data:
-                        rel_data[bench][sec] = (
-                            raw_data[bench][sec] / baseline[bench][sec]
-                        )
-                        output[sec] = f'  {rel_data[bench][sec]:6.2f}'
-                    else:
-                        output[sec] = ' -   '
-            log.info(
-                f'{bench:15}  {output["text"]:8}  {output["rodata"]:8}  '
-                + f'{output["data"]:8}  {output["bss"]:8}'
-            )
+                rel_data[bench] = 0.0
+            output = f'  {rel_data[bench]:6.2f}'
+
+        log.info(f'{bench:15}  {output:8}')
 
     if successful:
         return raw_data, rel_data
 
     # Otherwise failure return
     return [], []
-
-
-def compute_geomean(benchmarks, raw_data, rel_data):
-    """Compute the geometric mean and count the number of data points for the
-       supplied benchmarks, raw and optionally relative data. Return a
-       dictionary of geometric mean data and a dictionary of count data, with a
-       entry for each section type."""
-
-    geomean = {'text': 1.0, 'rodata': 1.0, 'data': 1.0, 'bss': 1.0}
-    count = {'text': 0.0, 'rodata': 0.0, 'data': 0.0, 'bss': 0.0}
-
-    for bench in benchmarks:
-        if gp['absolute']:
-            # Want absolute results
-            if bench in raw_data:
-                for sec in ['text', 'rodata', 'data', 'bss']:
-                    if sec in raw_data[bench]:
-                        count[sec] += 1
-                        geomean[sec] *= raw_data[bench][sec]
-        else:
-            # Want relative results (the default).
-            if bench in rel_data:
-                for sec in ['text', 'rodata', 'data', 'bss']:
-                    if sec in rel_data[bench]:
-                        count[sec] += 1
-                        geomean[sec] *= rel_data[bench][sec]
-
-    for sec in ['text', 'rodata', 'data', 'bss']:
-        if count[sec] > 0:
-            geomean[sec] = pow(geomean[sec], 1.0 / count[sec])
-
-    return geomean, count
-
-
-def compute_geosd(benchmarks, raw_data, rel_data, geomean, count):
-    """Compute geometric standard deviation for the given set of benchmarks,
-       using the supplied raw and optinally relative data. This draws on the
-       previously computed geometric mean and count for each benchmark.
-
-       Return a set of geometric standard deviations for each section type."""
-    lnsize = {'text': 0.0, 'rodata': 0.0, 'data': 0.0, 'bss': 0.0}
-    geosd = {}
-
-    for bench in benchmarks:
-        if gp['absolute']:
-            # Want absolute results
-            if bench in raw_data:
-                for sec in ['text', 'rodata', 'data', 'bss']:
-                    if sec in raw_data[bench]:
-                        lnsize[sec] += math.pow(
-                            math.log(raw_data[bench][sec] / geomean[sec]), 2
-                        )
-        else:
-            # Want relative results (the default).
-            if bench in rel_data:
-                for sec in ['text', 'rodata', 'data', 'bss']:
-                    if sec in rel_data[bench]:
-                        lnsize[sec] += math.pow(
-                            math.log(rel_data[bench][sec] / geomean[sec]), 2
-                        )
-
-    # Compute the standard deviation using the lnsize data for each benchmark.
-    for sec in ['text', 'rodata', 'data', 'bss']:
-        if count[sec] > 0:
-            geosd[sec] = math.exp(math.sqrt(lnsize[sec] / count[sec]))
-
-    return geosd
-
-
-def compute_georange(geomean, geosd, count):
-    """Compute the geometric range of one geometric standard deviation around
-       the geometric mean for each section type.  Return a set of data for
-       each section type"""
-
-    georange = {}
-
-    for sec in ['text', 'rodata', 'data', 'bss']:
-        if count[sec] > 0:
-            if geosd[sec] > 0.0:
-                georange[sec] = (
-                    geomean[sec] * geosd[sec] - geomean[sec] / geosd[sec]
-                )
-            else:
-                georange[sec] = 0.0
-
-    return georange
-
-
-def output_stats(geomean, geosd, georange, count):
-    """Output the statistical summary for each seciton type."""
-    geomean_op = {}
-    geosd_op = {}
-    georange_op = {}
-
-    for sec in ['text', 'rodata', 'data', 'bss']:
-        if count[sec] > 0:
-            if gp['absolute']:
-                geomean_op[sec] = f'{round(geomean[sec]):8,}'
-                geosd_op[sec] = f'  {(geosd[sec]):6.2f}'
-                georange_op[sec] = f'{round(georange[sec]):8,}'
-            else:
-                geomean_op[sec] = f'  {geomean[sec]:6.2f}'
-                geosd_op[sec] = f'  {geosd[sec]:6.2f}'
-                georange_op[sec] = f'  {georange[sec]:6.2f}'
-        else:
-            geomean_op[sec] = ' -   '
-            geosd_op[sec] = ' -   '
-            georange_op[sec] = ' -    '
-
-    # Output the results
-    log.info('---------            ----  --------      ----       ---')
-    log.info(
-        f'Geometric mean   {geomean_op["text"]:8}  '
-        + f'{geomean_op["rodata"]:8}  {geomean_op["data"]:8}  '
-        + f'{geomean_op["bss"]:8}'
-    )
-    log.info(
-        f'Geometric SD     {geosd_op["text"]:8}  '
-        + f'{geosd_op["rodata"]:8}  {geosd_op["data"]:8}  '
-        + f'{geosd_op["bss"]:8}'
-    )
-    log.info(
-        f'Geometric range  {georange_op["text"]:8}  '
-        + f'{georange_op["rodata"]:8}  {georange_op["data"]:8}  '
-        + f'{georange_op["bss"]:8}'
-    )
 
 
 def main():
@@ -400,11 +187,8 @@ def main():
     args = parser.parse_args()
 
     # Establish logging
-    logdir = create_logdir(args.logdir)
-    logfile = os.path.join(logdir, time.strftime('size-%Y-%m-%d-%H%M%S.log'))
-    setup_logging(logfile)
+    setup_logging(args.logdir, 'size')
     log_args(args)
-    log.debug(f'Log file:        {logfile}\n')
 
     # Check args are OK (have to have logging and build directory set up first)
     validate_args(args)
@@ -413,18 +197,16 @@ def main():
     benchmarks = find_benchmarks()
     log_benchmarks(benchmarks)
 
+    # Collect the size data for the benchmarks
+    raw_data, rel_data = collect_data(benchmarks)
+
     # We can't compute geometric SD on the fly, so we need to collect all the
     # data and then process it in two passes. We could do the first processing
     # as we collect the data, but it is clearer to do the three things
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
-
-    raw_data, rel_data = collect_data(benchmarks)
     if raw_data:
-        geomean, count = compute_geomean(benchmarks, raw_data, rel_data)
-        geosd = compute_geosd(benchmarks, raw_data, rel_data, geomean, count)
-        georange = compute_georange(geomean, geosd, count)
-        output_stats(geomean, geosd, georange, count)
+        embench_stats(benchmarks, raw_data, rel_data)
         log.info('All benchmarks sized successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')

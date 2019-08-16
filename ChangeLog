@@ -1,3 +1,42 @@
+2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Add a script to measure execution speed.
+
+	This is still work in progress, since the script has a lot of hard
+	coding in it.
+
+	* baseline-size.json: Clean up layout
+	* baseline-speed.json: Created.
+	* benchmark-size.py: Add docstring, remove logging, math and time
+	imports, add imports from embench_core.
+	(log, gp): Removed, since now imported from embench_core.
+	(build_parser): Add "--sections" option.
+	(create_logdir, setup_logging, log_args): Removed, since now
+	imported from embench_core.
+	(validate_args): set up sections argument.
+	(find_benchmarks, log_benchmarks): Removed, since now imported
+	from embench_core.
+	(benchmark_size): Only benchmark for specified sections.
+	(collect_data): only collect data for specified sections.
+	(compute_geomean, compute_geosd, compute_georange, output_stats):
+	Removed, since now imported from embench_core.
+	(main): Use new version of setup_logging imported from
+	embench_core; use new embench_stats function imported from
+	embench_core.
+	* benchmark-speed.py: Created.
+	* build-all.py: Add docstring, remove logging and time imports,
+	add imports from embench_core.
+	(log, gp): Removed, since now imported from embench_core.
+	(create_logdir, setup_logging, log_args, find_benchmarks)
+	(log_benchmarks): Removed, since now imported from embench_core.
+	(main): Use new version of setup_logging imported from
+	embench_core; use new embench_stats function imported from
+	embench_core.
+	* config/riscv32/chips/speed-test/chip.cfg: Correct arguments to
+	remote -msave-restore for compile flags and add -lm for user
+	libraries.
+	* embench_core.py: Created.
+
 2019-08-09  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Clean up scripts to build benchmarks and run size benchmark.

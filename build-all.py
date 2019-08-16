@@ -11,20 +11,23 @@
 
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+"""
+Build all Embench programs.
+"""
+
+
 import argparse
-import logging
 import os
 import shutil
 import subprocess
 import sys
-import time
 
-
-# Handle for the logger
-log = logging.getLogger()
-
-# All the global parameters
-gp = dict()
+from embench_core import log
+from embench_core import gp
+from embench_core import setup_logging
+from embench_core import log_args
+from embench_core import find_benchmarks
+from embench_core import log_benchmarks
 
 
 def build_parser():
@@ -125,64 +128,6 @@ def build_parser():
     return parser
 
 
-def create_logdir(logdir):
-    """Create the log directory, which can be relative to the current directory
-       or absolute"""
-    if not os.path.isabs(logdir):
-        logdir = os.path.join(gp['rootdir'], logdir)
-
-    if not os.path.isdir(logdir):
-        try:
-            os.makedirs(logdir)
-        except PermissionError:
-            raise PermissionError(f'Unable to create log directory {logdir}')
-
-    if not os.access(logdir, os.W_OK):
-        raise PermissionError(f'Unable to write to log directory {logdir}')
-
-    return logdir
-
-
-def setup_logging(logfile):
-    """Set up logging. Debug messages only go to file, everything else
-       also goes to the console."""
-    log.setLevel(logging.DEBUG)
-    cons_h = logging.StreamHandler(sys.stdout)
-    cons_h.setLevel(logging.INFO)
-    log.addHandler(cons_h)
-    file_h = logging.FileHandler(logfile)
-    file_h.setLevel(logging.DEBUG)
-    log.addHandler(file_h)
-
-
-def log_args(args):
-    """Record all the argument values"""
-    log.debug('Supplied arguments')
-    log.debug('==================')
-    log.debug(f'Build directory:                  {args.builddir}')
-    log.debug(f'Log directory:                    {args.logdir}')
-    log.debug(f'Architecture:                     {args.arch}')
-    log.debug(f'Chip:                             {args.chip}')
-    log.debug(f'Board:                            {args.board}')
-    log.debug(f'C compiler:                       {args.cc}')
-    log.debug(f'Linker:                           {args.ld}')
-    log.debug(f'Compiler flags:                   {args.cflags}')
-    log.debug(f'Linker flags:                     {args.ldflags}')
-    log.debug(f'Compiler define pattern (1 arg):  {args.cc_define1_pattern}')
-    log.debug(f'Compiler define pattern (2 args): {args.cc_define2_pattern}')
-    log.debug(f'Compiler incdir pattern:          {args.cc_incdir_pattern}')
-    log.debug(f'Compiler input pattern:           {args.cc_input_pattern}')
-    log.debug(f'Compiler output pattern           {args.cc_output_pattern}')
-    log.debug(f'Linker input pattern:             {args.ld_input_pattern}')
-    log.debug(f'Linker output pattern             {args.ld_output_pattern}')
-    log.debug(f'Extra libraries                   {args.user_libs}')
-    log.debug(f'Dummy libraries                   {args.dummy_libs}')
-    log.debug(f'CPU clock speed (MHz)             {args.cpu_mhz}')
-    log.debug(f'Warmup heat                       {args.warmup_heat}')
-    log.debug(f'Clean build                       {args.clean}')
-    log.debug('')
-
-
 def validate_args(args):
     """Check that supplied args are all valid. By definition logging is
        working when we get here. Don't bother with build directory, since
@@ -280,37 +225,6 @@ def create_builddir(builddir, clean):
             f'ERROR: Unable to write to build directory {gp["bd"]}, exiting'
         )
         sys.exit(1)
-
-
-def find_benchmarks():
-    """Enumerate all the benchmarks in alphabetical order and return as a
-       list. The benchmarks are found in the 'src' subdirectory of the
-       benchmarks repo."""
-    gp['benchdir'] = os.path.join(gp['rootdir'], 'src')
-    gp['bd_benchdir'] = os.path.join(gp['bd'], 'src')
-    dirlist = os.listdir(gp['benchdir'])
-
-    benchmarks = []
-
-    for bench in dirlist:
-        abs_b = os.path.join(gp['benchdir'], bench)
-        if os.path.isdir(abs_b):
-            benchmarks.append(bench)
-
-    benchmarks.sort()
-
-    return benchmarks
-
-
-def log_benchmarks(benchmarks):
-    """Record all the benchmarks in the log"""
-    log.debug('Benchmarks')
-    log.debug('==========')
-
-    for bench in benchmarks:
-        log.debug(bench)
-
-    log.debug('')
 
 
 def populate_defaults():
@@ -529,7 +443,7 @@ def compile_file(f_root, srcdir, bindir):
     succeeded = True
 
     if not os.path.isfile(abs_bin) or (
-        os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
+            os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
     ):
         try:
             res = subprocess.run(
@@ -748,12 +662,9 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
-    # Establish logging
-    logdir = create_logdir(args.logdir)
-    logfile = os.path.join(logdir, time.strftime('build-%Y-%m-%d-%H%M%S.log'))
-    setup_logging(logfile)
+    # Establish logging, using "build" as the log file prefix.
+    setup_logging(args.logdir, 'build')
     log_args(args)
-    log.debug(f'Log file:        {logfile}\n')
 
     # Establish build directory
     create_builddir(args.builddir, args.clean)
