@@ -9,9 +9,6 @@
 *.swp
 *.tmp
 
-# Autotools things
-autom4te.cache
-
 # Python things
 __pycache__/
 .pylintrc

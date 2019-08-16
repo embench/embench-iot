@@ -1,5 +1,99 @@
 2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	Remove all artifacts associated with Autotools and DejaGnu
+
+	These are no longer needed, now we have a Python based build
+	infrastructure.  A couple of other small cleanups are made at the
+	same time.
+
+	* .gitignore: No need to ignore autotools artifacts.
+	* Makefile.am: Deleted.
+	* Makefile.in: Deleted.
+	* README: Deleted.
+	* aclocal.m4: Deleted.
+	* build-all.py: Correct an error in specifying the location of
+	embench_core.py
+	* compile: Deleted.
+	* config.guess: Deleted.
+	* config.h.in: Deleted.
+	* config.sub: Deleted.
+	* configure: Deleted.
+	* configure.ac: Deleted.
+	* depcomp: Deleted.
+	* doc/Makefile.am: Deleted.
+	* doc/Makefile.in: Deleted.
+	* install-sh: Deleted.
+	* ltmain.sh: Deleted.
+	* m4/libtool.m4: Deleted.
+	* m4/ltoptions.m4: Deleted.
+	* m4/ltsugar.m4: Deleted.
+	* m4/ltversion.m4: Deleted.
+	* m4/lt~obsolete.m4: Deleted.
+	* missing: Deleted.
+	* src/Makefile.am: Deleted.
+	* src/Makefile.in: Deleted.
+	* src/aha-mont64/Makefile.am: Deleted.
+	* src/aha-mont64/Makefile.in: Deleted.
+	* src/common.mk.am: Deleted.
+	* src/crc32/Makefile.am: Deleted.
+	* src/crc32/Makefile.in: Deleted.
+	* src/cubic/Makefile.am: Deleted.
+	* src/cubic/Makefile.in: Deleted.
+	* src/edn/Makefile.am: Deleted.
+	* src/edn/Makefile.in: Deleted.
+	* src/huffbench/Makefile.am: Deleted.
+	* src/huffbench/Makefile.in: Deleted.
+	* src/matmult-int/Makefile.am: Deleted.
+	* src/matmult-int/Makefile.in: Deleted.
+	* src/minver/Makefile.am: Deleted.
+	* src/minver/Makefile.in: Deleted.
+	* src/nbody/Makefile.am: Deleted.
+	* src/nbody/Makefile.in: Deleted.
+	* src/nettle-aes/Makefile.am: Deleted.
+	* src/nettle-aes/Makefile.in: Deleted.
+	* src/nettle-sha256/Makefile.am: Deleted.
+	* src/nettle-sha256/Makefile.in: Deleted.
+	* src/nsichneu/Makefile.am: Deleted.
+	* src/nsichneu/Makefile.in: Deleted.
+	* src/picojpeg/Makefile.am: Deleted.
+	* src/picojpeg/Makefile.in: Deleted.
+	* src/qrduino/Makefile.am: Deleted.
+	* src/qrduino/Makefile.in: Deleted.
+	* src/sglib-combined/Makefile.am: Deleted.
+	* src/sglib-combined/Makefile.in: Deleted.
+	* src/slre/Makefile.am: Deleted.
+	* src/slre/Makefile.in: Deleted.
+	* src/st/Makefile.am: Deleted.
+	* src/st/Makefile.in: Deleted.
+	* src/statemate/Makefile.am: Deleted.
+	* src/statemate/Makefile.in: Deleted.
+	* src/ud/Makefile.am: Deleted.
+	* src/ud/Makefile.in: Deleted.
+	* src/wikisort/Makefile.am: Deleted.
+	* src/wikisort/Makefile.in: Deleted.
+	* support/Makefile.am: Deleted.
+	* support/Makefile.in: Deleted.
+	* testsuite/ChangeLog: Deleted.
+	* testsuite/Makefile.am: Deleted.
+	* testsuite/Makefile.in: Deleted.
+	* testsuite/beebs-conf.exp: Deleted.
+	* testsuite/beebs.test/Makefile.am: Deleted.
+	* testsuite/beebs.test/Makefile.in: Deleted.
+	* testsuite/beebs.test/execute.exp: Deleted.
+	* testsuite/beebs.test/size.exp: Deleted.
+	* testsuite/config/Makefile.am: Deleted.
+	* testsuite/config/Makefile.in: Deleted.
+	* testsuite/config/generic.exp: Deleted.
+	* testsuite/config/none.exp: Deleted.
+	* testsuite/config/ri5cyverilator.exp: Deleted.
+	* testsuite/lib/Makefile.am: Deleted.
+	* testsuite/lib/Makefile.in: Deleted.
+	* testsuite/lib/beebs.exp: Deleted.
+	* testsuite/lib/mageec-wand.exp: Deleted.
+	* testsuite/lib/perf-stat.exp: Deleted.
+
+2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	Allow user to specify custom code to run benchmarks.
 
 	This is a transformtion to make the benchmark_speed.py script more

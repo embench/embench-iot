@@ -22,6 +22,10 @@ import shutil
 import subprocess
 import sys
 
+sys.path.append(
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
+)
+
 from embench_core import log
 from embench_core import gp
 from embench_core import setup_logging
