@@ -19,12 +19,16 @@ server to use as a target.
 """
 
 import argparse
+import importlib
 import os
-import re
 import subprocess
 import sys
 
 from json import loads
+
+sys.path.append(
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
+)
 
 from embench_core import log
 from embench_core import gp
@@ -35,7 +39,7 @@ from embench_core import log_benchmarks
 from embench_core import embench_stats
 
 
-def build_parser():
+def get_common_args():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(description='Compute the size benchmark')
 
@@ -56,8 +60,14 @@ def build_parser():
         action='store_true',
         help='Specify to show absolute results',
     )
+    parser.add_argument(
+        '--target-module',
+        type=str,
+        required=True,
+        help='Python module with routines to run benchmarks',
+    )
 
-    return parser
+    return parser.parse_known_args()
 
 
 def validate_args(args):
@@ -80,69 +90,29 @@ def validate_args(args):
 
     gp['absolute'] = args.absolute
 
+    try:
+        newmodule = importlib.import_module(args.target_module)
+    except ImportError as error:
+        log.error(
+            f'ERROR: Target module import failure: {error}: exiting'
+        )
+        sys.exit(1)
 
-def build_benchmark_cmd(bench):
-    """Construct the command to run the benchmark"""
-    gdb_comms = [
-        'set style enabled off',
-        'set height 0',
-        'file {0}',
-        'target remote | riscv32-gdbserver -c ri5cy --stdin',
-        'stepi',
-        'stepi',
-        'load',
-        'break start_trigger',
-        'break stop_trigger',
-        'break _exit',
-        'jump *_start',
-        'monitor cyclecount',
-        'continue',
-        'monitor cyclecount',
-        'continue',
-        'print $a0',
-        'detach',
-        'quit',
-    ]
-    cmd = ['riscv32-unknown-elf-gdb']
-
-    for arg in gdb_comms:
-        cmd.extend(['-ex', arg.format(bench)])
-
-    return cmd
+    globals()['get_target_args'] = newmodule.get_target_args
+    globals()['build_benchmark_cmd'] = newmodule.build_benchmark_cmd
+    globals()['decode_results'] = newmodule.decode_results
 
 
-def decode_results(stdout_str, stderr_str):
-    """Extract the results from the output string of the run. Return the
-       elapsed time in milliseconds or zero if the run failed."""
-    # Return code is in standard output. We look for the string that means we
-    # hit a breakpoint on _exit, then for the string returning the value.
-    rcstr = re.search(
-        'Breakpoint 3, _exit.*at.*exit\.c.*\$1 = (\d+)', stdout_str, re.S
-    )
-    if not rcstr:
-        log.debug('Warning: Failed to find return code')
-        return 0.0
-
-    # The start and end cycle counts are in the stderr string
-    times = re.search('(\d+)\D+(\d+)', stderr_str, re.S)
-    if times:
-        ms_elapsed = float(int(times.group(2)) - int(times.group(1))) / 1000.0
-        return ms_elapsed
-
-    # We must have failed to find a time
-    log.debug('Warning: Failed to find timing')
-    return 0.0
-
-
-def benchmark_speed(bench):
-    """Time the benchmark.  Result is a time in milliseconds, or zero on
+def benchmark_speed(bench, target_args):
+    """Time the benchmark.  "target_args" is a namespace of arguments
+       specific to the target.  Result is a time in milliseconds, or zero on
        failure."""
     succeeded = True
     appdir = os.path.join(gp['bd_benchdir'], bench)
     appexe = os.path.join(appdir, bench)
 
     if os.path.isfile(appexe):
-        arglist = build_benchmark_cmd(bench)
+        arglist = build_benchmark_cmd(bench, target_args)
         try:
             res = subprocess.run(
                 arglist,
@@ -179,27 +149,35 @@ def benchmark_speed(bench):
         return 0.0
 
 
-def collect_data(benchmarks):
+def collect_data(benchmarks, remnant):
     """Collect and log all the raw and optionally relative data associated with
-       the list of benchmarks supplied in the "benchmarks" argument. Return
-       the raw data and relative data as a list.  The raw data may be empty if
-       there is a failure. The relative data will be empty if only absolute
-       results have been requested."""
+       the list of benchmarks supplied in the "benchmarks" argument. "remant"
+       is left over args from the command line, which may be useful to the
+       benchmark running procs.
+
+       Return the raw data and relative data as a list.  The raw data may be
+       empty if there is a failure. The relative data will be empty if only
+       absolute results have been requested."""
 
     # Baseline data is held external to the script. Import it here.
-    gp['baseline_dir'] = os.path.join(gp['rootdir'], 'baseline-speed.json')
+    gp['baseline_dir'] = os.path.join(
+        gp['rootdir'], 'baseline-data', 'speed.json'
+    )
     with open(gp['baseline_dir']) as fileh:
         baseline = loads(fileh.read())
+
+    # Parse target specific args
+    target_args = get_target_args(remnant)
 
     # Collect data and output it
     successful = True
     raw_data = {}
     rel_data = {}
     log.info('Benchmark           Speed')
-    log.info('---------            ----')
+    log.info('---------           -----')
 
     for bench in benchmarks:
-        raw_data[bench] = benchmark_speed(bench)
+        raw_data[bench] = benchmark_speed(bench, target_args)
         rel_data[bench] = 0.0
         if raw_data[bench] == 0.0:
             del raw_data[bench]
@@ -230,9 +208,9 @@ def main():
     # in that directory.
     gp['rootdir'] = os.path.abspath(os.path.dirname(__file__))
 
-    # Parse arguments using standard technology
-    parser = build_parser()
-    args = parser.parse_args()
+    # Parse arguments common to all speed testers, and get list of those
+    # remaining.
+    args, remnant = get_common_args()
 
     # Establish logging
     setup_logging(args.logdir, 'speed')
@@ -245,8 +223,8 @@ def main():
     benchmarks = find_benchmarks()
     log_benchmarks(benchmarks)
 
-    # Collect the size data for the benchmarks
-    raw_data, rel_data = collect_data(benchmarks)
+    # Collect the size data for the benchmarks. Pass any remaining args.
+    raw_data, rel_data = collect_data(benchmarks, remnant)
 
     # We can't compute geometric SD on the fly, so we need to collect all the
     # data and then process it in two passes. We could do the first processing

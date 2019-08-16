@@ -12,6 +12,10 @@
 # Autotools things
 autom4te.cache
 
+# Python things
+__pycache__/
+.pylintrc
+
 # Default build and log directories
 bd/
 logs/

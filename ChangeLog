@@ -1,5 +1,31 @@
 2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	Allow user to specify custom code to run benchmarks.
+
+	This is a transformtion to make the benchmark_speed.py script more
+	generic, ready for future expansion.
+
+	* .gitignore: Ignore __pycache__ directories and .pylintrc.
+	* benchmark-size.py: Import core files from pylib subdir.
+	(collect_data): Read JSON from baseline dir.
+	* benchmark-speed.py: Import core files from pylib subdir; import
+	importlib.
+	(build_parser): Renamed to get_common_args.
+	(get_common_args): Renamed from build_parser; return arguments to
+	common all invocations and remnant, which may be target specific
+	arguments.
+	(validate_args): Import target specific module and define global
+	methods therein.
+	(build_benchmark, decode_results): Deleted.
+	(benchmark_speed): Take target specific argument namespaced to
+	pass to the target specific code.
+	(collect_data): Take remnant command line arguments and parse to
+	pss to benchmark_speed; get JSON from baseline directory.
+	(def main): Pass remnant arguments to collect_data.
+	* pylib/run-gdbserver-sim.py: Created.
+
+2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	Add a script to measure execution speed.
 
 	This is still work in progress, since the script has a lot of hard

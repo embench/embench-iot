@@ -23,6 +23,10 @@ import sys
 from json import loads
 from elftools.elf.elffile import ELFFile
 
+sys.path.append(
+    os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
+)
+
 from embench_core import log
 from embench_core import gp
 from embench_core import setup_logging
@@ -129,7 +133,8 @@ def collect_data(benchmarks):
        results have been requested."""
 
     # Baseline data is held external to the script. Import it here.
-    gp['baseline_dir'] = os.path.join(gp['rootdir'], 'baseline-size.json')
+    gp['baseline_dir'] = os.path.join(
+        gp['rootdir'], 'baseline-data', 'size.json')
     with open(gp['baseline_dir']) as fileh:
         baseline_all = loads(fileh.read())
 
