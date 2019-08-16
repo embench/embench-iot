@@ -1,5 +1,19 @@
 2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	More Python friendly naming
+
+	By naming the scripts using underscore, then can if ever needed be
+	imported as modules.
+
+	* benchmark-size.py: Renamed to benchmark_size.py
+	* benchmark_size.py: Renamed from benchmark-size.py
+	* benchmark-speed.py: Renamed to benchmark_speed.py
+	* benchmark_speed.py: Renamed from benchmark-speed.py
+	* build-all.py: Renamed to build_all.py
+	* build_all.py: Renamed from build-all.py
+
+2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	Remove all artifacts associated with Autotools and DejaGnu
 
 	These are no longer needed, now we have a Python based build
