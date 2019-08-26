@@ -1,3 +1,21 @@
+2019-08-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Add user specification of section names.
+
+	This is a generalization of a patch proposed by Jon Taylor of ARM.
+
+	It allows the user to specify which section names make up
+	particular section types. Rename the --sections argument as
+	--metric for clarity and add --relative option for completeness.
+
+	* benchmark_size.py (build_parser): Add arguments to specify lists
+	of sections; for clarity rename --sections to --metric.
+	(validate_args): Capture the list of section names for each type
+	of section.
+	(benchmark_size): Use the specified section names to compute the
+	metric.
+	(collect_data): Rename 'sections' attribute to 'metric'.
+
 2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	More Python friendly naming
@@ -129,7 +147,7 @@
 	pass to the target specific code.
 	(collect_data): Take remnant command line arguments and parse to
 	pss to benchmark_speed; get JSON from baseline directory.
-	(def main): Pass remnant arguments to collect_data.
+	(main): Pass remnant arguments to collect_data.
 	* pylib/run-gdbserver-sim.py: Created.
 
 2019-08-16  Jeremy Bennett  <jeremy.bennett@embecosm.com>

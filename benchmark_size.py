@@ -58,7 +58,44 @@ def build_parser():
         help='Specify to show absolute results',
     )
     parser.add_argument(
-        '--sections',
+        '--relative',
+        dest='absolute',
+        action='store_false',
+        help='Specify to show relative results (the default)',
+    )
+    # List arguments are empty by default, a user specified value then takes
+    # precedence. If the list is empty after parsing, then we can install a
+    # default value.
+    parser.add_argument(
+        '--text',
+        type=str,
+        default=[],
+        action='append',
+        help='Section name(s) containing code'
+    )
+    parser.add_argument(
+        '--data',
+        type=str,
+        default=[],
+        action='append',
+        help='Section name(s) containing non-zero initialized writable data'
+    )
+    parser.add_argument(
+        '--rodata',
+        type=str,
+        default=[],
+        action='append',
+        help='Section name(s) containing read only data'
+    )
+    parser.add_argument(
+        '--bss',
+        type=str,
+        default=[],
+        action='append',
+        help='Section name(s) containing zero initialized writable data'
+    )
+    parser.add_argument(
+        '--metric',
         type=str,
         default=[],
         action='append',
@@ -90,11 +127,21 @@ def validate_args(args):
 
     gp['absolute'] = args.absolute
 
+    # Sort out the list of section names to use
+    gp['secnames'] = dict()
+
+    for argname in ['text', 'rodata', 'data', 'bss']:
+        secnames = getattr(args, argname)
+        if secnames:
+            gp['secnames'][argname] = secnames
+        else:
+            gp['secnames'][argname] = ['.' + argname]
+
     # If no sections are specified, we just use .text
-    if args.sections:
-        gp['sections'] = args.sections
+    if args.metric:
+        gp['metric'] = args.metric
     else:
-        gp['sections'] = ['text']
+        gp['metric'] = ['text']
 
 
 def get_section(elf, section_name):
@@ -116,10 +163,11 @@ def benchmark_size(bench):
     with open(appexe, 'rb') as fileh:
         elf = ELFFile(fileh)
 
-        for sec in gp['sections']:
-            sec = get_section(elf, '.' + sec)
-            if sec:
-                sec_size += sec['sh_size']
+        for metric in gp['metric']:
+            for secname in gp['secnames'][metric]:
+                sec = get_section(elf, secname)
+                if sec:
+                    sec_size += sec['sh_size']
 
     # Return the section size
     return sec_size
@@ -143,7 +191,7 @@ def collect_data(benchmarks):
 
     for bench, data in baseline_all.items():
         baseline[bench] = 0
-        for sec in gp['sections']:
+        for sec in gp['metric']:
             baseline[bench] += data[sec]
 
     # Collect data and output it
