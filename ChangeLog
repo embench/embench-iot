@@ -1,3 +1,18 @@
+2019-08-26  Graham Markall  <graham.markall@embecosm.com>
+
+	Fix a bug in log handling.
+
+	A patch proposed by Graham Markall and committed by Jeremy
+	Bennett.
+
+	The target-module python module needs to import the log from
+	embench_core. We also rename the module to a more python friendly
+	name.
+
+	* pylib/run_gdbserver_sim.py: Rename from run-gdbserver-sim.py and
+	import log from embench_core.
+	* pylib/run-gdbserver-sim.py: Rename to run_gdbserver_sim.py.
+
 2019-08-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Add user specification of section names.

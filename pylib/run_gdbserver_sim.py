@@ -25,6 +25,8 @@ __all__ = [
 import argparse
 import re
 
+from embench_core import log
+
 
 def get_target_args(remnant):
     """Parse left over arguments"""
