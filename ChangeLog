@@ -1,3 +1,11 @@
+2019-08-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Add --relative option.
+
+	This provides consistenc with benchmark_size.py.
+
+	* benchmark_speed.py (get_common_args): Add --relative option.
+
 2019-08-26  Graham Markall  <graham.markall@embecosm.com>
 
 	Fix a bug in log handling.

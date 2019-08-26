@@ -61,6 +61,12 @@ def get_common_args():
         help='Specify to show absolute results',
     )
     parser.add_argument(
+        '--relative',
+        dest='absolute',
+        action='store_false',
+        help='Specify to show relative results (the default)',
+    )
+    parser.add_argument(
         '--target-module',
         type=str,
         required=True,
@@ -191,7 +197,7 @@ def collect_data(benchmarks, remnant):
             else:
                 # Want relative results (the default). Only use non-zero values.
                 rel_data[bench] = raw_data[bench] / baseline[bench]
-                output = f'  {rel_data[bench]:6.2f,}'
+                output = f'  {rel_data[bench]:6.2f}'
 
             log.info(f'{bench:15}  {output:8}')
 
