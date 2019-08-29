@@ -1,0 +1,134 @@
+{ "aha-mont64" :
+  {
+      "text" : 1052,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 0
+  },
+  "crc32" :
+  {
+      "text" : 230,
+      "rodata" : 1024,
+      "data" : 0,
+      "bss" : 0
+  },
+  "cubic" :
+  {
+      "text" : 2472,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 24
+  },
+  "edn" :
+  {
+      "text" : 1452,
+      "rodata" : 1600,
+      "data" : 0,
+      "bss" : 1600
+  },
+  "huffbench" :
+  {
+      "text" : 1628,
+      "rodata" : 1004,
+      "data" : 0,
+      "bss" : 8692
+  },
+  "matmult-int" :
+  {
+      "text" : 420,
+      "rodata" : 1600,
+      "data" : 0,
+      "bss" : 8004
+  },
+  "minver" :
+  {
+      "text" : 1076,
+      "rodata" : 144,
+      "data" : 0,
+      "bss" : 108
+  },
+  "nbody" :
+  {
+      "text" : 708,
+      "rodata" : 320,
+      "data" : 320,
+      "bss" : 0
+  },
+  "nettle-aes" :
+  {
+      "text" : 2880,
+      "rodata" : 10022,
+      "data" : 544,
+      "bss" : 1000
+  },
+  "nettle-sha256" :
+  {
+      "text" : 5564,
+      "rodata" : 448,
+      "data" : 88,
+      "bss" : 32
+  },
+  "nsichneu" :
+  {
+      "text" : 15042,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 56
+  },
+  "picojpeg" :
+  {
+      "text" : 8036,
+      "rodata" : 1196,
+      "data" : 0,
+      "bss" : 2320
+  },
+  "qrduino" :
+  {
+      "text" : 6074,
+      "rodata" : 1540,
+      "data" : 0,
+      "bss" : 8232
+  },
+  "sglib-combined" :
+  {
+      "text" : 2324,
+      "rodata" : 800,
+      "data" : 0,
+      "bss" : 8676
+  },
+  "slre" :
+  {
+      "text" : 2428,
+      "rodata" : 64,
+      "data" : 62,
+      "bss" : 16
+  },
+  "st" :
+  {
+      "text" : 880,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 1632
+  },
+  "statemate" :
+  {
+      "text" : 3692,
+      "rodata" : 64,
+      "data" : 0,
+      "bss" : 292
+  },
+  "ud" :
+  {
+      "text" : 702,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 1764
+  },
+  "wikisort" :
+  {
+      "text" : 4214,
+      "rodata" : 3236,
+      "data" : 0,
+      "bss" : 3200
+  }
+}
