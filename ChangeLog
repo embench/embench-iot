@@ -1,3 +1,22 @@
+2019-08-29  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Remove calls to library assert.
+
+	Assert is not appropriate for benchmark code, and pulls in large
+	amounts of library function code. This patches provides a
+	simplified macro to replace it in two benchmarks.
+
+	This is the fix to GitHub Issue 10, see
+	https://github.com/embench/embench-iot/issues/10
+
+	* src/nettle-aes/nettle-aes.c (_aes_set_key, aes_set_encrypt_key)
+	(aes_encrypt, aes_decrypt): Replace assert with assert_beebs
+	throughout.
+	* src/nettle-sha256/nettle-sha256.c (nettle_hash_digest_func)
+	(sha256_write_digest): Likewise.
+	* support/beebsc.c: Trivial layout space adjustment.
+	* support/beebsc.h (assert_beebs): Macro added.
+
 2019-08-26  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Add --relative option.

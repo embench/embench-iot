@@ -28,6 +28,7 @@ static void *heap_ptr = NULL;
 static void *heap_end = NULL;
 static size_t heap_requested = 0;
 
+
 /* Yield a sequence of random numbers in the range [0, 2^15-1].
 
    long int is guaranteed to be at least 32 bits. The seed only ever uses 31
