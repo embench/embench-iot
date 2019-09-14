@@ -41,7 +41,7 @@ do {                                            \
 #define ROTL32(n,x) (((x)<<(n)) | ((x)>>((-(n)&31))))
 
 #define FOR_BLOCKS(length, dst, src, blocksize) \
-  assert( !((length) % (blocksize)));           \
+  assert_beebs( !((length) % (blocksize)));           \
   for (; (length); ((length) -= (blocksize),    \
                   (dst) += (blocksize),         \
                   (src) += (blocksize)) )
@@ -730,7 +730,7 @@ _aes_set_key (unsigned nr, unsigned nk,
   unsigned lastkey, i;
   uint32_t t;
 
-  assert (nk != 0);
+  assert_beebs (nk != 0);
   lastkey = (AES_BLOCK_SIZE / 4) * (nr + 1);
 
   for (i = 0, rp = rcon; i < nk; i++)
@@ -757,8 +757,8 @@ aes_set_encrypt_key (struct aes_ctx *ctx, size_t keysize, const uint8_t * key)
 {
   unsigned nk, nr;
 
-  assert (keysize >= AES_MIN_KEY_SIZE);
-  assert (keysize <= AES_MAX_KEY_SIZE);
+  assert_beebs (keysize >= AES_MIN_KEY_SIZE);
+  assert_beebs (keysize <= AES_MAX_KEY_SIZE);
 
   /* Truncate keysizes to the valid key sizes provided by Rijndael */
   if (keysize == AES256_KEY_SIZE)
@@ -1032,7 +1032,7 @@ void
 aes_encrypt (const struct aes_ctx *ctx,
 	     size_t length, uint8_t * dst, const uint8_t * src)
 {
-  assert (!(length % AES_BLOCK_SIZE));
+  assert_beebs (!(length % AES_BLOCK_SIZE));
   _nettle_aes_encrypt (ctx->rounds, ctx->keys, &_aes_encrypt_table,
 		       length, dst, src);
 }
@@ -1044,7 +1044,7 @@ void
 aes_decrypt (const struct aes_ctx *ctx,
 	     size_t length, uint8_t * dst, const uint8_t * src)
 {
-  assert (!(length % AES_BLOCK_SIZE));
+  assert_beebs (!(length % AES_BLOCK_SIZE));
   _nettle_aes_decrypt (ctx->rounds, ctx->keys, &_aes_decrypt_table,
 		       length, dst, src);
 }

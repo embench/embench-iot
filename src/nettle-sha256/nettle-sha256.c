@@ -79,7 +79,7 @@ typedef void nettle_hash_digest_func (void *ctx,
     /* Set the first char of padding to 0x80. This is safe since there  \
        is always at least one byte free */                              \
                                                                         \
-    assert(__md_i < sizeof((ctx)->block));                              \
+    assert_beebs(__md_i < sizeof((ctx)->block));                              \
     (ctx)->block[__md_i++] = 0x80;                                      \
                                                                         \
     if (__md_i > (sizeof((ctx)->block) - (size)))                       \
@@ -353,7 +353,7 @@ sha256_write_digest (struct sha256_ctx *ctx, size_t length, uint8_t * digest)
 {
   uint64_t bit_count;
 
-  assert (length <= SHA256_DIGEST_SIZE);
+  assert_beebs (length <= SHA256_DIGEST_SIZE);
 
   MD_PAD (ctx, 8, COMPRESS);
 

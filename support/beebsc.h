@@ -21,6 +21,17 @@
 #endif
 #define RAND_MAX ((1U << 15) - 1)
 
+/* Simplified assert.
+
+   The full complexity of assert is not needed for a benchmark. See the
+   discussion at:
+
+   https://lists.librecores.org/pipermail/embench/2019-August/000007.html 
+
+   This function just*/
+
+#define assert_beebs(expr) { if (!(expr)) exit (1); }
+
 /* Local simplified versions of library functions */
 
 int rand_beebs (void);
