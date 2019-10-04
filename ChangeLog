@@ -1,3 +1,16 @@
+2019-10-14  Paolo Savini
+
+	Remove initialization of new empty dictionary.
+
+	The initialization of a new empty dictionary in
+	populate_user_commands() to collect the user
+	compilation flags caused user flags not to be returned by
+	populate_user_commands(). Thus the extra compilation added by the user
+	were ignored.
+
+	* build-all.py: populate_user_commands(): Remove initialization of a
+	new empty dictionary.
+
 2019-08-29  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	Remove calls to library assert.
