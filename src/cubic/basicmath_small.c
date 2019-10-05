@@ -27,10 +27,14 @@ static double res1;
 int
 verify_benchmark (int res __attribute ((unused)) )
 {
-  static double exp_res0[3] = {2.0, 6.0, 2.5};
-  return (3 == soln_cnt0) && (fabs (2.0 - res0[0]) < 1.0e-10)
-    && (fabs (6.0 - res0[1]) < 1.0e-10) && (fabs (2.5 - res0[2]) < 1.0e-10)
-    && (1 == soln_cnt1) && (fabs (2.5 - res1) < 1.0e-10);
+  static const double exp_res0[3] = {2.0, 6.0, 2.5};
+  const double exp_res1 = 2.5;
+  return (3 == soln_cnt0)
+    && double_eq_beebs(exp_res0[0], res0[0])
+    && double_eq_beebs(exp_res0[1], res0[1])
+    && double_eq_beebs(exp_res0[2], res0[2])
+    && (1 == soln_cnt1)
+    && double_eq_beebs(exp_res1, res1);
 }
 
 

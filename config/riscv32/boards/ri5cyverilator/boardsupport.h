@@ -8,3 +8,5 @@
    SPDX-License-Identifier: GPL-3.0-or-later */
 
 #define CPU_MHZ 1
+#define VERIFY_DOUBLE_EPS 1.0e-13
+#define VERIFY_FLOAT_EPS 1.0e-5

@@ -206,8 +206,9 @@ verify_benchmark (int unused)
   double expSumB = 4996.84311303273534;
   double expCoef = 0.999900054853619324;
 
-  return (fabs (expSumA - SumA) < 1.0e13)
-    && (fabs (expSumB - SumB) < 1.0e-13) && (fabs (expCoef - Coef) < 1.0e-17);
+  return double_eq_beebs(expSumA, SumA)
+    && double_eq_beebs(expSumB, SumB)
+    && double_eq_beebs(expCoef, Coef);
 }
 
 

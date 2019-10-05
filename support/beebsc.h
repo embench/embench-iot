@@ -32,6 +32,11 @@
 
 #define assert_beebs(expr) { if (!(expr)) exit (1); }
 
+#define float_eq_beebs(exp, actual) (fabsf(exp - actual) < VERIFY_FLOAT_EPS)
+#define float_neq_beebs(exp, actual) !float_eq_beebs(exp, actual)
+#define double_eq_beebs(exp, actual) (fabs(exp - actual) < VERIFY_DOUBLE_EPS)
+#define double_neq_beebs(exp, actual) !double_eq_beebs(exp, actual)
+
 /* Local simplified versions of library functions */
 
 int rand_beebs (void);
