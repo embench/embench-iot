@@ -445,6 +445,7 @@ def compile_file(f_root, srcdir, bindir):
     # Run the compilation, but only if the source file is newer than the
     # binary.
     succeeded = True
+    res = None
 
     if not os.path.isfile(abs_bin) or (
             os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
@@ -473,8 +474,9 @@ def compile_file(f_root, srcdir, bindir):
     if not succeeded:
         log.debug('Args to subprocess:')
         log.debug(f'{arglist}')
-        log.debug(res.stdout.decode('utf-8'))
-        log.debug(res.stderr.decode('utf-8'))
+        if res:
+            log.debug(res.stdout.decode('utf-8'))
+            log.debug(res.stderr.decode('utf-8'))
 
     return succeeded
 
