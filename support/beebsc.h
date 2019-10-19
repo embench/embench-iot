@@ -43,6 +43,11 @@ void *malloc_beebs (size_t size);
 void *calloc_beebs (size_t nmemb, size_t size);
 void *realloc_beebs (void *ptr, size_t size);
 void free_beebs (void *ptr);
+
+#ifndef PI
+#define PI 3.141592653589793
+#endif
+
 #endif /* BEEBSC_H */
 
 

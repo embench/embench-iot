@@ -24,7 +24,6 @@
 
 #include <math.h>
 
-#include "pi.h"
 #include "sniptype.h"
 
 /*
