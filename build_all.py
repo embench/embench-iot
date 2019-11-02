@@ -268,7 +268,6 @@ def populate_user_commands(conf, args):
 def populate_user_flags(conf, args):
     """Populate a dictionary of configuration flag parameters, "conf", from
        values supplied on the command line in the structure, "args"."""
-    conf = {}
 
     if args.cflags:
         conf['cflags'] = args.cflags.split(sep=' ')
