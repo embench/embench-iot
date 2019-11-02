@@ -233,11 +233,10 @@ verify_benchmark (int res __attribute ((unused)))
 
   for (i = 0; i < 3; i++)
     for (j = 0; j < 3; j++)
-      if ((fabs (c[i][j] - c_exp[i][j]) > eps)
-	  || (fabs (d[i][j] - d_exp[i][j]) > eps))
+      if (float_neq_beebs(c[i][j], c_exp[i][j]) || float_neq_beebs(d[i][j], d_exp[i][j]))
 	return 0;
 
-  return fabs (det + 16.6666718) <= eps;
+  return float_eq_beebs(det, -16.6666718);
 }
 
 

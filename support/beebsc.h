@@ -21,6 +21,12 @@
 #endif
 #define RAND_MAX ((1U << 15) - 1)
 
+/* Common understanding of a "small value" (epsilon) for floating point
+   comparisons. */
+
+#define VERIFY_DOUBLE_EPS 1.0e-13
+#define VERIFY_FLOAT_EPS 1.0e-5
+
 /* Simplified assert.
 
    The full complexity of assert is not needed for a benchmark. See the
@@ -31,6 +37,11 @@
    This function just*/
 
 #define assert_beebs(expr) { if (!(expr)) exit (1); }
+
+#define float_eq_beebs(exp, actual) (fabsf(exp - actual) < VERIFY_FLOAT_EPS)
+#define float_neq_beebs(exp, actual) !float_eq_beebs(exp, actual)
+#define double_eq_beebs(exp, actual) (fabs(exp - actual) < VERIFY_DOUBLE_EPS)
+#define double_neq_beebs(exp, actual) !double_eq_beebs(exp, actual)
 
 /* Local simplified versions of library functions */
 
