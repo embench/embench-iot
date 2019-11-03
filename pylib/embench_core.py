@@ -29,6 +29,7 @@ import time
 # What we export
 
 __all__ = [
+    'check_python_version',
     'log',
     'gp',
     'setup_logging',
@@ -42,6 +43,15 @@ log = logging.getLogger()
 
 # All the global parameters
 gp = dict()
+
+
+# Make sure we have new enough python
+def check_python_version(major, minor):
+    """Check the python version is at least {major}.{minor}."""
+    if ((sys.version_info[0] < major)
+        or ((sys.version_info[0] == major) and (sys.version_info[1] < minor))):
+        log.error(f'ERROR: Requires Python {major}.{minor} or later')
+        sys.exit(1)
 
 
 def create_logdir(logdir):
