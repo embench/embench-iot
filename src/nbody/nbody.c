@@ -189,6 +189,7 @@ benchmark_body (int rpt)
       int i;
       offset_momentum (solar_bodies, BODIES_SIZE);
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
+      tot_e = 0.0;
       for (i = 0; i < 100; ++i)
 	tot_e += bodies_energy (solar_bodies, BODIES_SIZE);
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
@@ -275,6 +276,7 @@ verify_benchmark (int tot_e_ok)
   else
     return 0;
 
+  return 1;
 }
 
 
