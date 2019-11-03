@@ -182,6 +182,7 @@ static int __attribute__ ((noinline))
 benchmark_body (int rpt)
 {
   int j;
+  double tot_e = 0.0;
 
   for (j = 0; j < rpt; j++)
     {
@@ -189,14 +190,16 @@ benchmark_body (int rpt)
       offset_momentum (solar_bodies, BODIES_SIZE);
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
       for (i = 0; i < 100; ++i)
-	bodies_energy (solar_bodies, BODIES_SIZE);
+	tot_e += bodies_energy (solar_bodies, BODIES_SIZE);
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
     }
-  return 0;
+  /* Result is known good value for total energy. */
+  return double_eq_beebs(tot_e, -16.907516382852478);
 }
 
+
 int
-verify_benchmark (int unused)
+verify_benchmark (int tot_e_ok)
 {
   int i, j;
   /* print expected values */
@@ -253,19 +256,25 @@ verify_benchmark (int unused)
      .mass = 0.00203368686992463042206846779436}
   };
 
-  for (i = 0; i < BODIES_SIZE; i++)
-    {
-      for (j = 0; j < 3; j++)
-	{
-	  if (double_neq_beebs(solar_bodies[i].x[j], expected[i].x[j]))
-	    return 0;
-	  if (double_neq_beebs(solar_bodies[i].v[j], expected[i].v[j]))
-	    return 0;
-	}
-      if (double_neq_beebs(solar_bodies[i].mass, expected[i].mass))
-	return 0;
-    }
-  return 1;
+  /* Check we have the correct total energy and we have set up the
+     solar_bodies array correctly. */
+
+  if (tot_e_ok)
+    for (i = 0; i < BODIES_SIZE; i++)
+      {
+	for (j = 0; j < 3; j++)
+	  {
+	    if (double_neq_beebs(solar_bodies[i].x[j], expected[i].x[j]))
+	      return 0;
+	    if (double_neq_beebs(solar_bodies[i].v[j], expected[i].v[j]))
+	      return 0;
+	  }
+	if (double_neq_beebs(solar_bodies[i].mass, expected[i].mass))
+	  return 0;
+      }
+  else
+    return 0;
+
 }
 
 
