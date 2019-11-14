@@ -37,9 +37,22 @@ typedef int64_t int64;
 
 /* Multiply unsigned long 64-bit routine, i.e., 64 * 64 ==> 128.
 Parameters u and v are multiplied and the 128-bit product is placed in
-(*whi, *wlo). It is Knuth's Algorithm M from [Knu2] section 4.3.1.
-Derived from muldwu.c in the Hacker's Delight collection. */
+(*whi, *wlo). If __int128 is not defined by the compiler, we fall back
+to Knuth's Algorithm M from [Knu2] section 4.3.1. Derived from muldwu.c
+in the Hacker's Delight collection. */
 
+#ifdef __SIZEOF_INT128__
+void
+mulul64 (uint64 u, uint64 v, uint64 * whi, uint64 * wlo)
+{
+  unsigned __int128 result;
+
+  result = (unsigned __int128)u * v;
+
+  *wlo = result;
+  *whi = result >> 64;
+}
+#else
 void
 mulul64 (uint64 u, uint64 v, uint64 * whi, uint64 * wlo)
 {
@@ -67,6 +80,7 @@ mulul64 (uint64 u, uint64 v, uint64 * whi, uint64 * wlo)
 
   return;
 }
+#endif
 
 /* ---------------------------- modul64 ----------------------------- */
 
