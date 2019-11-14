@@ -84,7 +84,7 @@ Embench is based on the following principles:
 2. **Embench must be easy to port and run:**
    - if very difficult or expensive to port and run, then it will not be as
      widely used; and
-   - Linpack, Dhrystone, and CoreMark don’t have good reputations yet are
+   - Linpack, Dhrystone, and CoreMark don't have good reputations yet are
      widely reported presumably because they are free and easy to port and
      run.
 
@@ -107,7 +107,7 @@ Embench is based on the following principles:
      Foundation (FOSSi), rather than creating a new organization.
 
 5. **Embench must report a single summarizing performance score:**
-   - if no official single performance score, then it won’t be as widely
+   - if no official single performance score, then it won't be as widely
      reported;
    - even worse, others may supply unofficial summaries that are either
      misleading or conflicting;
@@ -316,12 +316,12 @@ takes the following arguments.
 
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which to build.  It may be an absolute or relative directory
-  name; if the latter, it will be relative to the top level drectory of the
+  name; if the latter, it will be relative to the top level directory of the
   repository. Default value `bd`.
 - `--logdir`: A log file is created with detailed information about the
   build. This specifies the directory in which to place the log file.  It may
   be an absolute or relative directory name; if the latter, it will be
-  relative to the top level drectory of the repository. Default value `logs`.
+  relative to the top level directory of the repository. Default value `logs`.
 - `--arch`: This mandatory argument specifies the architecture for which the
   benchmarks are to be built. It corresponds to a directory name in the main
   [`config`](../config) directory.
@@ -385,14 +385,14 @@ script, which takes the following arguments.
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which the programs were built.  It may be an absolute or
   relative directory name; if the latter, it will be relative to the top level
-  drectory of the repository. Default value `bd`.
+  directory of the repository. Default value `bd`.
 - `--logdir`: A log file is created with detailed information about the
   benchmark run. This specifies the directory in which to place the log file.
   It may be an absolute or relative directory name; if the latter, it will be
-  relative to the top level drectory of the repository. Default value `logs`.
+  relative to the top level directory of the repository. Default value `logs`.
 - `--relative` or `--absolute`: If `--relative` is specified, present
   benchmark results relative to the baseline architecture.  If `--absolute` is
-  specified, present absoluted bencharmk results.  If neither is specified,
+  specified, present absolute benchmark results.  If neither is specified,
   present relative results, because this is the defined norm for Embench.
 - `--text`: A space separated list of sections containing code.  Default value
   `.text`.
@@ -415,15 +415,15 @@ script, which takes the following general arguments.
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which the programs were built.  It may be an absolute or
   relative directory name; if the latter, it will be relative to the top level
-  drectory of the repository. Default value `bd`.
+  directory of the repository. Default value `bd`.
 - `--logdir`: A log file is created with detailed information about the
   benchmark run. This specifies the directory in which to place the log file.
   It may be an absolute or relative directory name; if the latter, it will be
-  relative to the top level drectory of the repository. Default value `logs`.
+  relative to the top level directory of the repository. Default value `logs`.
 - `--logdir`: A log file is created with detailed information about the
   build. This specifies the directory in which to place the log file.  It may
   be an absolute or relative directory name; if the latter, it will be
-  relative to the top level drectory of the repository. Default value `logs`.
+  relative to the top level directory of the repository. Default value `logs`.
 - `--target-module <target module>`: This mandatory argument specifies a
   python module in the [`pylib`](../pylib) directory with definitions of
   routines to run the benchmark.
@@ -500,48 +500,48 @@ sections.
 
 The reference platform is a Verilator model of the PULP RI5CY core - see
 [github.com/pulp-platform/riscv](https://github.com/pulp-platform/riscv) -
-commit 300762a.  It uses a GCC tool chain built from top of tree, version
-10.0.0 20190527, commit 4f90058758f.
+commit `300762a`.  It uses a GCC tool chain built from top of tree, version
+`10.0.0 20190527`, commit `4f90058758f`.
 
-| _Benchmark_    | _Speed_  | _Size_ |
-| -------------- | --------:| ------:|
-| aha-mont64     | 4,000    |  1,052 |
-| crc32          | 4,013    |    230 |
-| cubic          | 4,140    |  2,466 |
-| edn            | 3,984    |  1,452 |
-| huffbench      | 4,109    |  1,628 |
-| matmult-int    | 4,020    |    420 |
-| minver         | 4,003    |  1,076 |
-| nbody          | 3,774    |    708 |
-| nettle-aes     | 3,988    |  2,874 |
-| nettle-sha256  | 4,000    |  5,558 |
-| nsichneu       | 4,001    | 15,036 |
-| picojpeg       | 3,747    |  8,022 |
-| qrduino        | 4,210    |  6,056 |
-| sglib-combined | 4,028    |  2,316 |
-| slre           | 3,994    |  2,422 |
-| st             | 4,151    |    880 |
-| statemate      | 4,000    |  3,686 |
-| ud             | 4,001    |    702 |
-| wikisort       | 4,226    |  4,208 |
+| _Benchmark_ --   | _Speed_  | _Size_ |
+| ---------------- | --------:| ------:|
+| `aha-mont64`     | 4,000    |  1,052 |
+| `crc32`          | 4,013    |    230 |
+| `cubic`          | 4,140    |  2,466 |
+| `edn`            | 3,984    |  1,452 |
+| `huffbench`      | 4,109    |  1,628 |
+| `matmult-int`    | 4,020    |    420 |
+| `minver`         | 4,003    |  1,076 |
+| `nbody`          | 3,774    |    708 |
+| `nettle-aes`     | 3,988    |  2,874 |
+| `nettle-sha256`  | 4,000    |  5,558 |
+| `nsichneu`       | 4,001    | 15,036 |
+| `picojpeg`       | 3,747    |  8,022 |
+| `qrduino`        | 4,210    |  6,056 |
+| `sglib-combined` | 4,028    |  2,316 |
+| `slre`           | 3,994    |  2,422 |
+| `st`             | 4,151    |    880 |
+| `statemate`      | 4,000    |  3,686 |
+| `ud`             | 4,001    |    702 |
+| `wikisort`       | 4,226    |  4,208 |
 
 **NOTE** Speed is measured in milliseconds, size is total size of all `.text`
   sections in bytes.
 
 ## Documentation
 
-The documentation is recorded in the file [doc/README.md](../doc/README.md)
-using GitHub flavoured Markdown. Whilst very simple in the formatting it
+The documentation is recorded in the file [`doc/README.md`](../doc/README.md)
+using GitHub flavored Markdown. Whilst very simple in the formatting it
 permits, this format is used for portability.
 
 ### Building the documentation
 
 The documentation can be viewed directly on GitHub - see
-[doc/README.md](../doc/README.md). However if _aspell_, _pandoc_ and associated
-utilities are installed, then a _Makefile_ is provided which can do the
-following on Linux like systems:
+[`doc/README.md`](../doc/README.md). However if _hunspell_, _pandoc_ and
+associated utilities are installed, then a _Makefile_ is provided which can do
+the following on Linux like systems:
 
-- spell check the document (`make spell`);
+- spell check the document, listing any misspelled words (`make spell`);
 - insert a table of comments into the document (`make toc`);
 - build a HTML version of the document (`make html`);
 - build a PDF version of the document (`make pdf`);
@@ -599,7 +599,7 @@ configuring.
 
 ### Configuration files
 
-Configuration data may be defined for the architecture, for the chip and for the vboard. These files are found respectively in
+Configuration data may be defined for the architecture, for the chip and for the board. These files are found respectively in
 ```
 config/ARCH/arch.cfg
 config/ARCH/boards/BOARDNAME/board.cfg
