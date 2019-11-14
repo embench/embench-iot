@@ -13,16 +13,19 @@ and Trevor Mudge (see https://tmt.knect365.com/risc-v-workshop-zurich/agenda/2#s
 
 The benchmarks are largely derived from the Bristol/Embecosm Embedded
 Benchmark Suite (BEEBS, see http://beebs.eu), which in turn draws its material
-from various earlier projects.  A full description and user manual is in the [`doc` directory](./doc/README.adoc).
+from various earlier projects.  A full description and user manual is in the
+[`doc` directory](./doc/README.md).
 
 ## Using the benchmarks
 
 The benchmarks can be used to yield a single consistent score for the
 performance of a platform and its compiler tool chain.  The mechanism for this
-is described in the [user manual](./doc/README.adoc).
+is described in the [user manual](./doc/README.md).
 
 - The benchmarks should all compile to fit in 64kB of program space and use no
-  more than 16kB of RAM.
+  more than 64kB of RAM
+  - **Note.** An earlier version tried to limit RAM to 16kB, but this proved
+    too restrictive.
 
 - The measurement of execution performance is designed to use "hot" caches.
   Thus each benchmark executes its entire code several times, before starting
@@ -41,16 +44,16 @@ is described in the [user manual](./doc/README.adoc).
 
 ## Structure of the repository
 
-The top level directory contains the scripts to build and execute the
-benchmarks.  The current version uses GNU Autotools to build the benhmarks and
-DejaGnu to run them.  This will be replaced by Python scripts for platform
-portability in a future release.  The following are the key top level
-directories.
+The top level directory contains Python scripts to build and execute the
+benchmarks.  The following are the key top level directories.
 
 - [`config`](./config): containing a directory for each
   architecture supported, and within that directory subdirectories for board
   and cpu descriptions.  Configuation data can be provided for individual CPUs
   and individual boards.
+  - **Note.** The structure of the [`config`](./config) directory is proving
+    overly complex, yet inflexible. It is likely it will be flattened in a
+    future release of the scripts.
 
 - [`doc`](./doc): The user manual for Embench.
 
@@ -60,8 +63,7 @@ directories.
 - [`support`](./support): The generic wrapper code for
   benchmarks, including substitutes for some library and emulation functions.
 
-- [`testsuite`](./testsuite): The DejanGnu scripts to run the
-  benchmarks
+- [`pylib`](./pylib): Support code for the python scripts
 
 ## Licensing
 
