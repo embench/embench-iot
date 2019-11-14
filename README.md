@@ -14,13 +14,13 @@ and Trevor Mudge (see https://tmt.knect365.com/risc-v-workshop-zurich/agenda/2#s
 The benchmarks are largely derived from the Bristol/Embecosm Embedded
 Benchmark Suite (BEEBS, see http://beebs.eu), which in turn draws its material
 from various earlier projects.  A full description and user manual is in the
-[`doc` directory](./doc/README.adoc).
+[`doc` directory](./doc/README.md).
 
 ## Using the benchmarks
 
 The benchmarks can be used to yield a single consistent score for the
 performance of a platform and its compiler tool chain.  The mechanism for this
-is described in the [user manual](./doc/README.adoc).
+is described in the [user manual](./doc/README.md).
 
 - The benchmarks should all compile to fit in 64kB of program space and use no
   more than 64kB of RAM

@@ -625,7 +625,7 @@ Board specific code that is to be linked in to the benchmarks should be
 defined in `config/ARCH/boards/BOARDNAME/boardsupport.c`.  This file should
 define the following functions:
 
-- `initialize_board` which is alled to initialize the board;
+- `initialize_board` which is called to initialize the board;
 - `start_trigger` which is called at the start of the test run; and
 - `stop_trigger` which is called at the end of the test run.
 
