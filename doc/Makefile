@@ -19,6 +19,7 @@ toc: README.md
 .PHONY: spell
 spell: README.md custom.wordlist
 	@sed < README.md -e 's/`[^`]\+`//g' -e '/^```/,/^```$$/d' \
+	    -e 's/&#[^;]\+;//g' \
 	    -e 's/<!-- .\+ -->//g' -e 's/\[.\+\]([^)]*)//g' | \
 	    hunspell -p custom.wordlist -l -d en_US | sort -u
 

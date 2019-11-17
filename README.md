@@ -1,9 +1,9 @@
-# Embench: Open Benchmarks for Embedded Platforms
+# Embench&#x2122;: Open Benchmarks for Embedded Platforms
 
-This repository contains the Embench free and open source benchmark suite.
-These benchmarks are designed to test the performance of deeply embedded
-systems.  As such they assume the presence of no OS, minimal C library support
-and in particular no output stream.
+This repository contains the Embench&#x2122; free and open source benchmark
+suite.  These benchmarks are designed to test the performance of deeply
+embedded systems.  As such they assume the presence of no OS, minimal C
+library support and in particular no output stream.
 
 The rationale behind this benchmark is described in "Embench™: An Evolving
 Benchmark Suite for Embedded IoT Computers from an Academic-Industrial
