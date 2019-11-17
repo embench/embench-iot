@@ -1,4 +1,4 @@
-# Embench User Guide
+# Embench&#x2122; User Guide
 
 <!--
 Contributor Jeremy Bennett <jeremy.bennett@embecosm.com>
@@ -14,14 +14,17 @@ Document conventions:
 - Do not commit the PDF!
 -->
 
-Authors: Embench Task Group
+Authors: Embench&#x2122; Task Group
 Issue:   0.6 Draft
 
 Copyright (C) 2009, 2013, 2019 Embecosm Limited
 
-This document is part of Embench and was formerly part of the Bristol/Embecosm
-Embedded Benchmark Suite.  It is made freely available under the terms of the
-GNU Free Documentation License version 1.2 or later.
+This document is part of Embench and was formerly part of the
+Bristol/Embecosm Embedded Benchmark Suite.  It is made freely available under
+the terms of the GNU Free Documentation License version 1.2 or later.
+
+Embench is a trade mark of the Embench Task Group of the Free and Open Source
+Silicon Foundation.
 
 ## Table of Contents
 
@@ -69,9 +72,9 @@ GNU Free Documentation License version 1.2 or later.
 
 ## About Embench
 
-Embench is a suite of free and open source C benchmarks, all of which are
-small real-world programs suitable for running on deeply embedded systems with
-at least 64kB of ROM and 64kB of RAM.
+Embench is a suite of free and open source C benchmarks, all of which
+are small real-world programs suitable for running on deeply embedded systems
+with at least 64kB of ROM and 64kB of RAM.
 
 Embench is based on the following principles:
 
@@ -99,8 +102,8 @@ Embench is based on the following principles:
    - a suite of around 20 real programs means a more realistic workload that
      is much easier to evolve.
 
-4. **Embench must have a supporting organization that maintains its relevance
-   over time:**
+4. **Embench must have a supporting organization that maintains its
+   relevance over time:**
    - need an organization to evolve suite over time;
    - goal of refreshes every two years once we get to Embench 1.0; and
    - set up inside an existing organization, the Free and Open Source Silicon
@@ -114,7 +117,8 @@ Embench is based on the following principles:
    - might include orthogonal measures, like code size or power -- each would
      have a summarizing score.
 
-6. **Embench should use geometric mean and standard deviation to summarize:**
+6. **Embench should use geometric mean and standard deviation to
+   summarize:**
    - recommend first calculating the ratios of performance relative to a
    reference platform; and
    - report geometric mean (GM) of ratios + geometric standard deviation
@@ -311,8 +315,8 @@ any board specific timing mechanism.
 
 ### Building the benchmarks
 
-Embench is built with the [`build_all.py`](../build_all.py) script, which
-takes the following arguments.
+Embench is built with the [`build_all.py`](../build_all.py) script,
+which takes the following arguments.
 
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which to build.  It may be an absolute or relative directory
