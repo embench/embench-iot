@@ -64,6 +64,17 @@ def build_parser():
         action='store_false',
         help='Specify to show relative results (the default)',
     )
+    parser.add_argument(
+        '--json-output',
+        action='store_true',
+        help='Specify to output in JSON format',
+    )
+    parser.add_argument(
+        '--text-output',
+        dest='json_output',
+        action='store_false',
+        help='Specify to output as plain text (the default)',
+    )
     # List arguments are empty by default, a user specified value then takes
     # precedence. If the list is empty after parsing, then we can install a
     # default value.
@@ -127,6 +138,7 @@ def validate_args(args):
         sys.exit(1)
 
     gp['absolute'] = args.absolute
+    gp['json'] = args.json_output
 
     # Sort out the list of section names to use
     gp['secnames'] = dict()
@@ -179,7 +191,11 @@ def collect_data(benchmarks):
        the list of benchmarks supplied in the "benchmarks" argument. Return
        the raw data and relative data as a list.  The raw data may be empty if
        there is a failure. The relative data will be empty if only absolute
-       results have been requested."""
+       results have been requested.
+
+       Note that we manually generate the JSON output, rather than using the
+       dumps method, because the result will be manually edited, and we want
+       to guarantee the layout."""
 
     # Baseline data is held external to the script. Import it here.
     gp['baseline_dir'] = os.path.join(
@@ -199,8 +215,12 @@ def collect_data(benchmarks):
     successful = True
     raw_data = {}
     rel_data = {}
-    log.info('Benchmark            size')
-    log.info('---------            ----')
+    if gp['json']:
+        log.info('  "size results" :')
+        log.info('  { "detailed size results" :')
+    else:
+        log.info('Benchmark            size')
+        log.info('---------            ----')
 
     for bench in benchmarks:
         raw_data[bench] = benchmark_size(bench)
@@ -211,17 +231,35 @@ def collect_data(benchmarks):
         # concern.
         if gp['absolute']:
             # Want absolute results. Only include non-zero values
-            output = f'{raw_data[bench]:8,}'
+            if gp['json']:
+                output = f'{raw_data[bench]}'
+            else:
+                output = f' {raw_data[bench]:8,}'
         else:
             # Want relative results (the default). If baseline is zero, just
-            # use 0.0 as the value.
+            # use 0.0 as the value.  Note this is inverted compared to the
+            # speed benchmark, so SMALL is good.
             if baseline[bench] > 0:
                 rel_data[bench] = raw_data[bench] / baseline[bench]
             else:
                 rel_data[bench] = 0.0
-            output = f'  {rel_data[bench]:6.2f}'
+            if gp['json']:
+                output = f'{rel_data[bench]:.2f}'
+            else:
+                output = f'   {rel_data[bench]:6.2f}'
 
-        log.info(f'{bench:15}  {output:8}')
+        if gp['json']:
+            if bench == benchmarks[0]:
+                log.info('    { ' + f'"{bench}" : {output},')
+            elif bench == benchmarks[-1]:
+                log.info(f'      "{bench}" : {output}')
+            else:
+                log.info(f'      "{bench}" : {output},')
+        else:
+            log.info(f'{bench:15} {output:8}')
+
+    if gp['json']:
+        log.info('    },')
 
     if successful:
         return raw_data, rel_data
@@ -260,7 +298,7 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        embench_stats(benchmarks, raw_data, rel_data)
+        embench_stats(benchmarks, raw_data, rel_data, 'size', ',')
         log.info('All benchmarks sized successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')

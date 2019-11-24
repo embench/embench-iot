@@ -466,11 +466,27 @@ __lttf2 (long double a __attribute__ ((unused)),
 }
 
 
+int
+__modsi3 (int a __attribute__ ((unused)),
+	  int b __attribute__ ((unused)))
+{
+  return 0;
+}
+
+
 double
 __muldf3 (double a __attribute__ ((unused)),
 	  double b __attribute__ ((unused)))
 {
   return 0.0;
+}
+
+
+long int
+__muldi3 (long int a __attribute__ ((unused)),
+	  long int b __attribute__ ((unused)))
+{
+  return 0;
 }
 
 
@@ -553,6 +569,14 @@ __umoddi3 (unsigned long a __attribute__ ((unused)),
 	   unsigned long b __attribute__ ((unused)))
 {
   return 0.0;
+}
+
+
+unsigned int
+__umodsi3 (unsigned int a __attribute__ ((unused)),
+	  unsigned int b __attribute__ ((unused)))
+{
+  return 0;
 }
 
 

@@ -68,6 +68,17 @@ def get_common_args():
         help='Specify to show relative results (the default)',
     )
     parser.add_argument(
+        '--json-output',
+        action='store_true',
+        help='Specify to output in JSON format',
+    )
+    parser.add_argument(
+        '--text-output',
+        dest='json_output',
+        action='store_false',
+        help='Specify to output as plain text (the default)',
+    )
+    parser.add_argument(
         '--target-module',
         type=str,
         required=True,
@@ -103,6 +114,7 @@ def validate_args(args):
 
     gp['absolute'] = args.absolute
     gp['timeout'] = args.timeout
+    gp['json'] = args.json_output
 
     try:
         newmodule = importlib.import_module(args.target_module)
@@ -155,8 +167,16 @@ def benchmark_speed(bench, target_args):
     if succeeded:
         return exec_time
     else:
+        for arg in arglist:
+            if arg == arglist[0]:
+                comm = arg
+            elif arg == '-ex':
+                comm = ' ' + arg
+            else:
+                comm = " '" + arg + "'"
+
         log.debug('Args to subprocess:')
-        log.debug(f'{arglist}')
+        log.debug(f'{comm}')
         if 'res' in locals():
             log.debug(res.stdout.decode('utf-8'))
             log.debug(res.stderr.decode('utf-8'))
@@ -187,8 +207,12 @@ def collect_data(benchmarks, remnant):
     successful = True
     raw_data = {}
     rel_data = {}
-    log.info('Benchmark           Speed')
-    log.info('---------           -----')
+    if gp['json']:
+        log.info('  "speed results" :')
+        log.info('  { "detailed speed results" :')
+    else:
+        log.info('Benchmark           Speed')
+        log.info('---------           -----')
 
     for bench in benchmarks:
         raw_data[bench] = benchmark_speed(bench, target_args)
@@ -201,13 +225,35 @@ def collect_data(benchmarks, remnant):
             output = ''
             if gp['absolute']:
                 # Want absolute results. Only include non-zero values
-                output = f'{round(raw_data[bench]):8,}'
+                if gp['json']:
+                    output = f'{round(raw_data[bench])}'
+                else:
+                    output = f'{round(raw_data[bench]):8,}'
+            else:
+                # Want relative results (the default). Only use non-zero
+                # values.  Note this is inverted compared to the size
+                # benchmark, so LARGE is good.
+                rel_data[bench] = baseline[bench] / raw_data[bench]
+                if gp['json']:
+                    output = f'{rel_data[bench]:.2f}'
+                else:
+                    output = f'  {rel_data[bench]:6.2f}'
+
+            if gp['json']:
+                if bench == benchmarks[0]:
+                    log.info('    { ' + f'"{bench}" : {output},')
+                elif bench == benchmarks[-1]:
+                    log.info(f'      "{bench}" : {output}')
+                else:
+                    log.info(f'      "{bench}" : {output},')
             else:
                 # Want relative results (the default). Only use non-zero values.
                 rel_data[bench] = baseline[bench] / raw_data[bench]
                 output = f'  {rel_data[bench]:6.2f}'
+                log.info(f'{bench:15}  {output:8}')
 
-            log.info(f'{bench:15}  {output:8}')
+    if gp['json']:
+        log.info('    },')
 
     if successful:
         return raw_data, rel_data
@@ -246,7 +292,7 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        embench_stats(benchmarks, raw_data, rel_data)
+        embench_stats(benchmarks, raw_data, rel_data, 'speed', '')
         log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute speed benchmarks')
