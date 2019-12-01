@@ -43,6 +43,7 @@ rv32_gcc_opt_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
+            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -54,35 +55,76 @@ rv32_gcc_opt_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
+            '--no-json-comma',
         ],
         'desc' : 'run'
     },
     'runs' : [
         { 'name' : 'rv32imc-opt-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-os',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o0',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O0',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o1',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O1',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o3',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o3-inline-40',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -finline-functions ' +
                      '-finline-limit=40',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-opt-o3-unroll-inline-200',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -funroll-all-loops ' +
                      '-finline-functions -finline-limit=200',
+          'ldflags' : '',
         },
     ]
 }
@@ -94,6 +136,7 @@ rv32_gcc_isa_runset = {
         'arglist' : [
             './benchmark_size.py',
             '--json-output',
+            '--json-comma',
         ],
         'desc' : 'sized'
     },
@@ -105,27 +148,537 @@ rv32_gcc_isa_runset = {
 	    '--gdbserver-command=riscv32-gdbserver',
 	    '--gdb-command=riscv32-unknown-elf-gdb',
             '--json-output',
+            '--no-json-comma',
         ],
         'desc' : 'run'
     },
     'runs' : [
         { 'name' : 'rv32i-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32i -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
         },
         { 'name' : 'rv32im-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32im -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
         },
         { 'name' : 'rv32i-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32i -mabi=ilp32 -O2',
+          'ldflags' : '',
         },
         { 'name' : 'rv32im-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32im -mabi=ilp32 -O2',
+          'ldflags' : '',
         },
         { 'name' : 'rv32imc-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
+        },
+    ]
+}
+
+
+rv32_gcc_version_runset = {
+    'name' : 'RV32 GCC compiler version comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'speed benchmark' : {
+        'timeout' : 1800,
+        'arglist' : [
+            './benchmark_speed.py',
+            '--target-module=run_gdbserver_sim',
+	    '--gdbserver-command=riscv32-gdbserver',
+	    '--gdb-command=riscv32-unknown-elf-gdb',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'run'
+    },
+    'runs' : [
+        { 'name' : 'rv32imc-version-7-1-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_7.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-2-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_7.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-3-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_7.3',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-4-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_7.4',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-5-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_7.5',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-1-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_8.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-2-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_8.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-3-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_8.3',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-9-1-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_9.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-9-2-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_9.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-master-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'path' : 'install-rv32-gcc_10.0.0',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-1-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_7.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-2-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_7.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-3-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_7.3',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-4-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_7.4',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-7-5-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_7.5',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-1-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_8.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-2-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_8.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-8-3-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_8.3',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-9-1-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_9.1',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-9-2-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_9.2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32imc-version-master-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'path' : 'install-rv32-gcc_10.0.0',
+          'ldflags' : '',
+        },
+    ]
+}
+
+gcc_arch_runset = {
+    'name' : 'RV32IMC GCC optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'runs' : [
+        { 'name' : 'arc-arch-os',
+          'arch' : 'arc',
+          'chip' : 'em',
+	  'board' : 'generic',
+          'cc' : 'arc-elf32-gcc',
+          'cflags' : '-mcpu=em -Os',
+          'ldflags' : '',
+          'path' : 'install-arc-gcc-10.0.0',
+        },
+        { 'name' : 'arm-arch-os',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-10.0.0',
+        },
+        { 'name' : 'avr-arch-os',
+          'arch' : 'avr',
+          'chip' : 'atmega64',
+	  'board' : 'generic',
+          'cc' : 'avr-gcc',
+          'cflags' : '-mmcu=avr5 -Os',
+          'ldflags' : '-mmcu=avr5 -Wl,-no-gc-sections',
+          'path' : 'install-avr-gcc-10.0.0',
+        },
+        { 'name' : 'rv32imc-arch-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-rv32-gcc_10.0.0',
+        },
+        { 'name' : 'arc-arch-o2',
+          'arch' : 'arc',
+          'chip' : 'em',
+	  'board' : 'generic',
+          'cc' : 'arc-elf32-gcc',
+          'cflags' : '-mcpu=em -O2',
+          'ldflags' : '',
+          'path' : 'install-arc-gcc-10.0.0',
+        },
+        { 'name' : 'arm-arch-o2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O2',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-10.0.0',
+        },
+        { 'name' : 'avr-arch-o2',
+          'arch' : 'avr',
+          'chip' : 'atmega64',
+	  'board' : 'generic',
+          'cc' : 'avr-gcc',
+          'cflags' : '-mmcu=avr5 -O2',
+          'ldflags' : '-mmcu=avr5 -Wl,-no-gc-sections',
+          'path' : 'install-avr-gcc-10.0.0',
+        },
+        { 'name' : 'rv32imc-arch-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
+          'path' : 'install-rv32-gcc_10.0.0',
+        },
+    ]
+}
+
+gcc9_arch_runset = {
+    'name' : 'RV32IMC GCC optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'runs' : [
+        { 'name' : 'arc-arch-gcc-9.2-os',
+          'arch' : 'arc',
+          'chip' : 'em',
+	  'board' : 'generic',
+          'cc' : 'arc-elf32-gcc',
+          'cflags' : '-mcpu=em -Os',
+          'ldflags' : '',
+          'path' : 'install-arc-gcc-9.2',
+        },
+        { 'name' : 'arm-arch-gcc-9.2-os',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-9.2',
+        },
+        { 'name' : 'avr-arch-gcc-9.2-os',
+          'arch' : 'avr',
+          'chip' : 'atmega64',
+	  'board' : 'generic',
+          'cc' : 'avr-gcc',
+          'cflags' : '-mmcu=avr5 -Os',
+          'ldflags' : '-mmcu=avr5',
+          'path' : 'install-avr-gcc-9.2',
+        },
+        { 'name' : 'rv32imc-arch-gcc-9.2-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-rv32-gcc_9.2',
+        },
+        { 'name' : 'arc-arch-gcc-9.2-o2',
+          'arch' : 'arc',
+          'chip' : 'em',
+	  'board' : 'generic',
+          'cc' : 'arc-elf32-gcc',
+          'cflags' : '-mcpu=em -O2',
+          'ldflags' : '',
+          'path' : 'install-arc-gcc-9.2',
+        },
+        { 'name' : 'arm-arch-gcc-9.2-o2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O2',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-9.2',
+        },
+        { 'name' : 'avr-arch-gcc-9.2-o2',
+          'arch' : 'avr',
+          'chip' : 'atmega64',
+	  'board' : 'generic',
+          'cc' : 'avr-gcc',
+          'cflags' : '-mmcu=avr5 -O2',
+          'ldflags' : '-mmcu=avr5',
+          'path' : 'install-avr-gcc-9.2',
+        },
+        { 'name' : 'rv32imc-arch-gcc-9.2-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
+          'path' : 'install-rv32-gcc_9.2',
+        },
+    ]
+}
+
+
+arm_gcc_version_runset = {
+    'name' : 'Arm Cortex M4 compiler version comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'runs' : [
+        { 'name' : 'arm-version-4.9.4-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-4.9.4',
+        },
+        { 'name' : 'arm-version-5-5-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-5.5',
+        },
+        { 'name' : 'arm-version-6-5-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-6.5',
+        },
+        { 'name' : 'arm-version-7-5-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-7.5',
+        },
+        { 'name' : 'arm-version-8-3-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-8.3',
+        },
+        { 'name' : 'arm-version-9-2-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-9.2',
+        },
+        { 'name' : 'arm-version-master-os-thumb2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -std=c11 -Os',
+          'ldflags' : '',
+          'path' : 'install-arm-gcc-10.0.0',
         },
     ]
 }
@@ -151,12 +704,44 @@ def build_parser():
         action='store_true',
         help='Run RISC-V GCC isa comparison benchmarks'
     )
+    parser.add_argument(
+        '--rv32-gcc-version',
+        action='store_true',
+        help='Run RISC-V GCC version comparison benchmarks'
+    )
+    parser.add_argument(
+        '--gcc-arch',
+        action='store_true',
+        help='Run GCC architecture comparison benchmarks'
+    )
+    parser.add_argument(
+        '--gcc9-arch',
+        action='store_true',
+        help='Run GCC 9.2 architecture comparison benchmarks'
+    )
+    parser.add_argument(
+        '--arm-gcc-version',
+        action='store_true',
+        help='Run Arm GCC version comparison benchmarks'
+    )
 
     return parser
 
 
+def arglist_to_str(arglist):
+    """Make arglist into a string"""
+
+    for arg in arglist:
+        if arg == arglist[0]:
+            str = arg
+        else:
+            str = str + ' ' + arg
+
+    return str
+
+
 def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
-                     dummy_libs=None, user_libs=None):
+                     dummy_libs=None, user_libs=None, path=None):
     """Build all the benchmarks"""
 
     # Construct the argument list
@@ -177,12 +762,27 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
     if user_libs:
         arglist.append(f'--user-libs={user_libs}')
 
+    # Do we need a different path?
+    if path:
+        installdir = os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            os.pardir,
+            path,
+            'bin'
+        ))
+        env = os.environ
+        oldpath = env['PATH']
+        env['PATH'] = installdir + os.pathsep + env['PATH']
+    else:
+        env = None
+
     # Run the build script
     try:
         res = subprocess.run(
             arglist,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            env=env,
             timeout=30,
         )
         if res.returncode == 0:
@@ -191,11 +791,15 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
                 print('ERROR: Not all benchmarks built successfully')
                 sys.exit(1)
         else:
-            print(f'ERROR: {arglist} failed')
+            print(f'ERROR: {arglist_to_str(arglist)} failed')
             sys.exit(1)
     except subprocess.TimeoutExpired:
-        print(f'ERROR: {arglist} timed out')
+        print(f'ERROR: {arglist_to_str(arglist)} timed out')
         sys.exit(1)
+
+    # Restore the environment
+    if path:
+        env['PATH'] = oldpath
 
 
 def benchmark(arglist, timeout, desc, resfile, append):
@@ -215,14 +819,15 @@ def benchmark(arglist, timeout, desc, resfile, append):
                 print('ERROR: Not all benchmarks ' + desc + ' successfully')
                 sys.exit(1)
         else:
-            print(f'ERROR: {arglist} failed')
+            print(f'ERROR: {arglist_to_str(arglist)} failed')
             sys.exit(1)
     except subprocess.TimeoutExpired:
-        print(f'ERROR: {arglist} timed out')
+        print(f'ERROR: {arglist_to_str(arglist)} timed out')
         sys.exit(1)
 
     # Dump the data
-    with open(resfile, 'a') as fileh:
+    mode = 'a' if append else 'w'
+    with open(resfile, mode) as fileh:
         for line in res.stdout.decode('utf-8').splitlines(keepends=True):
             if not 'All benchmarks ' + desc + ' successfully' in line:
                 fileh.writelines(line)
@@ -242,6 +847,14 @@ def main():
         runsets.append(rv32_gcc_opt_runset)
     if args.rv32_gcc_isa:
         runsets.append(rv32_gcc_isa_runset)
+    if args.rv32_gcc_version:
+        runsets.append(rv32_gcc_version_runset)
+    if args.gcc_arch:
+        runsets.append(gcc_arch_runset)
+    if args.gcc9_arch:
+        runsets.append(gcc9_arch_runset)
+    if args.arm_gcc_version:
+        runsets.append(arm_gcc_version_runset)
 
     if not runsets:
         print("ERROR: No run sets specified")
@@ -253,44 +866,57 @@ def main():
 
         for r in rs['runs']:
             name = r['name']
-            cflags = r['cflags']
+            if r['ldflags']:
+                ldflags_size = r['ldflags'] + ' -nostartfiles -nostdlib'
+            else:
+                ldflags_size = '-nostartfiles -nostdlib'
+
+            if 'path' in r:
+                path = r['path']
+            else:
+                path = None
             print(f'  {name}')
             resfile = os.path.join('results', name + '.json')
 
             # Size benchmark
-            build_benchmarks(
-                arch='riscv32',
-                chip='generic',
-	        board='ri5cyverilator',
-            cc='riscv32-unknown-elf-gcc',
-                cflags=f'{cflags}',
-                ldflags='-nostartfiles -nostdlib',
-                dummy_libs='crt0 libc libgcc libm'
-            )
-            benchmark(
-                arglist=rs['size benchmark']['arglist'],
-                timeout=rs['size benchmark']['timeout'],
-                desc=rs['size benchmark']['desc'],
-                resfile=resfile,
-                append=False
-            )
+            if 'size benchmark' in rs:
+                build_benchmarks(
+                    arch=r['arch'],
+                    chip=r['chip'],
+                    board=r['board'],
+                    cc=r['cc'],
+                    cflags=r['cflags'],
+                    ldflags=ldflags_size,
+                    dummy_libs='crt0 libc libgcc libm',
+                    path=path
+                )
+                benchmark(
+                    arglist=rs['size benchmark']['arglist'],
+                    timeout=rs['size benchmark']['timeout'],
+                    desc=rs['size benchmark']['desc'],
+                    resfile=resfile,
+                    append=False
+                )
 
             # Speed benchmark
-            build_benchmarks(
-                arch='riscv32',
-                chip='generic',
-	        board='ri5cyverilator',
-                cc='riscv32-unknown-elf-gcc',
-                cflags=f'{cflags}',
-                user_libs='-lm'
-            )
-            benchmark(
-                arglist=rs['speed benchmark']['arglist'],
-                timeout=rs['speed benchmark']['timeout'],
-                desc=rs['speed benchmark']['desc'],
-                resfile=resfile,
-                append=True
-            )
+            if 'speed benchmark' in rs:
+                build_benchmarks(
+                    arch=r['arch'],
+                    chip=r['chip'],
+                    board=r['board'],
+                    cc=r['cc'],
+                    cflags=r['cflags'],
+                    ldflags=r['ldflags'],
+                    user_libs='-lm',
+                    path=path
+                )
+                benchmark(
+                    arglist=rs['speed benchmark']['arglist'],
+                    timeout=rs['speed benchmark']['timeout'],
+                    desc=rs['speed benchmark']['desc'],
+                    resfile=resfile,
+                    append=True
+                )
 
 
 # Make sure we have new enough Python and only run if this is the main package

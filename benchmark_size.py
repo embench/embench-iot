@@ -75,6 +75,17 @@ def build_parser():
         action='store_false',
         help='Specify to output as plain text (the default)',
     )
+    parser.add_argument(
+        '--json-comma',
+        action='store_true',
+        help='Specify to append a comma to the JSON output',
+    )
+    parser.add_argument(
+        '--no-json-comma',
+        dest='json_comma',
+        action='store_false',
+        help='Specify to not append a comma to the JSON output',
+    )
     # List arguments are empty by default, a user specified value then takes
     # precedence. If the list is empty after parsing, then we can install a
     # default value.
@@ -298,7 +309,8 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        embench_stats(benchmarks, raw_data, rel_data, 'size', ',')
+        opt_comma = ',' if args.json_comma else ''
+        embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
         log.info('All benchmarks sized successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')

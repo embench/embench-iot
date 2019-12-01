@@ -431,14 +431,17 @@ def log_parameters():
     log.debug('')
 
 
-def compile_file(f_root, srcdir, bindir):
-    """Compile a single C file, with the given file root, "f_root", from the
-       source directory, "srcdir", in to the bin directory, "bindir" using the
-       general preprocessor and C compilation flags.
+def compile_file(f_root, srcdir, bindir, suffix='.c'):
+    """Compile a single C or assembler file, with the given file root, "f_root",
+       suffix "suffix", from the source directory, "srcdir", in to the bin
+       directory, "bindir" using the general preprocessor and C compilation
+       flags.
 
        Return True if the compilation success, False if it fails. Log
-       everything in the event of failure"""
-    abs_src = os.path.join(f'{srcdir}', f'{f_root}.c')
+       everything in the event of failure
+
+    """
+    abs_src = os.path.join(f'{srcdir}', f'{f_root}{suffix}')
     abs_bin = os.path.join(f'{bindir}', f'{f_root}.o')
 
     # Construct the argument list
@@ -465,14 +468,14 @@ def compile_file(f_root, srcdir, bindir):
             )
             if res.returncode != 0:
                 log.warning(
-                    f'Warning: Compilation of {f_root}.c from source directory '
-                    + f'{srcdir} to binary directory {bindir} failed'
+                    f'Warning: Compilation of {f_root}{suffix} from source ' +
+                    f'directory {srcdir} to binary directory {bindir} failed'
                 )
                 succeeded = False
         except subprocess.TimeoutExpired:
             log.warning(
-                f'Warning: Compilation of {f_root}.c from source directory '
-                + f'{srcdir} to binary directory {bindir} timed out'
+                f'Warning: Compilation of {f_root}{suffix} from source ' +
+                f'directory {srcdir} to binary directory {bindir} timed out'
             )
             succeeded = False
 
@@ -542,26 +545,30 @@ def compile_support():
 
     # Compile architecture, chip and board specific files.  Note that we only
     # create the build directory if it is needed here.
-    for dirname in ['arch', 'chip', 'board']:
-        filename = os.path.join(gp[dirname + 'dir'], dirname + 'support.c')
-        if os.path.isfile(filename):
-            # Create build directory
-            builddir = gp['bd_' + dirname + 'dir']
-            if not os.path.isdir(builddir):
-                try:
-                    os.makedirs(builddir)
-                except PermissionError:
-                    log.warning(
-                        'Warning: Unable to create build directory '
-                        + f'for {dirname}, "{builddir}'
-                    )
-                    return False
+    for dirtype in ['arch', 'chip', 'board']:
+        # Support directory we are interested in
+        dirname = gp[dirtype + 'dir']
+        # List of files/subdirectories in that directory
+        filelist = os.listdir(dirname)
+        # Compile every C or assembler source file
+        for filename in filelist:
+            root, ext = os.path.splitext(filename)
+            full_fn = os.path.join(dirname, filename)
+            if (os.path.isfile(full_fn) and
+                (ext == '.c' or ext == '.s' or ext == '.S')):
+                # Create build directory
+                builddir = gp['bd_' + dirtype + 'dir']
+                if not os.path.isdir(builddir):
+                    try:
+                        os.makedirs(builddir)
+                    except PermissionError:
+                        log.warning(
+                            'Warning: Unable to create build directory '
+                            + f'for {dirname}, "{builddir}'
+                        )
+                        return False
 
-            succeeded &= compile_file(
-                dirname + 'support',
-                gp[dirname + 'dir'],
-                gp['bd_' + dirname + 'dir'],
-            )
+                succeeded &= compile_file(root, dirname, builddir, suffix=ext)
 
     return succeeded
 
@@ -578,14 +585,23 @@ def create_link_binlist(abs_bd):
             binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
 
     # Add arch, chip and board binaries
-    for dirname in ['arch', 'chip', 'board']:
-        binf = os.path.join(gp[f'bd_{dirname}dir'], f'{dirname}support.o')
-        if os.path.isfile(binf):
-            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+    for dirtype in ['arch', 'chip', 'board']:
+        # Build directory
+        bindir = gp[f'bd_{dirtype}dir']
+        # List of files in the build directory
+        filelist = os.listdir(bindir)
+        # Add every object file
+        for filename in filelist:
+            root, ext = os.path.splitext(filename)
+            binf = os.path.join(bindir, filename)
+            if (os.path.isfile(binf) and (ext == '.o')):
+                binlist.extend(
+                    gp['ld_input_pattern'].format(binf).split(sep=' ')
+                )
 
     # Add generic support
-    for supp in ['main', 'beebsc']:
-        binf = os.path.join(gp['bd_supportdir'], f'{supp}.o')
+    for supp in ['main.o', 'beebsc.o']:
+        binf = os.path.join(gp['bd_supportdir'], supp)
         if os.path.isfile(binf):
             binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
         else:

@@ -79,6 +79,17 @@ def get_common_args():
         help='Specify to output as plain text (the default)',
     )
     parser.add_argument(
+        '--json-comma',
+        action='store_true',
+        help='Specify to append a comma to the JSON output',
+    )
+    parser.add_argument(
+        '--no-json-comma',
+        dest='json_comma',
+        action='store_false',
+        help='Specify to not append a comma to the JSON output',
+    )
+    parser.add_argument(
         '--target-module',
         type=str,
         required=True,
@@ -292,7 +303,8 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        embench_stats(benchmarks, raw_data, rel_data, 'speed', '')
+        opt_comma = ',' if args.json_comma else ''
+        embench_stats(benchmarks, raw_data, rel_data, 'speed', opt_comma)
         log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute speed benchmarks')
