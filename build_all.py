@@ -33,6 +33,7 @@ from embench_core import setup_logging
 from embench_core import log_args
 from embench_core import find_benchmarks
 from embench_core import log_benchmarks
+from embench_core import arglist_to_str
 
 
 def build_parser():
@@ -125,6 +126,9 @@ def build_parser():
         '--warmup-heat',
         type=int,
         help='Number of warmup loops to execute before benchmark',
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='More messages'
     )
     parser.add_argument(
         '--clean', action='store_true', help='Rebuild everything'
@@ -458,6 +462,10 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
     if not os.path.isfile(abs_bin) or (
             os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
     ):
+        if gp['verbose']:
+            log.debug(f'Compiling in directory {bindir}')
+            log.debug(arglist_to_str(arglist))
+
         try:
             res = subprocess.run(
                 arglist,
@@ -480,8 +488,8 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
             succeeded = False
 
     if not succeeded:
-        log.debug('Args to subprocess:')
-        log.debug(f'{arglist}')
+        log.debug('Command was:')
+        log.debug(arglist_to_str(arglist))
         if res:
             log.debug(res.stdout.decode('utf-8'))
             log.debug(res.stderr.decode('utf-8'))
@@ -655,6 +663,10 @@ def link_benchmark(bench):
     arglist = create_link_arglist(bench, binlist)
 
     # Run the link
+    if gp['verbose']:
+        log.debug(f'Linking in directory {abs_bd_b}')
+        log.debug(arglist_to_str(arglist))
+
     try:
         res = subprocess.run(
             arglist,
@@ -671,8 +683,9 @@ def link_benchmark(bench):
         succeeded = False
 
     if not succeeded:
-        log.debug('Args to subprocess:')
-        log.debug(f'{arglist}')
+        log.debug('In directory "' + abs_bd_b + '"')
+        log.debug('Command was:')
+        log.debug(arglist_to_str(arglist))
         log.debug(res.stdout.decode('utf-8'))
         log.debug(res.stderr.decode('utf-8'))
 
@@ -690,6 +703,7 @@ def main():
     args = parser.parse_args()
 
     # Establish logging, using "build" as the log file prefix.
+    gp['verbose'] = args.verbose
     setup_logging(args.logdir, 'build')
     log_args(args)
 

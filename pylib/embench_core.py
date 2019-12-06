@@ -36,6 +36,7 @@ __all__ = [
     'log_args',
     'log_benchmarks',
     'embench_stats',
+    'arglist_to_str',
 ]
 
 # Handle for the logger
@@ -268,3 +269,15 @@ def embench_stats(benchmarks, raw_data, rel_data, bm_type, opt_comma):
     geosd = compute_geosd(benchmarks, raw_data, rel_data, geomean, count)
     georange = compute_georange(geomean, geosd, count)
     output_stats(geomean, geosd, georange, count, bm_type, opt_comma)
+
+
+def arglist_to_str(arglist):
+    """Make arglist into a string"""
+
+    for arg in arglist:
+        if arg == arglist[0]:
+            str = arg
+        else:
+            str = str + ' ' + arg
+
+    return str

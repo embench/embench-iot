@@ -60,6 +60,24 @@ rv32_gcc_opt_runset = {
         'desc' : 'run'
     },
     'runs' : [
+        { 'name' : 'rv32imc-opt-lto-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore -flto',
+          'ldflags' : '-flto',
+          'path' : 'install-rv32-gcc-10.0.0',
+        },
+        { 'name' : 'rv32imc-opt-lto-o3',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -flto',
+          'ldflags' : '-flto',
+          'path' : 'install-rv32-gcc-10.0.0',
+        },
         { 'name' : 'rv32imc-opt-os-save-restore',
           'arch' : 'riscv32',
           'chip' : 'generic',
@@ -67,6 +85,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-os',
           'arch' : 'riscv32',
@@ -75,6 +94,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o0',
           'arch' : 'riscv32',
@@ -83,6 +103,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O0',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o1',
           'arch' : 'riscv32',
@@ -91,6 +112,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O1',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o2',
           'arch' : 'riscv32',
@@ -99,6 +121,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o3',
           'arch' : 'riscv32',
@@ -107,6 +130,7 @@ rv32_gcc_opt_runset = {
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o3-inline-40',
           'arch' : 'riscv32',
@@ -116,6 +140,7 @@ rv32_gcc_opt_runset = {
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -finline-functions ' +
                      '-finline-limit=40',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
         },
         { 'name' : 'rv32imc-opt-o3-unroll-inline-200',
           'arch' : 'riscv32',
@@ -125,6 +150,43 @@ rv32_gcc_opt_runset = {
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -funroll-all-loops ' +
                      '-finline-functions -finline-limit=200',
           'ldflags' : '',
+          'path' : 'install-rv32-gcc-10.0.0',
+        },
+    ]
+}
+
+rv32_llvm_opt_runset = {
+    'name' : 'RV32IMC LLVM optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'speed benchmark' : {
+        'timeout' : 1800,
+        'arglist' : [
+            './benchmark_speed.py',
+            '--target-module=run_gdbserver_sim',
+	    '--gdbserver-command=riscv32-gdbserver',
+	    '--gdb-command=riscv32-unknown-elf-gdb',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'run'
+    },
+    'runs' : [
+        { 'name' : 'rv32imc-llvm-opt-oz-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Oz -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-riscv32-llvm-ljr',
         },
     ]
 }
@@ -700,6 +762,11 @@ def build_parser():
         help='Run RISC-V GCC optimization comparison benchmarks'
     )
     parser.add_argument(
+        '--rv32-llvm-opt',
+        action='store_true',
+        help='Run RISC-V Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
         '--rv32-gcc-isa',
         action='store_true',
         help='Run RISC-V GCC isa comparison benchmarks'
@@ -748,6 +815,7 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
     arglist = [
         f'./build_all.py',
         f'--clean',
+        f'--verbose',
         f'--arch={arch}',
         f'--chip={chip}',
 	f'--board={board}',
@@ -845,6 +913,8 @@ def main():
 
     if args.rv32_gcc_opt:
         runsets.append(rv32_gcc_opt_runset)
+    if args.rv32_llvm_opt:
+        runsets.append(rv32_llvm_opt_runset)
     if args.rv32_gcc_isa:
         runsets.append(rv32_gcc_isa_runset)
     if args.rv32_gcc_version:
