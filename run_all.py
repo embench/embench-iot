@@ -68,6 +68,8 @@ rv32_gcc_opt_runset = {
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore -flto',
           'ldflags' : '-flto',
           'path' : 'install-rv32-gcc-10.0.0',
+          'env' : ('AR=riscv32-unknown-elf-gcc-ar,' +
+                   'RANLIB=riscv32-unknown-elf-gcc-ranlib')
         },
         { 'name' : 'rv32imc-opt-lto-o3',
           'arch' : 'riscv32',
@@ -77,6 +79,8 @@ rv32_gcc_opt_runset = {
           'cflags' : '-march=rv32imc -mabi=ilp32 -O3 -flto',
           'ldflags' : '-flto',
           'path' : 'install-rv32-gcc-10.0.0',
+          'env' : ('AR=riscv32-unknown-elf-gcc-ar,' +
+                   'RANLIB=riscv32-unknown-elf-gcc-ranlib')
         },
         { 'name' : 'rv32imc-opt-os-save-restore',
           'arch' : 'riscv32',
@@ -215,12 +219,36 @@ rv32_gcc_isa_runset = {
         'desc' : 'run'
     },
     'runs' : [
+        { 'name' : 'rv32e-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32e -mabi=ilp32e -Os -msave-restore',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32ec-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32ec -mabi=ilp32e -Os -msave-restore',
+          'ldflags' : '',
+        },
         { 'name' : 'rv32i-isa-os-save-restore',
           'arch' : 'riscv32',
           'chip' : 'generic',
 	  'board' : 'ri5cyverilator',
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32i -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32ic-isa-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32ic -mabi=ilp32 -Os -msave-restore',
           'ldflags' : '',
         },
         { 'name' : 'rv32im-isa-os-save-restore',
@@ -239,12 +267,36 @@ rv32_gcc_isa_runset = {
           'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
           'ldflags' : '',
         },
+        { 'name' : 'rv32e-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32e -mabi=ilp32e -O2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32ec-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32ec -mabi=ilp32e -O2',
+          'ldflags' : '',
+        },
         { 'name' : 'rv32i-isa-o2',
           'arch' : 'riscv32',
           'chip' : 'generic',
 	  'board' : 'ri5cyverilator',
           'cc' : 'riscv32-unknown-elf-gcc',
           'cflags' : '-march=rv32i -mabi=ilp32 -O2',
+          'ldflags' : '',
+        },
+        { 'name' : 'rv32ic-isa-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32ic -mabi=ilp32 -O2',
           'ldflags' : '',
         },
         { 'name' : 'rv32im-isa-o2',
@@ -808,7 +860,7 @@ def arglist_to_str(arglist):
 
 
 def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
-                     dummy_libs=None, user_libs=None, path=None):
+                     dummy_libs=None, user_libs=None, path=None, env=None):
     """Build all the benchmarks"""
 
     # Construct the argument list
@@ -829,6 +881,8 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
         arglist.append(f'--dummy-libs={dummy_libs}')
     if user_libs:
         arglist.append(f'--user-libs={user_libs}')
+    if env:
+        arglist.append(f'--env={env}')
 
     # Do we need a different path?
     if path:
@@ -945,6 +999,12 @@ def main():
                 path = r['path']
             else:
                 path = None
+
+            if 'env' in r:
+                env = r['env']
+            else:
+                env = None
+
             print(f'  {name}')
             resfile = os.path.join('results', name + '.json')
 
@@ -958,7 +1018,8 @@ def main():
                     cflags=r['cflags'],
                     ldflags=ldflags_size,
                     dummy_libs='crt0 libc libgcc libm',
-                    path=path
+                    path=path,
+                    env=env,
                 )
                 benchmark(
                     arglist=rs['size benchmark']['arglist'],
@@ -978,7 +1039,8 @@ def main():
                     cflags=r['cflags'],
                     ldflags=r['ldflags'],
                     user_libs='-lm',
-                    path=path
+                    path=path,
+                    env=env,
                 )
                 benchmark(
                     arglist=rs['speed benchmark']['arglist'],

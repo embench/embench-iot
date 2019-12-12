@@ -42,82 +42,64 @@ def build_parser():
 
     parser.add_argument(
         '--builddir',
-        type=str,
         default='bd',
         help='Directory in which to build benchmarks and support code',
     )
     parser.add_argument(
         '--logdir',
-        type=str,
         default='logs',
         help='Directory in which to store logs',
     )
     parser.add_argument(
         '--arch',
-        type=str,
         required=True,
         help='The architecture for which to build',
     )
     parser.add_argument(
         '--chip',
-        type=str,
-        default='default',
+        default='generic',
         help='The chip for which to build',
     )
     parser.add_argument(
         '--board',
-        type=str,
-        default='default',
+        default='generic',
         help='The board for which to build',
     )
-    parser.add_argument('--cc', type=str, help='C compiler to use')
-    parser.add_argument('--ld', type=str, help='Linker to use')
+    parser.add_argument('--cc', help='C compiler to use')
+    parser.add_argument('--ld', help='Linker to use')
+    parser.add_argument('--cflags', help='Additional C compiler flags to use')
+    parser.add_argument('--ldflags', help='Additional linker flags to use')
     parser.add_argument(
-        '--cflags', type=str, help='Additional C compiler flags to use'
-    )
-    parser.add_argument(
-        '--ldflags', type=str, help='Additional linker flags to use'
+        '--env',
+        help='additional environment vars, format <V>=<val> [,<V>=<value>]...',
     )
     parser.add_argument(
         '--cc-define1-pattern',
-        type=str,
         help='Pattern to define constant for compiler',
     )
     parser.add_argument(
         '--cc-define2-pattern',
-        type=str,
         help='Pattern to define constant to a specific value for compiler',
     )
     parser.add_argument(
         '--cc-incdir-pattern',
-        type=str,
         help='Pattern to specify include directory for the compiler',
     )
     parser.add_argument(
-        '--cc-input-pattern',
-        type=str,
-        help='Pattern to specify compiler input file',
+        '--cc-input-pattern', help='Pattern to specify compiler input file',
     )
     parser.add_argument(
-        '--cc-output-pattern',
-        type=str,
-        help='Pattern to specify compiler output file',
+        '--cc-output-pattern', help='Pattern to specify compiler output file',
     )
     parser.add_argument(
-        '--ld-input-pattern',
-        type=str,
-        help='Pattern to specify linker input file',
+        '--ld-input-pattern', help='Pattern to specify linker input file',
     )
     parser.add_argument(
-        '--ld-output-pattern',
-        type=str,
-        help='Pattern to specify linker output file',
+        '--ld-output-pattern', help='Pattern to specify linker output file',
     )
+    parser.add_argument('--user-libs', help='Additional libraries to use')
     parser.add_argument(
-        '--user-libs', type=str, help='Additional libraries to use'
-    )
-    parser.add_argument(
-        '--dummy-libs', type=str, help='Dummy libraries to build and link'
+        '--dummy-libs', help='Dummy libraries to build and link'
     )
     parser.add_argument(
         '--cpu-mhz', type=int, help='Processor clock speed in MHz'
@@ -203,6 +185,14 @@ def validate_args(args):
             + f'"{args.arch}": exiting'
         )
         sys.exit(1)
+
+    # The supplementary environment
+    gp['env'] = dict()
+    if args.env:
+        envlist = args.env.split(',')
+        for envarg in envlist:
+            var, val = envarg.split('=', 1)
+            gp['env'][var] = val
 
     # Other args validated later.
 
@@ -433,6 +423,12 @@ def log_parameters():
         log.debug(f'{key:<21}: {val}')
 
     log.debug('')
+
+
+def set_environ():
+    """Add additional environment variables, if any"""
+    for key in gp['env']:
+        os.environ[key] = gp['env'][key]
 
 
 def compile_file(f_root, srcdir, bindir, suffix='.c'):
@@ -723,6 +719,9 @@ def main():
 
     log.debug('General log')
     log.debug('===========')
+
+    # Set up additional environment variables.
+    set_environ()
 
     # Track success
     successful = compile_support()
