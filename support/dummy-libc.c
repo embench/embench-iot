@@ -236,6 +236,7 @@ fopen (const char *pathname __attribute__ ((unused)),
 
 /* AVR defines a dummy version in the header already */
 #ifndef __AVR__
+int
 fflush (FILE * stream __attribute__ ((unused)))
 {
   return 0;
@@ -390,6 +391,7 @@ tolower (int c __attribute__ ((unused)))
 
 /* Extra bits just for AVR */
 #ifdef __AVR__
+
 int
 isspace (int c __attribute__ ((unused)))
 {
@@ -402,13 +404,58 @@ isxdigit (int c __attribute__ ((unused)))
   return 0;
 }
 
-int
-tolower (int c __attribute__ ((unused)))
+#endif
+
+/* Extra bits just for ARM */
+#ifdef __arm__
+
+void
+__aeabi_memclr4 (void *dest __attribute__ ((unused)),
+		 size_t n __attribute__ ((unused)))
 {
-  return 0;
 }
 
-#endif
+void
+__aeabi_memclr8 (void *dest __attribute__ ((unused)),
+		 size_t n __attribute__ ((unused)))
+{
+}
+
+void
+__aeabi_memclr (void *dest __attribute__ ((unused)),
+		size_t n __attribute__ ((unused)))
+{
+}
+
+void
+__aeabi_memcpy4 (void *dest __attribute__ ((unused)),
+		 const void *source __attribute__ ((unused)),
+		 size_t n __attribute__ ((unused)))
+{
+}
+
+void
+__aeabi_memcpy (void *dest __attribute__ ((unused)),
+		const void *source __attribute__ ((unused)),
+		size_t n __attribute__ ((unused)))
+{
+}
+
+void
+__aeabi_memmove4 (void *dest __attribute__ ((unused)),
+		  const void *source __attribute__ ((unused)),
+		  size_t n __attribute__ ((unused)))
+{
+}
+
+void
+__aeabi_memmove (void *dest __attribute__ ((unused)),
+		 const void *source __attribute__ ((unused)),
+		 size_t n __attribute__ ((unused)))
+{
+}
+
+#endif /* __arm__ */
 
 /*
    Local Variables:
