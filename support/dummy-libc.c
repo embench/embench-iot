@@ -28,6 +28,7 @@ void *__locale_ctype_ptr;
 int __errno;
 
 char *_ctype_;
+char *__ctype_ptr__;
 
 struct _reent *_impure_ptr;
 
@@ -192,6 +193,9 @@ sprintf (char *str __attribute__ ((unused)),
   return 0;
 }
 
+#ifdef putchar
+#undef putchar
+#endif
 int
 putchar (int c __attribute__ ((unused)))
 {
@@ -276,6 +280,9 @@ fgetc (FILE * stream __attribute__ ((unused)))
   return 0;
 }
 
+#ifdef getc
+#undef getc
+#endif
 int
 getc (FILE * stream __attribute__ ((unused)))
 {
@@ -295,6 +302,9 @@ fputc (int ch __attribute__ ((unused)),
   return 0;
 }
 
+#ifdef putc
+#undef putc
+#endif
 int
 putc (int ch __attribute__ ((unused)), FILE * stream __attribute__ ((unused)))
 {
