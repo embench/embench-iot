@@ -179,6 +179,10 @@ of surname).
 | 0.6 Draft  | 13 Nov 19 | Jeremy Bennett | Migrated to markdown and updated   |
 |            |           |                | to refer to Python scripts.        |
 |            |           |                |                                    |
+|            | 21 Jan 20 | Lyell Read     | Correcting partial sentence and    |
+|            |           |                | removing duplicate logfile flag    |
+|            |           |                | defenition                         |
+|            |           |                |                                    |
 | 0.5 Draft  |  6 Jun 19 | Jeremy Bennett | First draft of this document,      |
 |            |           |                | drawing heavily on the BEEBS       |
 |            |           |                | documentation.                     |
@@ -194,9 +198,9 @@ Unpack the software.  Either extract from the supplied _tar_ file:
 ```bash
 tar xf embench-VERSION.tar.bz2
 ```
-or clone the _git_ repository:
+or clone this git repository:
 ```bash
-git clone https://github.com/embench/embench.git
+git clone https://github.com/embench/embench-iot.git
 ```
 Embench is built out of tree, so create a _separate_ directory in which to
 build along side.
@@ -421,10 +425,6 @@ script, which takes the following general arguments.
   relative directory name; if the latter, it will be relative to the top level
   directory of the repository. Default value `bd`.
 - `--logdir`: A log file is created with detailed information about the
-  benchmark run. This specifies the directory in which to place the log file.
-  It may be an absolute or relative directory name; if the latter, it will be
-  relative to the top level directory of the repository. Default value `logs`.
-- `--logdir`: A log file is created with detailed information about the
   build. This specifies the directory in which to place the log file.  It may
   be an absolute or relative directory name; if the latter, it will be
   relative to the top level directory of the repository. Default value `logs`.
@@ -622,8 +622,7 @@ config/ARCH/chips/CHIPNAME/chipsupport.h
 ```
 
 These are combined into the general header `support.h` which is included by
-all benchmarks, and defines values which may be used by the benchmarks. The
-values that may be defined are:
+all benchmarks, and defines values which may be used by the benchmarks.
 
 Board specific code that is to be linked in to the benchmarks should be
 defined in `config/ARCH/boards/BOARDNAME/boardsupport.c`.  This file should
