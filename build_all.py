@@ -129,6 +129,12 @@ def build_parser():
     parser.add_argument(
         '--clean', action='store_true', help='Rebuild everything'
     )
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        default=5,
+        help='Timeout used for the compiler and linker invocations'
+    )
 
     return parser
 
@@ -251,6 +257,7 @@ def populate_defaults():
     conf['dummy_libs'] = {}
     conf['cpu_mhz'] = 1
     conf['warmup_heat'] = 1
+    conf['timeout'] = 5
 
     return conf
 
@@ -281,7 +288,6 @@ def populate_user_flags(conf, args):
 def populate_user_patterns(conf, args):
     """Populate a dictionary of configuration pattern parameters, "conf", from
        values supplied on the command line in the structure, "args"."""
-    conf = {}
 
     if args.cc_define1_pattern:
         conf['cc_define1_pattern'] = args.cc_define1_pattern
@@ -304,7 +310,6 @@ def populate_user_patterns(conf, args):
 def populate_user_libs(conf, args):
     """Populate a dictionary of configuration library parameters, "conf", from
        values supplied on the command line in the structure, "args"."""
-    conf = {}
 
     if args.user_libs:
         conf['user_libs'] = args.user_libs.split(sep=' ')
@@ -317,12 +322,13 @@ def populate_user_libs(conf, args):
 def populate_user_defs(conf, args):
     """Populate a dictionary of configuration definition parameters, "conf", from
        values supplied on the command line in the structure, "args"."""
-    conf = {}
 
     if args.cpu_mhz:
         conf['cpu_mhz'] = args.cpu_mhz
     if args.warmup_heat:
         conf['warmup_heat'] = args.warmup_heat
+    if args.timeout:
+        conf['timeout'] = args.timeout
 
     return conf
 
@@ -337,7 +343,6 @@ def populate_user(args):
     populate_user_patterns(conf, args)
     populate_user_libs(conf, args)
     populate_user_defs(conf, args)
-
     return conf
 
 
@@ -456,7 +461,7 @@ def compile_file(f_root, srcdir, bindir):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 cwd=bindir,
-                timeout=5,
+                timeout=gp['timeout'],
             )
             if res.returncode != 0:
                 log.warning(
@@ -640,7 +645,7 @@ def link_benchmark(bench):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             cwd=abs_bd_b,
-            timeout=5,
+            timeout=gp['timeout'],
         )
         if res.returncode != 0:
             log.warning(f'Warning: Link of benchmark "{bench}" failed')
