@@ -20,7 +20,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 397
+#define LOCAL_SCALE_FACTOR 475
 
 // From nettle/nettle-types.h
 

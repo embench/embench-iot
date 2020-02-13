@@ -259,8 +259,6 @@ def collect_data(benchmarks, remnant):
                     log.info(f'      "{bench}" : {output},')
             else:
                 # Want relative results (the default). Only use non-zero values.
-                rel_data[bench] = baseline[bench] / raw_data[bench]
-                output = f'  {rel_data[bench]:6.2f}'
                 log.info(f'{bench:15}  {output:8}')
 
     if gp['json']:

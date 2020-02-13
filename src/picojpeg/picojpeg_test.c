@@ -18,7 +18,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 5
+#define LOCAL_SCALE_FACTOR 6
 
 const unsigned char jpeg_data[] = {
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,

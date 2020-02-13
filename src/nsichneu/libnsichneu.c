@@ -38,7 +38,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 1316
+#define LOCAL_SCALE_FACTOR 1231
 
 #ifdef DO_TRACING		// ON PC
 

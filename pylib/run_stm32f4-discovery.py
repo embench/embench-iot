@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Python module to run programs on a gdbserver with simulator
+# Python module to run programs on a stm32f4-discovery board
 
 # Copyright (C) 2019 Embecosm Limited
 #
@@ -44,12 +44,6 @@ def get_target_args(remnant):
         default='gdbserver',
         help='Command to invoke the GDB server',
     )
-    parser.add_argument(
-        '--gdbserver-target',
-        type=str,
-        default='ri5cy',
-        help='target argument to gdbserver',
-    )
 
     return parser.parse_args(remnant)
 
@@ -61,24 +55,19 @@ def build_benchmark_cmd(bench, args):
     cmd = [f'{args.gdb_command}']
     gdb_comms = [
         'set confirm off',
-        'set style enabled off',
-        'set height 0',
         'file {0}',
-        f'target remote | {args.gdbserver_command} '
-        + f'-c {args.gdbserver_target} --stdin',
-        'stepi',
-        'stepi',
+        'target extended-remote :4242',
         'load',
+        'delete breakpoints',
         'break start_trigger',
         'break stop_trigger',
         'break _exit',
-        'jump *_start',
-        'monitor cyclecount',
         'continue',
-        'monitor cyclecount',
+        'print /u *0xe0001004',
         'continue',
-        'print $a0',
-        'detach',
+        'print /u *0xe0001004',
+        'continue',
+        'print /x $a0',
         'quit',
     ]
 
@@ -94,18 +83,17 @@ def decode_results(stdout_str, stderr_str):
     # Return code is in standard output. We look for the string that means we
     # hit a breakpoint on _exit, then for the string returning the value.
     rcstr = re.search(
-        'Breakpoint 3,.*\$1 = (\d+)', stdout_str, re.S
+        'Breakpoint 3 at.*exit\.c.*\$1 = (\d+)', stdout_str, re.S
     )
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
 
     # The start and end cycle counts are in the stderr string
-    times = re.search('(\d+)\D+(\d+)', stderr_str, re.S)
-    if times:
-        ms_elapsed = float(int(times.group(2)) - int(times.group(1))) / 1000.0
-        return ms_elapsed
+    starttime = re.search('\$1 = (\d+)', stdout_str, re.S)
+    endtime = re.search('\$2 = (\d+)', stdout_str, re.S)
+    if not starttime or not endtime:
+        log.debug('Warning: Failed to find timing')
+        return 0.0
 
-    # We must have failed to find a time
-    log.debug('Warning: Failed to find timing')
-    return 0.0
+    return int(endtime.group(1)) - int(starttime.group(1))
