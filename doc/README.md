@@ -192,6 +192,14 @@ of surname).
 The benchmarks have to be first compiled, then they can then be measured on
 the target.
 
+### Prerequisites
+
+Embench expects the following version of tools. Update your system accordingly.
+
+| _Components_ | _Version_    |
+| -------------| -------------|
+| python       | 3.6          |
+
 ### Preparation
 
 Unpack the software.  Either extract from the supplied _tar_ file:
