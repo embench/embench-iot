@@ -358,6 +358,23 @@ memchr (const void *s __attribute__ ((unused)),
   return 0;
 }
 
+unsigned short int **
+__ctype_b_loc (void)
+{
+  return 0;
+}
+
+unsigned short int **
+__ctype_tolower_loc (void)
+{
+  return 0;
+}
+
+int
+tolower (int c __attribute__ ((unused)))
+{
+  return 0;
+}
 
 /*
    Local Variables:
