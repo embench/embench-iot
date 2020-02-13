@@ -36,6 +36,330 @@ from embench_core import log_benchmarks
 
 # The various sets of benchmarks we could run
 
+fosdem_rv32_gcc_opt_runset = {
+    'name' : 'FOSDEM RV32IMC optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'speed benchmark' : {
+        'timeout' : 1800,
+        'arglist' : [
+            './benchmark_speed.py',
+            '--target-module=run_gdbserver_sim',
+	    '--gdbserver-command=riscv32-gdbserver',
+	    '--gdb-command=riscv32-unknown-elf-gdb',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'run'
+    },
+    'runs' : [
+        { 'name' : 'fosdem-rv32-gcc-opt-o0',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O0',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+        { 'name' : 'fosdem-rv32-gcc-opt-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+        { 'name' : 'fosdem-rv32-gcc-opt-og',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Og',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+        { 'name' : 'fosdem-rv32-gcc-opt-o1',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O1',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+        { 'name' : 'fosdem-rv32-gcc-opt-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+        { 'name' : 'fosdem-rv32-gcc-opt-o3',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-gcc',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O3',
+          'ldflags' : '',
+          'path' : 'install-gcc',
+        },
+    ]
+}
+
+fosdem_rv32_llvm_opt_runset = {
+    'name' : 'FOSDEM RV32IMC optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'speed benchmark' : {
+        'timeout' : 1800,
+        'arglist' : [
+            './benchmark_speed.py',
+            '--target-module=run_gdbserver_sim',
+	    '--gdbserver-command=riscv32-gdbserver',
+	    '--gdb-command=riscv32-unknown-elf-gdb',
+            '--json-output',
+            '--no-json-comma',
+        ],
+        'desc' : 'run'
+    },
+    'runs' : [
+        { 'name' : 'fosdem-rv32-llvm-opt-o0',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O0',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+        { 'name' : 'fosdem-rv32-llvm-opt-os-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+        { 'name' : 'fosdem-rv32-llvm-opt-oz-save-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -Oz -msave-restore',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+        { 'name' : 'fosdem-rv32-llvm-opt-o1',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O1',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+        { 'name' : 'fosdem-rv32-llvm-opt-o2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O2',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+        { 'name' : 'fosdem-rv32-llvm-opt-o3',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	  'board' : 'ri5cyverilator',
+          'cc' : 'riscv32-unknown-elf-clang',
+          'cflags' : '-march=rv32imc -mabi=ilp32 -O3',
+          'ldflags' : '',
+          'path' : 'install-llvm',
+        },
+    ]
+}
+
+fosdem_arm_gcc_opt_runset = {
+    'name' : 'FOSDEM Arm Cortex M4 optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'runs' : [
+        { 'name' : 'fosdem-arm-gcc-opt-o0',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O0',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+        { 'name' : 'fosdem-arm-gcc-opt-os',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Os',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+        { 'name' : 'fosdem-arm-gcc-opt-og',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+        { 'name' : 'fosdem-arm-gcc-opt-o1',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O1',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+        { 'name' : 'fosdem-arm-gcc-opt-o2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O2',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+        { 'name' : 'fosdem-arm-gcc-opt-o3',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-gcc',
+          'cflags' : '-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O3',
+          'ldflags' : '',
+          'path' : 'install-gcc-arm',
+        },
+    ]
+}
+
+fosdem_arm_llvm_opt_runset = {
+    'name' : 'FOSDEM Arm Cortex M4 optimization comparison',
+    'size benchmark' : {
+        'timeout' : 30,
+        'arglist' : [
+            './benchmark_size.py',
+            '--json-output',
+            '--json-comma',
+        ],
+        'desc' : 'sized'
+    },
+    'runs' : [
+        { 'name' : 'fosdem-arm-llvm-opt-o0',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O0 --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+        { 'name' : 'fosdem-arm-llvm-opt-os',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Os --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+        { 'name' : 'fosdem-arm-llvm-opt-oz',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Oz --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+        { 'name' : 'fosdem-arm-llvm-opt-o1',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O1 --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+        { 'name' : 'fosdem-arm-llvm-opt-o2',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O2 --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+        { 'name' : 'fosdem-arm-llvm-opt-o3',
+          'arch' : 'arm',
+          'chip' : 'cortex-m4',
+	  'board' : 'generic',
+          'cc' : 'arm-none-eabi-clang',
+          'cflags' : ('-mcpu=cortex-m4 -mthumb -mfloat-abi=soft -O3 --sysroot=' +
+                      os.path.abspath(os.path.join(
+                          os.path.dirname(__file__),
+                          os.pardir,
+                          'install-llvm-arm/arm-none-eabi'))),
+          'ldflags' : '-fuse-ld=bfd',
+          'path' : 'install-llvm-arm',
+        },
+    ]
+}
+
 rv32_gcc_opt_runset = {
     'name' : 'RV32IMC GCC optimization comparison',
     'size benchmark' : {
@@ -809,6 +1133,26 @@ def build_parser():
         help='Directory in which to place results files',
     )
     parser.add_argument(
+        '--fosdem-rv32-gcc-opt',
+        action='store_true',
+        help='Run FOSDEM RV32IMC GCC optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-rv32-llvm-opt',
+        action='store_true',
+        help='Run FOSDEM RV32IMC Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-arm-gcc-opt',
+        action='store_true',
+        help='Run FOSDEM Arm Cortex M4 GCC optimization comparison benchmarks'
+    )
+    parser.add_argument(
+        '--fosdem-arm-llvm-opt',
+        action='store_true',
+        help='Run FOSDEM Arm Cortex M4 Clang/LLVM optimization comparison benchmarks'
+    )
+    parser.add_argument(
         '--rv32-gcc-opt',
         action='store_true',
         help='Run RISC-V GCC optimization comparison benchmarks'
@@ -928,6 +1272,7 @@ def benchmark(arglist, timeout, desc, resfile, append):
     """Run the speed benchmark script"""
 
     # Run the benchmark script
+    succeeded = True
     try:
         res = subprocess.run(
             arglist,
@@ -938,22 +1283,23 @@ def benchmark(arglist, timeout, desc, resfile, append):
         if res.returncode == 0:
             if not ('All benchmarks ' + desc +' successfully' in
                     res.stdout.decode('utf-8')):
-                print('ERROR: Not all benchmarks ' + desc + ' successfully')
-                sys.exit(1)
+                print('Warning: Not all benchmarks ' + desc + ' successfully')
+                succeeded = False
         else:
-            print(f'ERROR: {arglist_to_str(arglist)} failed')
-            sys.exit(1)
+            print(f'Warning: {arglist_to_str(arglist)} failed')
+            succeeded = False
     except subprocess.TimeoutExpired:
-        print(f'ERROR: {arglist_to_str(arglist)} timed out')
-        sys.exit(1)
+        print(f'Warning: {arglist_to_str(arglist)} timed out')
+        succeeded = False
 
-    # Dump the data
-    mode = 'a' if append else 'w'
-    with open(resfile, mode) as fileh:
-        for line in res.stdout.decode('utf-8').splitlines(keepends=True):
-            if not 'All benchmarks ' + desc + ' successfully' in line:
-                fileh.writelines(line)
-        fileh.close()
+    # Dump the data if successful
+    if succeeded:
+        mode = 'a' if append else 'w'
+        with open(resfile, mode) as fileh:
+            for line in res.stdout.decode('utf-8').splitlines(keepends=True):
+                if not 'All benchmarks ' + desc + ' successfully' in line:
+                    fileh.writelines(line)
+            fileh.close()
 
 
 def main():
@@ -965,6 +1311,14 @@ def main():
 
     runsets = []
 
+    if args.fosdem_rv32_gcc_opt:
+        runsets.append(fosdem_rv32_gcc_opt_runset)
+    if args.fosdem_rv32_llvm_opt:
+        runsets.append(fosdem_rv32_llvm_opt_runset)
+    if args.fosdem_arm_gcc_opt:
+        runsets.append(fosdem_arm_gcc_opt_runset)
+    if args.fosdem_arm_llvm_opt:
+        runsets.append(fosdem_arm_llvm_opt_runset)
     if args.rv32_gcc_opt:
         runsets.append(rv32_gcc_opt_runset)
     if args.rv32_llvm_opt:
