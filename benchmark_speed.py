@@ -73,6 +73,12 @@ def get_common_args():
         required=True,
         help='Python module with routines to run benchmarks',
     )
+    parser.add_argument(
+        '--timeout',
+        type=int,
+        default=30,
+        help='Timeout used for running each benchmark program'
+    )
 
     return parser.parse_known_args()
 
@@ -96,6 +102,7 @@ def validate_args(args):
         sys.exit(1)
 
     gp['absolute'] = args.absolute
+    gp['timeout'] = args.timeout
 
     try:
         newmodule = importlib.import_module(args.target_module)
@@ -126,7 +133,7 @@ def benchmark_speed(bench, target_args):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 cwd=appdir,
-                timeout=30,
+                timeout=gp['timeout'],
             )
             if res.returncode != 0:
                 log.warning(f'Warning: Run of {bench} failed.')

@@ -296,6 +296,8 @@ assignments to python variables.  The following parameters may be set.
 - `cpu_mhz`: The clock rate of the target in MHz.  Default value 1.
 - `warmup_heat`: How many times the benchmark code should be run to warm up
   the caches.  Default value 1.
+- `timeout`: The maximum time (in seconds) allowed for the compiler or the
+  linker to run for each invocation. Default value 5.
 
 Any other variables are silently ignored.  There is no need to set an unused
 parameter, and any configuration file may be empty or missing if no flags need
@@ -381,6 +383,8 @@ which takes the following arguments.
 - `--cpu-mhz`: The clock rate of the target in MHz.  Default value 1.
 - `--warmup-heat`: How many times the benchmark code should be run to warm up
   the caches.  Default value 1.
+- `--timeout`: The maximum time (in seconds) allowed for the compiler or the
+  linker to run for each invocation. Default value 5.
 - `--clean`: Delete all intermediaries and final files from any previous runs
   of the script.
 - `--help`: Provide help on the arguments.
@@ -431,6 +435,8 @@ script, which takes the following general arguments.
 - `--target-module <target module>`: This mandatory argument specifies a
   python module in the [`pylib`](../pylib) directory with definitions of
   routines to run the benchmark.
+- `--timeout`: The maximum time (in seconds) allowed for each benchmark program
+  to run. Default value 30.
 - `--help`: Provide help on the arguments.
 
 There is so much variation in how a benchmark can be run that the detailed
