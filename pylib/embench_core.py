@@ -36,6 +36,7 @@ __all__ = [
     'log_args',
     'log_benchmarks',
     'embench_stats',
+    'arglist_to_str',
 ]
 
 # Handle for the logger
@@ -215,20 +216,35 @@ def compute_georange(geomean, geosd, count):
     return georange
 
 
-def output_stats(geomean, geosd, georange, count):
-    """Output the statistical summary."""
+def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
+    """Output the statistical summary.
+
+       Note that we manually generate the JSON output, rather than using the
+       dumps method, because the result will be manually edited, and we want
+       to guarantee the layout."""
+
     geomean_op = ''
     geosd_op = ''
     georange_op = ''
 
     if count > 0:
         if gp['absolute']:
-            geomean_op = f'{round(geomean):8,}'
-            geosd_op = f'     {(geosd):6.2f}'
+            if gp['json']:
+                geomean_op = f'{round(geomean)}'
+                geosd_op = f'{(geosd):.2f}'
+            else:
+                geomean_op = f'{round(geomean):8,}'
+                geosd_op = f'     {(geosd):6.2f}'
+
             georange_op = f'{round(georange):8,}'
         else:
-            geomean_op = f'  {geomean:6.2f}'
-            geosd_op = f'  {geosd:6.2f}'
+            if gp['json']:
+                geomean_op = f'{geomean:.2f}'
+                geosd_op = f'{geosd:.2f}'
+            else:
+                geomean_op = f'  {geomean:6.2f}'
+                geosd_op = f'  {geosd:6.2f}'
+
             georange_op = f'  {georange:6.2f}'
     else:
         geomean_op = ' -   '
@@ -236,15 +252,32 @@ def output_stats(geomean, geosd, georange, count):
         georange_op = ' -    '
 
     # Output the results
-    log.info('---------           -----')
-    log.info(f'Geometric mean   {geomean_op:8}')
-    log.info(f'Geometric SD     {geosd_op:8}')
-    log.info(f'Geometric range  {georange_op:8}')
+    if gp['json']:
+        log.info(f'    "{bm_type} geometric mean" : {geomean_op},')
+        log.info(f'    "{bm_type} geometric standard deviation" : {geosd_op}')
+        log.info('  }' + f'{opt_comma}')
+    else:
+        log.info('---------           -----')
+        log.info(f'Geometric mean   {geomean_op:8}')
+        log.info(f'Geometric SD     {geosd_op:8}')
+        log.info(f'Geometric range  {georange_op:8}')
 
 
-def embench_stats(benchmarks, raw_data, rel_data):
+def embench_stats(benchmarks, raw_data, rel_data, bm_type, opt_comma):
     """Output statistics summary for Embench."""
     geomean, count = compute_geomean(benchmarks, raw_data, rel_data)
     geosd = compute_geosd(benchmarks, raw_data, rel_data, geomean, count)
     georange = compute_georange(geomean, geosd, count)
-    output_stats(geomean, geosd, georange, count)
+    output_stats(geomean, geosd, georange, count, bm_type, opt_comma)
+
+
+def arglist_to_str(arglist):
+    """Make arglist into a string"""
+
+    for arg in arglist:
+        if arg == arglist[0]:
+            str = arg
+        else:
+            str = str + ' ' + arg
+
+    return str

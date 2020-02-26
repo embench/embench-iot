@@ -30,6 +30,11 @@ __start (void)
   (void) main (0, 0);
 }
 
+void
+__init (void)
+{
+  (void) main (0, 0);
+}
 
 /*
    Local Variables:

@@ -33,6 +33,7 @@ from embench_core import setup_logging
 from embench_core import log_args
 from embench_core import find_benchmarks
 from embench_core import log_benchmarks
+from embench_core import arglist_to_str
 
 
 def build_parser():
@@ -41,82 +42,64 @@ def build_parser():
 
     parser.add_argument(
         '--builddir',
-        type=str,
         default='bd',
         help='Directory in which to build benchmarks and support code',
     )
     parser.add_argument(
         '--logdir',
-        type=str,
         default='logs',
         help='Directory in which to store logs',
     )
     parser.add_argument(
         '--arch',
-        type=str,
         required=True,
         help='The architecture for which to build',
     )
     parser.add_argument(
         '--chip',
-        type=str,
-        default='default',
+        default='generic',
         help='The chip for which to build',
     )
     parser.add_argument(
         '--board',
-        type=str,
-        default='default',
+        default='generic',
         help='The board for which to build',
     )
-    parser.add_argument('--cc', type=str, help='C compiler to use')
-    parser.add_argument('--ld', type=str, help='Linker to use')
+    parser.add_argument('--cc', help='C compiler to use')
+    parser.add_argument('--ld', help='Linker to use')
+    parser.add_argument('--cflags', help='Additional C compiler flags to use')
+    parser.add_argument('--ldflags', help='Additional linker flags to use')
     parser.add_argument(
-        '--cflags', type=str, help='Additional C compiler flags to use'
-    )
-    parser.add_argument(
-        '--ldflags', type=str, help='Additional linker flags to use'
+        '--env',
+        help='additional environment vars, format <V>=<val> [,<V>=<value>]...',
     )
     parser.add_argument(
         '--cc-define1-pattern',
-        type=str,
         help='Pattern to define constant for compiler',
     )
     parser.add_argument(
         '--cc-define2-pattern',
-        type=str,
         help='Pattern to define constant to a specific value for compiler',
     )
     parser.add_argument(
         '--cc-incdir-pattern',
-        type=str,
         help='Pattern to specify include directory for the compiler',
     )
     parser.add_argument(
-        '--cc-input-pattern',
-        type=str,
-        help='Pattern to specify compiler input file',
+        '--cc-input-pattern', help='Pattern to specify compiler input file',
     )
     parser.add_argument(
-        '--cc-output-pattern',
-        type=str,
-        help='Pattern to specify compiler output file',
+        '--cc-output-pattern', help='Pattern to specify compiler output file',
     )
     parser.add_argument(
-        '--ld-input-pattern',
-        type=str,
-        help='Pattern to specify linker input file',
+        '--ld-input-pattern', help='Pattern to specify linker input file',
     )
     parser.add_argument(
-        '--ld-output-pattern',
-        type=str,
-        help='Pattern to specify linker output file',
+        '--ld-output-pattern', help='Pattern to specify linker output file',
     )
+    parser.add_argument('--user-libs', help='Additional libraries to use')
     parser.add_argument(
-        '--user-libs', type=str, help='Additional libraries to use'
-    )
-    parser.add_argument(
-        '--dummy-libs', type=str, help='Dummy libraries to build and link'
+        '--dummy-libs', help='Dummy libraries to build and link'
     )
     parser.add_argument(
         '--cpu-mhz', type=int, help='Processor clock speed in MHz'
@@ -125,6 +108,9 @@ def build_parser():
         '--warmup-heat',
         type=int,
         help='Number of warmup loops to execute before benchmark',
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='More messages'
     )
     parser.add_argument(
         '--clean', action='store_true', help='Rebuild everything'
@@ -199,6 +185,14 @@ def validate_args(args):
             + f'"{args.arch}": exiting'
         )
         sys.exit(1)
+
+    # The supplementary environment
+    gp['env'] = dict()
+    if args.env:
+        envlist = args.env.split(',')
+        for envarg in envlist:
+            var, val = envarg.split('=', 1)
+            gp['env'][var] = val
 
     # Other args validated later.
 
@@ -431,14 +425,23 @@ def log_parameters():
     log.debug('')
 
 
-def compile_file(f_root, srcdir, bindir):
-    """Compile a single C file, with the given file root, "f_root", from the
-       source directory, "srcdir", in to the bin directory, "bindir" using the
-       general preprocessor and C compilation flags.
+def set_environ():
+    """Add additional environment variables, if any"""
+    for key in gp['env']:
+        os.environ[key] = gp['env'][key]
+
+
+def compile_file(f_root, srcdir, bindir, suffix='.c'):
+    """Compile a single C or assembler file, with the given file root, "f_root",
+       suffix "suffix", from the source directory, "srcdir", in to the bin
+       directory, "bindir" using the general preprocessor and C compilation
+       flags.
 
        Return True if the compilation success, False if it fails. Log
-       everything in the event of failure"""
-    abs_src = os.path.join(f'{srcdir}', f'{f_root}.c')
+       everything in the event of failure
+
+    """
+    abs_src = os.path.join(f'{srcdir}', f'{f_root}{suffix}')
     abs_bin = os.path.join(f'{bindir}', f'{f_root}.o')
 
     # Construct the argument list
@@ -455,6 +458,10 @@ def compile_file(f_root, srcdir, bindir):
     if not os.path.isfile(abs_bin) or (
             os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
     ):
+        if gp['verbose']:
+            log.debug(f'Compiling in directory {bindir}')
+            log.debug(arglist_to_str(arglist))
+
         try:
             res = subprocess.run(
                 arglist,
@@ -465,20 +472,20 @@ def compile_file(f_root, srcdir, bindir):
             )
             if res.returncode != 0:
                 log.warning(
-                    f'Warning: Compilation of {f_root}.c from source directory '
-                    + f'{srcdir} to binary directory {bindir} failed'
+                    f'Warning: Compilation of {f_root}{suffix} from source ' +
+                    f'directory {srcdir} to binary directory {bindir} failed'
                 )
                 succeeded = False
         except subprocess.TimeoutExpired:
             log.warning(
-                f'Warning: Compilation of {f_root}.c from source directory '
-                + f'{srcdir} to binary directory {bindir} timed out'
+                f'Warning: Compilation of {f_root}{suffix} from source ' +
+                f'directory {srcdir} to binary directory {bindir} timed out'
             )
             succeeded = False
 
     if not succeeded:
-        log.debug('Args to subprocess:')
-        log.debug(f'{arglist}')
+        log.debug('Command was:')
+        log.debug(arglist_to_str(arglist))
         if res:
             log.debug(res.stdout.decode('utf-8'))
             log.debug(res.stderr.decode('utf-8'))
@@ -542,26 +549,30 @@ def compile_support():
 
     # Compile architecture, chip and board specific files.  Note that we only
     # create the build directory if it is needed here.
-    for dirname in ['arch', 'chip', 'board']:
-        filename = os.path.join(gp[dirname + 'dir'], dirname + 'support.c')
-        if os.path.isfile(filename):
-            # Create build directory
-            builddir = gp['bd_' + dirname + 'dir']
-            if not os.path.isdir(builddir):
-                try:
-                    os.makedirs(builddir)
-                except PermissionError:
-                    log.warning(
-                        'Warning: Unable to create build directory '
-                        + f'for {dirname}, "{builddir}'
-                    )
-                    return False
+    for dirtype in ['arch', 'chip', 'board']:
+        # Support directory we are interested in
+        dirname = gp[dirtype + 'dir']
+        # List of files/subdirectories in that directory
+        filelist = os.listdir(dirname)
+        # Compile every C or assembler source file
+        for filename in filelist:
+            root, ext = os.path.splitext(filename)
+            full_fn = os.path.join(dirname, filename)
+            if (os.path.isfile(full_fn) and
+                (ext == '.c' or ext == '.s' or ext == '.S')):
+                # Create build directory
+                builddir = gp['bd_' + dirtype + 'dir']
+                if not os.path.isdir(builddir):
+                    try:
+                        os.makedirs(builddir)
+                    except PermissionError:
+                        log.warning(
+                            'Warning: Unable to create build directory '
+                            + f'for {dirname}, "{builddir}'
+                        )
+                        return False
 
-            succeeded &= compile_file(
-                dirname + 'support',
-                gp[dirname + 'dir'],
-                gp['bd_' + dirname + 'dir'],
-            )
+                succeeded &= compile_file(root, dirname, builddir, suffix=ext)
 
     return succeeded
 
@@ -578,14 +589,23 @@ def create_link_binlist(abs_bd):
             binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
 
     # Add arch, chip and board binaries
-    for dirname in ['arch', 'chip', 'board']:
-        binf = os.path.join(gp[f'bd_{dirname}dir'], f'{dirname}support.o')
-        if os.path.isfile(binf):
-            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+    for dirtype in ['arch', 'chip', 'board']:
+        # Build directory
+        bindir = gp[f'bd_{dirtype}dir']
+        # List of files in the build directory
+        filelist = os.listdir(bindir)
+        # Add every object file
+        for filename in filelist:
+            root, ext = os.path.splitext(filename)
+            binf = os.path.join(bindir, filename)
+            if (os.path.isfile(binf) and (ext == '.o')):
+                binlist.extend(
+                    gp['ld_input_pattern'].format(binf).split(sep=' ')
+                )
 
     # Add generic support
-    for supp in ['main', 'beebsc']:
-        binf = os.path.join(gp['bd_supportdir'], f'{supp}.o')
+    for supp in ['main.o', 'beebsc.o']:
+        binf = os.path.join(gp['bd_supportdir'], supp)
         if os.path.isfile(binf):
             binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
         else:
@@ -639,6 +659,10 @@ def link_benchmark(bench):
     arglist = create_link_arglist(bench, binlist)
 
     # Run the link
+    if gp['verbose']:
+        log.debug(f'Linking in directory {abs_bd_b}')
+        log.debug(arglist_to_str(arglist))
+
     try:
         res = subprocess.run(
             arglist,
@@ -655,8 +679,9 @@ def link_benchmark(bench):
         succeeded = False
 
     if not succeeded:
-        log.debug('Args to subprocess:')
-        log.debug(f'{arglist}')
+        log.debug('In directory "' + abs_bd_b + '"')
+        log.debug('Command was:')
+        log.debug(arglist_to_str(arglist))
         log.debug(res.stdout.decode('utf-8'))
         log.debug(res.stderr.decode('utf-8'))
 
@@ -674,6 +699,7 @@ def main():
     args = parser.parse_args()
 
     # Establish logging, using "build" as the log file prefix.
+    gp['verbose'] = args.verbose
     setup_logging(args.logdir, 'build')
     log_args(args)
 
@@ -693,6 +719,9 @@ def main():
 
     log.debug('General log')
     log.debug('===========')
+
+    # Set up additional environment variables.
+    set_environ()
 
     # Track success
     successful = compile_support()

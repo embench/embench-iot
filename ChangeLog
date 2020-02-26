@@ -1,3 +1,42 @@
+2020-02-17  Paolo Savini
+
+	Add support for the board stm32f4-discovery.
+
+	* config/arm/boards/stm32f4-discovery/STM32F407XG.ld: stm32f4 linker
+	script.
+	* config/arm/boards/stm32f4-discovery/board.cfg: stm32f4 file for
+	specific cflags and ldflags.
+	* config/arm/boards/stm32f4-discovery/boardsupport.c: stm32f4 file
+	for support functions.
+	* config/arm/boards/stm32f4-discovery/boardsupport.h: stm32f4 support
+	header.
+	* config/arm/boards/stm32f4-discovery/startup_stm32f407xx.S: stm32f4
+	startup file.
+	* config/arm/chips/cortex-m4/chip.cfg: remove -fdata-sections as
+	affects performance due to the presence of -fsection-anchors as an
+	ARM default flag.
+	* pylib/run_stm32f4-discovery.py: add python module for the speed
+	test of stm32f4-discovery.
+	* src/matmult-int/matmult-int.c: reset LOCAL_SCALE_FACTOR.
+	* src/picojpeg/picojpeg_test.c: Likewise.
+	* src/edn/libedn.c: Likewise.
+	* src/ud/libud.c: Likewise.
+	* src/st/libst.c: Likewise.
+	* src/slre/libslre.c: Likewise.
+	* src/qrduino/qrtest.c: Likewise.
+	* src/sglib-combined/combined.c: Likewise.
+	* src/nettle-aes/nettle-aes.c: Likewise.
+	* src/aha-mont64/mont64.c: Likewise.
+	* src/huffbench/libhuffbench.c: Likewise.
+	* src/nbody/nbody.c: Likewise.
+	* src/wikisort/libwikisort.c: Likewise.
+	* src/cubic/basicmath_small.c: Likewise.
+	* src/crc32/crc_32.c: Likewise.
+	* src/nettle-sha256/nettle-sha256.c: Likewise.
+	* src/nsichneu/libnsichneu.c: Likewise.
+	* src/statemate/libstatemate.c: Likewise.
+	* src/minver/libminver.c: Likewise.
+
 2019-10-14  Paolo Savini
 
 	Remove initialization of new empty dictionary.

@@ -60,6 +60,7 @@ def build_benchmark_cmd(bench, args):
 
     cmd = [f'{args.gdb_command}']
     gdb_comms = [
+        'set confirm off',
         'set style enabled off',
         'set height 0',
         'file {0}',
@@ -93,7 +94,7 @@ def decode_results(stdout_str, stderr_str):
     # Return code is in standard output. We look for the string that means we
     # hit a breakpoint on _exit, then for the string returning the value.
     rcstr = re.search(
-        'Breakpoint 3, _exit.*at.*exit\.c.*\$1 = (\d+)', stdout_str, re.S
+        'Breakpoint 3,.*\$1 = (\d+)', stdout_str, re.S
     )
     if not rcstr:
         log.debug('Warning: Failed to find return code')

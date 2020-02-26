@@ -466,11 +466,27 @@ __lttf2 (long double a __attribute__ ((unused)),
 }
 
 
+int
+__modsi3 (int a __attribute__ ((unused)),
+	  int b __attribute__ ((unused)))
+{
+  return 0;
+}
+
+
 double
 __muldf3 (double a __attribute__ ((unused)),
 	  double b __attribute__ ((unused)))
 {
   return 0.0;
+}
+
+
+long int
+__muldi3 (long int a __attribute__ ((unused)),
+	  long int b __attribute__ ((unused)))
+{
+  return 0;
 }
 
 
@@ -553,6 +569,14 @@ __umoddi3 (unsigned long a __attribute__ ((unused)),
 	   unsigned long b __attribute__ ((unused)))
 {
   return 0.0;
+}
+
+
+unsigned int
+__umodsi3 (unsigned int a __attribute__ ((unused)),
+	  unsigned int b __attribute__ ((unused)))
+{
+  return 0;
 }
 
 
@@ -704,6 +728,132 @@ void
 __riscv_restore_12 ()
 {
 }
+#endif
+
+/* Extra functions just for AVR */
+#ifdef __AVR__
+long long
+__adddi3 (long long a __attribute__ ((unused)),
+	  long long b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long long
+__adddi3_s8 (long long a __attribute__ ((unused)),
+	     signed char b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long long
+__ashldi3 (long long a __attribute__ ((unused)),
+	   int b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long long
+__ashrdi3 (long long a __attribute__ ((unused)),
+	   int b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long
+__bswapsi2 (long a __attribute__ ((unused)))
+{
+  return 0L;
+}
+
+int
+__cmpdi2 (long long a __attribute__ ((unused)),
+	  long long b __attribute__ ((unused)))
+{
+  return 0;
+}
+
+int
+__cmpdi2_s8 (long long a __attribute__ ((unused)),
+	     signed char b __attribute__ ((unused)))
+{
+  return 0;
+}
+
+long
+__divmodhi4 (int a __attribute__ ((unused)),
+	     int b __attribute__ ((unused)))
+{
+  return 0L;
+}
+
+long long
+__divmodsi4 (long a __attribute__ ((unused)),
+	     long b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long long
+__lshrdi3 (long long a __attribute__ ((unused)),
+	   int b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long
+__mulshisi3 (long a __attribute__ ((unused)),
+	     long b __attribute__ ((unused)))
+{
+  return 0L;
+}
+
+long long
+__negdi2 (long long a __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+long long
+__subdi3 (long long a __attribute__ ((unused)),
+	  long long b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+void
+__tablejump2__(long long a __attribute__ ((unused)))
+{
+}
+
+unsigned long
+__udivmodhi4 (unsigned int a __attribute__ ((unused)),
+	      unsigned int b __attribute__ ((unused)))
+{
+  return 0L;
+}
+
+unsigned long long
+__udivmodsi4 (unsigned long a __attribute__ ((unused)),
+	     unsigned long b __attribute__ ((unused)))
+{
+  return 0LL;
+}
+
+unsigned long
+__usmulhisi3 (long a __attribute__ ((unused)),
+	      unsigned long b __attribute__ ((unused)))
+{
+  return 0L;
+}
+
+unsigned long
+__umulhisi3 (unsigned long a __attribute__ ((unused)),
+	     unsigned long b __attribute__ ((unused)))
+{
+  return 0L;
+}
+
 #endif
 
 /*
