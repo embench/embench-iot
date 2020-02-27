@@ -1,134 +1,134 @@
 { "aha-mont64" :
   {
-      "text" : 1052,
-      "rodata" : 0,
-      "data" : 0,
-      "bss" : 0
-  },
-  "crc32" :
-  {
-      "text" : 230,
-      "rodata" : 1024,
-      "data" : 0,
-      "bss" : 0
-  },
-  "cubic" :
-  {
-      "text" : 2472,
+      "text" : 1072,
       "rodata" : 0,
       "data" : 0,
       "bss" : 24
   },
+  "crc32" :
+  {
+      "text" : 284,
+      "rodata" : 1024,
+      "data" : 0,
+      "bss" : 16
+  },
+  "cubic" :
+  {
+      "text" : 1584,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 48
+  },
   "edn" :
   {
-      "text" : 1452,
+      "text" : 1324,
       "rodata" : 1600,
       "data" : 0,
-      "bss" : 1600
+      "bss" : 1612
   },
   "huffbench" :
   {
-      "text" : 1628,
-      "rodata" : 1004,
+      "text" : 1242,
+      "rodata" : 1001,
       "data" : 0,
-      "bss" : 8692
+      "bss" : 8708
   },
   "matmult-int" :
   {
-      "text" : 420,
+      "text" : 492,
       "rodata" : 1600,
       "data" : 0,
       "bss" : 8004
   },
   "minver" :
   {
-      "text" : 1076,
+      "text" : 1168,
       "rodata" : 144,
       "data" : 0,
-      "bss" : 108
+      "bss" : 112
   },
   "nbody" :
   {
-      "text" : 708,
+      "text" : 950,
       "rodata" : 320,
       "data" : 320,
       "bss" : 0
   },
   "nettle-aes" :
   {
-      "text" : 2880,
-      "rodata" : 10022,
+      "text" : 2148,
+      "rodata" : 9740,
       "data" : 544,
       "bss" : 1000
   },
   "nettle-sha256" :
   {
-      "text" : 5564,
-      "rodata" : 448,
+      "text" : 3396,
+      "rodata" : 324,
       "data" : 88,
       "bss" : 32
   },
   "nsichneu" :
   {
-      "text" : 15042,
+      "text" : 11968,
       "rodata" : 0,
-      "data" : 0,
-      "bss" : 56
+      "data" : 8,
+      "bss" : 60
   },
   "picojpeg" :
   {
-      "text" : 8036,
-      "rodata" : 1196,
+      "text" : 6964,
+      "rodata" : 982,
       "data" : 0,
-      "bss" : 2320
+      "bss" : 2404
   },
   "qrduino" :
   {
-      "text" : 6074,
-      "rodata" : 1540,
+      "text" : 5814,
+      "rodata" : 1505,
       "data" : 0,
-      "bss" : 8232
+      "bss" : 8256
   },
   "sglib-combined" :
   {
-      "text" : 2324,
+      "text" : 2272,
       "rodata" : 800,
       "data" : 0,
-      "bss" : 8676
+      "bss" : 8692
   },
   "slre" :
   {
-      "text" : 2428,
-      "rodata" : 64,
-      "data" : 62,
-      "bss" : 16
+      "text" : 2200,
+      "rodata" : 57,
+      "data" : 64,
+      "bss" : 20
   },
   "st" :
   {
-      "text" : 880,
+      "text" : 1000,
       "rodata" : 0,
       "data" : 0,
       "bss" : 1632
   },
   "statemate" :
   {
-      "text" : 3692,
+      "text" : 4484,
       "rodata" : 64,
       "data" : 0,
       "bss" : 292
   },
   "ud" :
   {
-      "text" : 702,
+      "text" : 720,
       "rodata" : 0,
       "data" : 0,
       "bss" : 1764
   },
   "wikisort" :
   {
-      "text" : 4214,
-      "rodata" : 3236,
+      "text" : 4296,
+      "rodata" : 3240,
       "data" : 0,
-      "bss" : 3200
+      "bss" : 3216
   }
 }
