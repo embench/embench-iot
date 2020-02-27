@@ -15,7 +15,7 @@ Document conventions:
 -->
 
 Authors: Embench&#x2122; Task Group
-Issue:   0.6 Draft
+Issue:   0.5
 
 Copyright (C) 2009, 2013, 2019 Embecosm Limited
 
@@ -38,6 +38,7 @@ Silicon Foundation.
     - [Contributors](#contributors)
     - [Document history](#document-history)
 - [Building and running Embench](#building-and-running-embench)
+    - [Prerequisites](#prerequisites)
     - [Preparation](#preparation)
     - [Configuring the benchmarks](#configuring-the-benchmarks)
     - [Building the benchmarks](#building-the-benchmarks)
@@ -151,8 +152,12 @@ Bennett.
 
 ### Future work
 
-This is a work in progress. The objective is that the task group will produce
-the first full release at the Embedded World Conference in February 2020.
+This is a work in progress.  This first stable release 0.5 was published at the
+Embedded World Conference in February 2020.  It is intended to allow the wider
+community to explore a stable version of the platform.
+
+Based on feedback from this exercise, it is anticipated that the first full
+release will be produced by the end of 2020.
 
 ### Feedback and how to contribute
 
@@ -174,18 +179,28 @@ of surname).
 - Jeremy Bennett.
 
 ### Document history
-| _Revision_ | _Date_    | _Author_       | _Modification_                     |
-| -----------| ----------| ---------------| ---------------------------------- |
-| 0.6 Draft  | 13 Nov 19 | Jeremy Bennett | Migrated to markdown and updated   |
-|            |           |                | to refer to Python scripts.        |
-|            |           |                |                                    |
-|            | 21 Jan 20 | Lyell Read     | Correcting partial sentence and    |
-|            |           |                | removing duplicate logfile flag    |
-|            |           |                | defenition                         |
-|            |           |                |                                    |
-| 0.5 Draft  |  6 Jun 19 | Jeremy Bennett | First draft of this document,      |
-|            |           |                | drawing heavily on the BEEBS       |
-|            |           |                | documentation.                     |
+| _Revision_ | _Date_    | _Author(s)_     | _Modification_                     |
+| -----------| ----------| ----------------| ---------------------------------- |
+| 0.5        | 27 Feb 20 | David Patterson | Incorporate latest review comments |
+|            |           | Jon Taylor      | to accompany release 0.5. Update   |
+|            |           | Jeremy Bennett  | document versioning for            |
+|            |           |                 | consistency with release
+|            |           |                 | numbering.                         |
+|            |           |                 |                                    |
+|            | 21 Jan 20 | Lyell Read      | Correcting partial sentence and    |
+|            |           |                 | removing duplicate log file flag   |
+|            |           |                 | definition.                        |
+|            |           |                 |                                    |
+| 0.5 rc2    | 13 Nov 19 | Jeremy Bennett  | Migrated to markdown and updated   |
+|            |           |                 | to refer to Python scripts.        |
+|            |		 |                 | Version previously known as draft  |
+|            |           |                 | 0.6.                               |
+|            |           |                 |                                    |
+| 0.5 rc1    |  6 Jun 19 | Jeremy Bennett  | First draft of this document,      |
+|            |           |                 | drawing heavily on the BEEBS       |
+|            |           |                 | documentation. Version previously  |
+|            |           |                 | known as draft 0.5.                |
+
 
 ## Building and running Embench
 
@@ -198,7 +213,7 @@ Embench expects the following version of tools. Update your system accordingly.
 
 | _Components_ | _Version_    |
 | -------------| -------------|
-| python       | 3.6          |
+| python       | 3.6 or later |
 
 ### Preparation
 
@@ -209,12 +224,6 @@ tar xf embench-VERSION.tar.bz2
 or clone this git repository:
 ```bash
 git clone https://github.com/embench/embench-iot.git
-```
-Embench is built out of tree, so create a _separate_ directory in which to
-build along side.
-```bash
-mkdir bd
-cd bd
 ```
 
 ### Configuring the benchmarks
@@ -455,16 +464,30 @@ arguments.
 
 ## Recording reliable results
 
-For each benchmark run, you should record:
+For each benchmark run, you must record:
 
 - details of the platform used, including its clock speed;
+- if the platform is simulated or real.  If simulated, an indication of
+  accuracy must be stated (i.e., fully cycle accurate or cycle approximate);
+- for a simulated platform, configuration options of the chip should be stated
+  (e.g., branch predictor size, cache sizes, and so on);
 - details of the chip on the platform, including its precise architecture
   variant;
 - details of the compiler tool chain used, typically the version of each
   component and library, or for development tool chains the repository commit
-  ID of each component; and
-- the compiler and linker flags used, which should be the same for all
-  benchmarks.
+  ID of each component;
+- the compiler and linker flags used for the benchmarks, which should be the
+  same for each benchmark program; and
+- the version of Embench used.
+
+For clarification compiler flags, whose effect is to vary the choice and
+parameters of optimization passes on a per program (or per compilation unit or
+function) basis are permitted.  For example flags which use machine learning
+techniques to match source code styles with the a choice of optimization
+passes.
+
+The philosophy of recorded data should be such that anyone else can take the
+same platform and toolchain and duplicate the results.
 
 ## Statistics of computing benchmarks
 
@@ -472,10 +495,13 @@ These computations are carried out by the benchmark scripts.
 
 ### Computing a benchmark value for speed
 
-Carry out the following steps:
+Carry out the following steps.
 
 - For each benchmark record the time take to execute between `start_benchmark`
   and `stop_benchmark`, which should be a few seconds.
+- This time should be recorded using hardware internal to the device being
+  benchmarked - e.g., CPU cycle counter or other fast timer (i.e., running at
+  a significantly higher rate than the benchmark takes to run).
 - For each benchmark divide the time taken by the value used for `CPU_MHZ` in
   the configuration to give a normalized time value.
 - For each benchmark, compute its speed relative to the reference platform -
@@ -488,6 +514,10 @@ Carry out the following steps:
 The benchmark value is the geometric mean of the relative speeds. A larger
 value means a faster platform.  The range gives an indication of how much
 variability there is in this performance.
+
+In addition the geometric mean may then be divided by the value used for
+CPU_MHZ, to yield an Embench score per MHz. This is an indication of the
+efficiency of the platform in carrying out computation.
 
 ### Computing a benchmark value for code size
 
@@ -516,32 +546,64 @@ sections.
 
 ## Reference platform
 
-The reference platform is a Verilator model of the PULP RI5CY core - see
-[github.com/pulp-platform/riscv](https://github.com/pulp-platform/riscv) -
-commit `300762a`.  It uses a GCC tool chain built from top of tree, version
-`10.0.0 20190527`, commit `4f90058758f`.
+The reference CPU is an Arm Cortex M4 processor without the floating point
+unit (FPU).  The reference platform is a ST Microelectronics STM32F4 Discovery
+Board - see
+[www.st.com/en/evaluation-tools/stm32f4discovery.html](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
+using its default clock speed of 16MHz.  The processor on this board does
+contain a FPU, but this is disabled by use of appropriate compiler options (see
+below).  The code is compiled using GCC 9.2.0, GNU binutils 2.33.1 and newlib
+3.3.0.  Newlib is configured for small code size - known as the "nanolib"
+configuration.
 
-| _Benchmark_ --   | _Speed_  | _Size_ |
+For the speed benchmarks, the compiler flags used are:
+```
+-O2 -ffunction-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
+```
+
+For the size benchmarks, the compiler flags used are:
+```
+-Os -ffunction-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
+```
+
+In both cases the linker flags are:
+```
+-T<embench-iot-root>/config/arm/boards/stm32f4-discovery/STM32F407XG.ld
+-O2 -Wl,-gc-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
+-specs=nosys.specs
+```
+
+The directory `<embench-iot-root>` is the root directory of the `embench-iot`
+repository.
+
+Speed is measured using the platform's internal cycle counter registers, which
+can be converted to time from knowledge of the platform's clock speed.
+
+The reference results can be found in the files `baseline-data/speed.json` and
+`baseline-data/size.json` in the repository.  For convenience the key values
+are recorded here:
+
+| _Benchmark_      | _Speed_  | _Size_ |
 | ---------------- | --------:| ------:|
-| `aha-mont64`     | 4,000    |  1,052 |
-| `crc32`          | 4,013    |    230 |
-| `cubic`          | 4,140    |  2,466 |
-| `edn`            | 3,984    |  1,452 |
-| `huffbench`      | 4,109    |  1,628 |
-| `matmult-int`    | 4,020    |    420 |
-| `minver`         | 4,003    |  1,076 |
-| `nbody`          | 3,774    |    708 |
-| `nettle-aes`     | 3,988    |  2,874 |
-| `nettle-sha256`  | 4,000    |  5,558 |
-| `nsichneu`       | 4,001    | 15,036 |
-| `picojpeg`       | 3,747    |  8,022 |
-| `qrduino`        | 4,210    |  6,056 |
-| `sglib-combined` | 4,028    |  2,316 |
-| `slre`           | 3,994    |  2,422 |
-| `st`             | 4,151    |    880 |
-| `statemate`      | 4,000    |  3,686 |
-| `ud`             | 4,001    |    702 |
-| `wikisort`       | 4,226    |  4,208 |
+| `aha-mont64`     |    4,004 |  1,072 |
+| `crc32`          |    4,010 |    284 |
+| `cubic`          |    3,931 |  1,584 |
+| `edn`            |    4,010 |  1,324 |
+| `huffbench`      |    4,120 |  1,242 |
+| `matmult-int`    |    3,985 |    492 |
+| `minver`         |    3,998 |  1,168 |
+| `nbody`          |    2,808 |    950 |
+| `nettle-aes`     |    4,026 |  2,148 |
+| `nettle-sha256`  |    3,997 |  3,396 |
+| `nsichneu`       |    4,001 | 11,968 |
+| `picojpeg`       |    4,030 |  6,964 |
+| `qrduino`        |    4,253 |  5,814 |
+| `sglib-combined` |    3,981 |  2,272 |
+| `slre`           |    4,010 |  2,200 |
+| `st`             |    4,080 |  1,000 |
+| `statemate`      |    4,001 |  4,484 |
+| `ud`             |    3,999 |    720 |
+| `wikisort`       |    2,779 |  4,296 |
 
 **NOTE** Speed is measured in milliseconds, size is total size of all `.text`
   sections in bytes.

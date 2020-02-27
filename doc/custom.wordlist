@@ -1,3 +1,4 @@
+16MHz
 64kB
 aachen
 acknowledgements
@@ -12,6 +13,9 @@ AsciiDoctor
 aspell
 beebs
 BEEBS
+benchmarked
+benchmarking
+binutils
 BOARDNAME
 breakpoint
 CHIPNAME
@@ -34,6 +38,7 @@ Embench
 eu
 formatters
 FOSSi
+FPU
 GCC
 GDB
 GFDL
@@ -53,6 +58,8 @@ Linpack
 liu
 LLVM
 lysator
+M4
+Makefile
 mailto
 matmult
 mdh
@@ -62,7 +69,9 @@ Minimise
 minver
 mont
 mrtc
+nanolib
 nbody
+newlib
 nisse
 noncommercially
 nsichneu
@@ -76,6 +85,8 @@ picojpeg
 PNG
 PostScript
 qrduino
+rc1
+rc2
 retitle
 RI5CY
 riscv
@@ -89,6 +100,7 @@ slre
 sourceforge
 SPDX
 statemate
+STM32F4
 subdirectory
 subdirectories
 sublicense
