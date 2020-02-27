@@ -16,6 +16,13 @@ Benchmark Suite (BEEBS, see http://beebs.eu), which in turn draws its material
 from various earlier projects.  A full description and user manual is in the
 [`doc` directory](./doc/README.md).
 
+## Stable benchmark versions
+
+The following git tags may be used to select the version of the repository for
+a stable release.
+
+- `embench-0.5`
+
 ## Using the benchmarks
 
 The benchmarks can be used to yield a single consistent score for the
