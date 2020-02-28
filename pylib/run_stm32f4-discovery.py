@@ -46,7 +46,10 @@ def get_target_args(remnant):
         help='Command to invoke the GDB server',
     )
     parser.add_argument(
-        '--cpu-mhz', type=int, help='Processor clock speed in MHz'
+        '--cpu-mhz',
+        type=int,
+        default=1,
+        help='Processor clock speed in MHz'
     )
 
     return parser.parse_args(remnant)
