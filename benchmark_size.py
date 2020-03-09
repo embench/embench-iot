@@ -118,11 +118,18 @@ def build_parser():
         help='Section name(s) containing zero initialized writable data'
     )
     parser.add_argument(
+        '--vectors',
+        type=str,
+        default=[],
+        action='append',
+        help='Section name(s) containing interrupt vectors(text)'
+    )
+    parser.add_argument(
         '--metric',
         type=str,
         default=[],
         action='append',
-        choices=['text', 'rodata', 'data', 'bss'],
+        choices=['text', 'rodata', 'data', 'bss', 'vectors'],
         help='Sections to include in metric: one or more of "text", "rodata", '
         + '"data" or "bss". Default "text"',
     )
@@ -154,7 +161,7 @@ def validate_args(args):
     # Sort out the list of section names to use
     gp['secnames'] = dict()
 
-    for argname in ['text', 'rodata', 'data', 'bss']:
+    for argname in ['text', 'rodata', 'data', 'bss', 'vectors']:
         secnames = getattr(args, argname)
         if secnames:
             gp['secnames'][argname] = secnames
@@ -220,7 +227,8 @@ def collect_data(benchmarks):
     for bench, data in baseline_all.items():
         baseline[bench] = 0
         for sec in gp['metric']:
-            baseline[bench] += data[sec]
+            if sec in data:
+                baseline[bench] += data[sec]
 
     # Collect data and output it
     successful = True
