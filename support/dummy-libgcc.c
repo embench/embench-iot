@@ -883,6 +883,39 @@ __umulhisi3 (unsigned long a __attribute__ ((unused)),
   HIDDEN_FUNC(r24)
   HIDDEN_FUNC(r25)
 
+#ifdef __llvm__
+
+#define FUNC(name)				\
+    void name					\
+    (void)					\
+    {						\
+    }
+
+  FUNC(__ac_mc_va)
+  FUNC(_mwdsub_)
+  FUNC(__dcmpIEEE)
+  FUNC(_mwdadd_)
+  FUNC(_mwdrdiv_)
+  FUNC(_mwdmul_)
+  FUNC(_mwdrsub_)
+  FUNC(_mwddiv_)
+  FUNC(_mwcvtfd)
+  FUNC(_mwcvtdf)
+  FUNC(__ctype)
+  FUNC(_mwdflt_)
+  FUNC(_mwdtrunc_)
+  FUNC(_divmod_normbs)
+  FUNC(_udivmod_normbs)
+  FUNC(_mwfmul_)
+  FUNC(_mwfadd_)
+  FUNC(__fcmpIEEE)
+  FUNC(_mwfdiv_)
+  FUNC(_mwfrsub_)
+  FUNC(_mwfsub_)
+
+#undef FUNC
+#endif /* __llvm__ */
+
 #undef HIDDEN_FUNC
 #endif /* __arc__ */
 

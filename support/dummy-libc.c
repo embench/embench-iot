@@ -22,6 +22,9 @@
 #undef ferror
 #endif
 
+#ifdef __ARM_ARCH
+#  undef putchar
+#endif
 
 void *__locale_ctype_ptr;
 
@@ -249,6 +252,9 @@ ferror (FILE * stream __attribute__ ((unused)))
   return 0;
 }
 
+#ifdef fileno
+#undef fileno
+#endif
 int
 fileno (FILE * stream __attribute__ ((unused)))
 {
