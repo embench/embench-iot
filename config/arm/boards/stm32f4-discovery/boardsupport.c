@@ -52,7 +52,6 @@
 void
 initialise_board ()
 {
-  __asm__ volatile ("mov r0, 0" : : : "memory");
   InitCycleCounter();
   ResetCycleCounter();
 }
@@ -60,14 +59,12 @@ initialise_board ()
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))
 start_trigger ()
 {
-  __asm__ volatile ("mov r0, 0" : : : "memory");
   EnableCycleCounter();
 }
 
 void __attribute__ ((noinline)) __attribute__ ((externally_visible))
 stop_trigger ()
 {
-  __asm__ volatile ("mov r0, 0" : : : "memory");
   ResetCycleCounter();
   DisableCycleCounter();
 }
