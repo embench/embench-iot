@@ -272,9 +272,9 @@ def populate_user_flags(conf, args):
        values supplied on the command line in the structure, "args"."""
 
     if args.cflags:
-        conf['cflags'] = args.cflags.split(sep=' ')
+        conf['cflags'] = args.cflags.split()
     if args.ldflags:
-        conf['ldflags'] = args.ldflags.split(sep=' ')
+        conf['ldflags'] = args.ldflags.split()
 
     return conf
 
@@ -306,9 +306,9 @@ def populate_user_libs(conf, args):
        values supplied on the command line in the structure, "args"."""
 
     if args.user_libs:
-        conf['user_libs'] = args.user_libs.split(sep=' ')
+        conf['user_libs'] = args.user_libs.split()
     if args.dummy_libs:
-        conf['dummy_libs'] = args.dummy_libs.split(sep=' ')
+        conf['dummy_libs'] = args.dummy_libs.split()
 
     return conf
 
@@ -343,13 +343,13 @@ def populate_user(args):
 def add_internal_flags():
     """Add internal flag values to the command line."""
     for dirname in ['supportdir', 'boarddir', 'chipdir', 'archdir']:
-        flag = gp['cc_incdir_pattern'].format(gp[dirname]).split(sep=' ')
+        flag = gp['cc_incdir_pattern'].format(gp[dirname]).split()
         gp['cflags'].extend(flag)
 
     for dirname in ['cpu_mhz', 'warmup_heat']:
         dir_u = dirname.upper()
         flagstr = gp['cc_define2_pattern'].format(dir_u, gp[dirname])
-        flag = flagstr.split(sep=' ')
+        flag = flagstr.split()
         gp['cflags'].extend(flag)
 
 
@@ -447,8 +447,8 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
     # Construct the argument list
     arglist = [f'{gp["cc"]}']
     arglist.extend(gp['cflags'])
-    arglist.extend(gp['cc_output_pattern'].format(f'{f_root}.o').split(sep=' '))
-    arglist.extend(gp['cc_input_pattern'].format(abs_src).split(sep=' '))
+    arglist.extend(gp['cc_output_pattern'].format(f'{f_root}.o').split())
+    arglist.extend(gp['cc_input_pattern'].format(abs_src).split())
 
     # Run the compilation, but only if the source file is newer than the
     # binary.
@@ -586,7 +586,7 @@ def create_link_binlist(abs_bd):
     binlist = []
     for binf in os.listdir(abs_bd):
         if binf.endswith('.o'):
-            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+            binlist.extend(gp['ld_input_pattern'].format(binf).split())
 
     # Add arch, chip and board binaries
     for dirtype in ['arch', 'chip', 'board']:
@@ -600,14 +600,14 @@ def create_link_binlist(abs_bd):
             binf = os.path.join(bindir, filename)
             if (os.path.isfile(binf) and (ext == '.o')):
                 binlist.extend(
-                    gp['ld_input_pattern'].format(binf).split(sep=' ')
+                    gp['ld_input_pattern'].format(binf).split()
                 )
 
     # Add generic support
     for supp in ['main.o', 'beebsc.o']:
         binf = os.path.join(gp['bd_supportdir'], supp)
         if os.path.isfile(binf):
-            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+            binlist.extend(gp['ld_input_pattern'].format(binf).split())
         else:
             log.warning(f'Warning: Unable to find support library {binf}')
             return []
@@ -616,7 +616,7 @@ def create_link_binlist(abs_bd):
     for dlib in gp['dummy_libs']:
         binf = os.path.join(gp['bd_supportdir'], f'dummy-{dlib}.o')
         if os.path.isfile(binf):
-            binlist.extend(gp['ld_input_pattern'].format(binf).split(sep=' '))
+            binlist.extend(gp['ld_input_pattern'].format(binf).split())
         else:
             log.warning(f'Warning: Unable to find dummy library {binf}')
             return []
@@ -629,7 +629,7 @@ def create_link_arglist(bench, binlist):
        in "binlist"."""
     arglist = [gp['ld']]
     arglist.extend(gp['ldflags'])
-    arglist.extend(gp['ld_output_pattern'].format(bench).split(sep=' '))
+    arglist.extend(gp['ld_output_pattern'].format(bench).split())
     arglist.extend(binlist)
     arglist.extend(gp['user_libs'])
 
