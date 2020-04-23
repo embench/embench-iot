@@ -578,22 +578,31 @@ def compile_support():
 
 
 def create_link_binlist(abs_bd):
-    """Create a list of all the binaries to be linked, including those in the
-       specified absolute directory, abs_bd.  The binaries in this directory
-       can be specified as relative filenames.  All others will all be
-       absolute addresses, since ultimately we will link in the abs_bd
-       directory.  Return the result binlist, or an empty list on failure."""
+    """
+    Create a list of all the binaries to be linked, including those in the
+    specified absolute directory, abs_bd.  The binaries in this directory can
+    be specified as relative filenames.  All others will all be absolute
+    addresses, since ultimately we will link in the abs_bd directory.  Return
+    the result binlist, or an empty list on failure.
+
+    There is a nasty gotcha here. The ordering of files matters, since that is
+    the order they will get packed into the executable, which in turn may
+    affect branch distances. We therefore explicitly order files.
+    """
+
+    # Find the object files in alphabetical order
     binlist = []
-    for binf in os.listdir(abs_bd):
+    for binf in sorted(os.listdir(abs_bd), key=lambda objf: objf):
         if binf.endswith('.o'):
             binlist.extend(gp['ld_input_pattern'].format(binf).split())
+
 
     # Add arch, chip and board binaries
     for dirtype in ['arch', 'chip', 'board']:
         # Build directory
         bindir = gp[f'bd_{dirtype}dir']
-        # List of files in the build directory
-        filelist = os.listdir(bindir)
+        # List of files in the build directory in alphabetical order
+        filelist = sorted(os.listdir(bindir), key=lambda objf: objf)
         # Add every object file
         for filename in filelist:
             root, ext = os.path.splitext(filename)
@@ -612,8 +621,8 @@ def create_link_binlist(abs_bd):
             log.warning(f'Warning: Unable to find support library {binf}')
             return []
 
-    # Add dummy binaries
-    for dlib in gp['dummy_libs']:
+    # Add dummy binaries. These must be sorted in alphabetical order
+    for dlib in sorted(gp['dummy_libs'], key=lambda lib: lib):
         binf = os.path.join(gp['bd_supportdir'], f'dummy-{dlib}.o')
         if os.path.isfile(binf):
             binlist.extend(gp['ld_input_pattern'].format(binf).split())
