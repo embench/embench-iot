@@ -167,16 +167,25 @@ def validate_args(args):
     else:
         gp['metric'] = ['text']
 
+def get_section_group_by_name(elf, name):
+    """ Get a group of sections matching with the provided name from the file.
+        Return None if no such section exists.
+    """
+    # The first time this method is called, construct a name to number
+    # mapping
+    #
+    if elf._section_name_map is None:
+        elf._section_name_map = {}
+        for i, sec in enumerate(elf.iter_sections()):
+            elf._section_name_map[sec.name] = i
 
-def get_section(elf, section_name):
-    """Workaround to use get_section_by_name on pyelftools both pre- and post-
-       version 0.24 - section names are always decoded in 0.24 onwards"""
-    section = elf.get_section_by_name(section_name)
-    if section:
-        return section
-    encoded_name = codecs.encode(section_name, 'utf-8')
-    return elf.get_section_by_name(encoded_name)
+    sec_group = {}
+    for i, sec in enumerate(elf.iter_sections()):
+        if sec.name.startswith(name):
+            secnum = elf._section_name_map.get(sec.name, None)
+            sec_group[sec.name] = elf.get_section(secnum)
 
+    return None if sec_group is None else sec_group
 
 def benchmark_size(bench):
     """Compute the total size of the desired sections in a benchmark.  Returns
@@ -186,14 +195,14 @@ def benchmark_size(bench):
 
     with open(appexe, 'rb') as fileh:
         elf = ELFFile(fileh)
-
         for metric in gp['metric']:
             for secname in gp['secnames'][metric]:
-                sec = get_section(elf, secname)
-                if sec:
-                    sec_size += sec['sh_size']
+                sections = get_section_group_by_name(elf, secname)
+                if sections:
+                    for sec in sections:
+                        sec_size += sections[sec]['sh_size']
 
-    # Return the section size
+    # Return the section (group) size
     return sec_size
 
 
