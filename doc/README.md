@@ -300,18 +300,18 @@ assignments to python variables.  The following parameters may be set.
 - `ld-output-pattern`: A Python formatted string pattern with positional
   arguments to be used when specifying the output file on the linker command
   line.  Default value `-o {0}`.
-- `user_libs`: A list of libraries to be appended to the linker command line.
+- `user-libs`: A list of libraries to be appended to the linker command line.
   The libraries may be absolute file names or arguments to the linker.  In the
   latter case corresponding arguments in `ldflags` may be needed.  For example
   with GCC or Clang/LLVM if `-l` flags are used in `user_libs`, then `-L`
   flags may be needed in `ldflags`.  Default value is the empty list.
-- `dummy_libs`: A list of dummy libraries to be used (for example if system
+- `dummy-libs`: A list of dummy libraries to be used (for example if system
   libraries have been disabled through options in `ldflags`). Dummy libraries
   have their source in the [`support`](../support) subdirectory. Thus if
   `crt0` is specified, there should be a source file `dummy-crt0.c` in the
   [`support`](../support) directory.  Default value is the empty list.
-- `cpu_mhz`: The clock rate of the target in MHz.  Default value 1.
-- `warmup_heat`: How many times the benchmark code should be run to warm up
+- `cpu-mhz`: The clock rate of the target in MHz.  Default value 1.
+- `warmup-heat`: How many times the benchmark code should be run to warm up
   the caches.  Default value 1.
 - `timeout`: The maximum time (in seconds) allowed for the compiler or the
   linker to run for each invocation. Default value 5.
