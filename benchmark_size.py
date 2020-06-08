@@ -54,6 +54,12 @@ def build_parser():
         help='Directory in which to store logs',
     )
     parser.add_argument(
+        '--baselinedir',
+        type=str,
+        default='baseline-data',
+        help='Directory which contains baseline data',
+    )
+    parser.add_argument(
         '--absolute',
         action='store_true',
         help='Specify to show absolute results',
@@ -148,6 +154,11 @@ def validate_args(args):
         log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
         sys.exit(1)
 
+    if os.path.isabs(args.baselinedir):
+        gp['baseline_dir'] = args.baselinedir
+    else:
+        gp['baseline_dir'] = os.path.join(gp['rootdir'], args.baselinedir)
+
     gp['absolute'] = args.absolute
     gp['json'] = args.json_output
 
@@ -218,9 +229,8 @@ def collect_data(benchmarks):
        to guarantee the layout."""
 
     # Baseline data is held external to the script. Import it here.
-    gp['baseline_dir'] = os.path.join(
-        gp['rootdir'], 'baseline-data', 'size.json')
-    with open(gp['baseline_dir']) as fileh:
+    size_baseline = os.path.join(gp['baseline_dir'], 'size.json')
+    with open(size_baseline) as fileh:
         baseline_all = loads(fileh.read())
 
     # Compute the baseline data we need

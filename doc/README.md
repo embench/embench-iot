@@ -419,6 +419,11 @@ script, which takes the following arguments.
   benchmark run. This specifies the directory in which to place the log file.
   It may be an absolute or relative directory name; if the latter, it will be
   relative to the top level directory of the repository. Default value `logs`.
+- `--baselinedir <dir>`: Specifies the directory in which reference
+  size data can be found. May be an absolute or relative directory
+  name. If it is relative then it will be interpreted as relative to the
+  top level directory of the repository. The default value is `baseline-data`,
+  and size data will be sourced from `baseline-data/size.json`.
 - `--relative` or `--absolute`: If `--relative` is specified, present
   benchmark results relative to the baseline architecture.  If `--absolute` is
   specified, present absolute benchmark results.  If neither is specified,
@@ -449,6 +454,11 @@ script, which takes the following general arguments.
   build. This specifies the directory in which to place the log file.  It may
   be an absolute or relative directory name; if the latter, it will be
   relative to the top level directory of the repository. Default value `logs`.
+- `--baselinedir <dir>`: Specifies the directory in which reference
+  speed data can be found. May be an absolute or relative directory
+  name. If it is relative then it will be interpreted as relative to the
+  top level directory of the repository. The default value is `baseline-data`,
+  and speed data will be sourced from `baseline-data/speed.json`.
 - `--target-module <target module>`: This mandatory argument specifies a
   python module in the [`pylib`](../pylib) directory with definitions of
   routines to run the benchmark.

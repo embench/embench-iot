@@ -57,6 +57,12 @@ def get_common_args():
         help='Directory in which to store logs',
     )
     parser.add_argument(
+        '--baselinedir',
+        type=str,
+        default='baseline-data',
+        help='Directory which contains baseline data',
+    )
+    parser.add_argument(
         '--absolute',
         action='store_true',
         help='Specify to show absolute results',
@@ -122,6 +128,11 @@ def validate_args(args):
     if not os.access(gp['bd'], os.R_OK):
         log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
         sys.exit(1)
+
+    if os.path.isabs(args.baselinedir):
+        gp['baseline_dir'] = args.baselinedir
+    else:
+        gp['baseline_dir'] = os.path.join(gp['rootdir'], args.baselinedir)
 
     gp['absolute'] = args.absolute
     gp['timeout'] = args.timeout
@@ -205,10 +216,8 @@ def collect_data(benchmarks, remnant):
        absolute results have been requested."""
 
     # Baseline data is held external to the script. Import it here.
-    gp['baseline_dir'] = os.path.join(
-        gp['rootdir'], 'baseline-data', 'speed.json'
-    )
-    with open(gp['baseline_dir']) as fileh:
+    speed_baseline = os.path.join(gp['baseline_dir'], 'speed.json')
+    with open(speed_baseline) as fileh:
         baseline = loads(fileh.read())
 
     # Parse target specific args
