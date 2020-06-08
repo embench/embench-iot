@@ -38,6 +38,7 @@ from embench_core import log_args
 from embench_core import find_benchmarks
 from embench_core import log_benchmarks
 from embench_core import embench_stats
+from embench_core import output_format
 
 
 def get_common_args():
@@ -75,14 +76,24 @@ def get_common_args():
     )
     parser.add_argument(
         '--json-output',
-        action='store_true',
+        dest='output_format',
+        action='store_const',
+        const=output_format.JSON,
         help='Specify to output in JSON format',
     )
     parser.add_argument(
         '--text-output',
-        dest='json_output',
-        action='store_false',
+        dest='output_format',
+        action='store_const',
+        const=output_format.TEXT,
         help='Specify to output as plain text (the default)',
+    )
+    parser.add_argument(
+        '--baseline-output',
+        dest='output_format',
+        action='store_const',
+        const=output_format.BASELINE,
+        help='Specify to output in a format suitable for use as a baseline'
     )
     parser.add_argument(
         '--json-comma',
@@ -135,8 +146,12 @@ def validate_args(args):
         gp['baseline_dir'] = os.path.join(gp['rootdir'], args.baselinedir)
 
     gp['absolute'] = args.absolute
+    if args.output_format:
+        gp['output_format'] = args.output_format
+    else:
+        gp['output_format'] = output_format.TEXT
+
     gp['timeout'] = args.timeout
-    gp['json'] = args.json_output
 
     try:
         newmodule = importlib.import_module(args.target_module)
@@ -223,16 +238,10 @@ def collect_data(benchmarks, remnant):
     # Parse target specific args
     target_args = get_target_args(remnant)
 
-    # Collect data and output it
+    # Collect data
     successful = True
     raw_data = {}
     rel_data = {}
-    if gp['json']:
-        log.info('  "speed results" :')
-        log.info('  { "detailed speed results" :')
-    else:
-        log.info('Benchmark           Speed')
-        log.info('---------           -----')
 
     for bench in benchmarks:
         raw_data[bench] = benchmark_speed(bench, target_args)
@@ -242,36 +251,49 @@ def collect_data(benchmarks, remnant):
             del rel_data[bench]
             successful = False
         else:
+            if (not gp['absolute'] and
+                    gp['output_format'] != output_format.BASELINE):
+                rel_data[bench] = baseline[bench] / raw_data[bench]
+
+    # Output it
+    if gp['output_format'] == output_format.JSON:
+        log.info('  "speed results" :')
+        log.info('  { "detailed speed results" :')
+        for bench in benchmarks:
             output = ''
-            if gp['absolute']:
-                # Want absolute results. Only include non-zero values
-                if gp['json']:
+            if raw_data[bench] != 0.0:
+                if gp['absolute']:
                     output = f'{round(raw_data[bench])}'
                 else:
-                    output = f'{round(raw_data[bench]):8,}'
-            else:
-                # Want relative results (the default). Only use non-zero
-                # values.  Note this is inverted compared to the size
-                # benchmark, so LARGE is good.
-                rel_data[bench] = baseline[bench] / raw_data[bench]
-                if gp['json']:
                     output = f'{rel_data[bench]:.2f}'
-                else:
-                    output = f'  {rel_data[bench]:6.2f}'
 
-            if gp['json']:
                 if bench == benchmarks[0]:
-                    log.info('    { ' + f'"{bench}" : {output},')
+                    log.info(f'    {{ ' + f'"{bench}" : {output},')
                 elif bench == benchmarks[-1]:
                     log.info(f'      "{bench}" : {output}')
                 else:
                     log.info(f'      "{bench}" : {output},')
-            else:
-                # Want relative results (the default). Only use non-zero values.
-                log.info(f'{bench:15}  {output:8}')
-
-    if gp['json']:
         log.info('    },')
+    elif gp['output_format'] == output_format.TEXT:
+        log.info('Benchmark           Speed')
+        log.info('---------           -----')
+        for bench in benchmarks:
+            output = ''
+            if raw_data[bench] != 0.0:
+                if gp['absolute']:
+                    output = f'{round(raw_data[bench]):8,}'
+                else:
+                    output = f'  {rel_data[bench]:6.2f}'
+            # Want relative results (the default). Only use non-zero values.
+            log.info(f'{bench:15}  {output:8}')
+    elif gp['output_format'] == output_format.BASELINE:
+        log.info('{')
+        for bench in benchmarks:
+            if bench == benchmarks[-1]:
+                log.info(f'  "{bench}" : {raw_data[bench]}')
+            else:
+                log.info(f'  "{bench}" : {raw_data[bench]},')
+        log.info('}')
 
     if successful:
         return raw_data, rel_data
@@ -310,9 +332,10 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        opt_comma = ',' if args.json_comma else ''
-        embench_stats(benchmarks, raw_data, rel_data, 'speed', opt_comma)
-        log.info('All benchmarks run successfully')
+        if gp['output_format'] != output_format.BASELINE:
+            opt_comma = ',' if args.json_comma else ''
+            embench_stats(benchmarks, raw_data, rel_data, 'speed', opt_comma)
+            log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute speed benchmarks')
         sys.exit(1)

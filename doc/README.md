@@ -439,6 +439,13 @@ script, which takes the following arguments.
 - `--metric`. A space separated list of section types to include when
   calculating the benchmark metric. Permitted values ares `text`, `data`,
   `rodata`, `bss`.  Default value `text`.
+- `--text-output`: Output the text in a plain text format. This is the
+  default.
+- `--json-output`: Output the results in json format, instead of the
+  default plain text format.
+- `--baseline-output`: Output results in a format suitable for use as
+  baseline data instead of the default text format. This can be used
+  instead of the reference data in `baseline-data/size.json`.
 - `--help`: Provide help on the arguments.
 
 ### Running the benchmark of code speed
@@ -459,6 +466,17 @@ script, which takes the following general arguments.
   name. If it is relative then it will be interpreted as relative to the
   top level directory of the repository. The default value is `baseline-data`,
   and speed data will be sourced from `baseline-data/speed.json`.
+- `--relative` or `--absolute`: If `--relative` is specified, present
+  benchmark results relative to the baseline architecture.  If `--absolute` is
+  specified, present absolute benchmark results.  If neither is specified,
+  present relative results, because this is the defined norm for Embench.
+- `--text-output`: Output the text in a plain text format. This is the
+  default.
+- `--json-output`: Output the results in json format, instead of the
+  default plain text format.
+- `--baseline-output`: Output results in a format suitable for use as
+  baseline data instead of the default text format. This can be used
+  instead of the reference data in `baseline-data/speed.json`.
 - `--target-module <target module>`: This mandatory argument specifies a
   python module in the [`pylib`](../pylib) directory with definitions of
   routines to run the benchmark.
