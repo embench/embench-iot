@@ -486,9 +486,9 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
     if not succeeded:
         log.debug('Command was:')
         log.debug(arglist_to_str(arglist))
-        if res:
-            log.debug(res.stdout.decode('utf-8'))
-            log.debug(res.stderr.decode('utf-8'))
+
+    log.debug(res.stdout.decode('utf-8'))
+    log.debug(res.stderr.decode('utf-8'))
 
     return succeeded
 
@@ -691,8 +691,9 @@ def link_benchmark(bench):
         log.debug('In directory "' + abs_bd_b + '"')
         log.debug('Command was:')
         log.debug(arglist_to_str(arglist))
-        log.debug(res.stdout.decode('utf-8'))
-        log.debug(res.stderr.decode('utf-8'))
+
+    log.debug(res.stdout.decode('utf-8'))
+    log.debug(res.stderr.decode('utf-8'))
 
     return succeeded
 
