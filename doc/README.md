@@ -556,6 +556,10 @@ below).  The code is compiled using GCC 9.2.0, GNU binutils 2.33.1 and newlib
 3.3.0.  Newlib is configured for small code size - known as the "nanolib"
 configuration.
 
+The board can be obtained directly from ST Microlectronics, using the above
+linke, but is also widely available from other suppliers, including
+Farnell, RS Electronics, Mouser and several suppliers on Amazon.
+
 For the speed benchmarks, the compiler flags used are:
 ```
 -O2 -ffunction-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
