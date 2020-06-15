@@ -35,6 +35,7 @@ from embench_core import log_args
 from embench_core import find_benchmarks
 from embench_core import log_benchmarks
 from embench_core import embench_stats
+from embench_core import output_format
 
 
 def build_parser():
@@ -54,6 +55,12 @@ def build_parser():
         help='Directory in which to store logs',
     )
     parser.add_argument(
+        '--baselinedir',
+        type=str,
+        default='baseline-data',
+        help='Directory which contains baseline data',
+    )
+    parser.add_argument(
         '--absolute',
         action='store_true',
         help='Specify to show absolute results',
@@ -66,14 +73,24 @@ def build_parser():
     )
     parser.add_argument(
         '--json-output',
-        action='store_true',
+        dest='output_format',
+        action='store_const',
+        const=output_format.JSON,
         help='Specify to output in JSON format',
     )
     parser.add_argument(
         '--text-output',
-        dest='json_output',
-        action='store_false',
+        dest='output_format',
+        action='store_const',
+        const=output_format.TEXT,
         help='Specify to output as plain text (the default)',
+    )
+    parser.add_argument(
+        '--baseline-output',
+        dest='output_format',
+        action='store_const',
+        const=output_format.BASELINE,
+        help='Specify to output in a format suitable for use as a baseline'
     )
     parser.add_argument(
         '--json-comma',
@@ -148,8 +165,16 @@ def validate_args(args):
         log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
         sys.exit(1)
 
+    if os.path.isabs(args.baselinedir):
+        gp['baseline_dir'] = args.baselinedir
+    else:
+        gp['baseline_dir'] = os.path.join(gp['rootdir'], args.baselinedir)
+
     gp['absolute'] = args.absolute
-    gp['json'] = args.json_output
+    if args.output_format:
+        gp['output_format'] = args.output_format
+    else:
+        gp['output_format'] = output_format.TEXT
 
     # Sort out the list of section names to use
     gp['secnames'] = dict()
@@ -187,23 +212,29 @@ def get_section_group_by_name(elf, name):
 
     return None if sec_group is None else sec_group
 
-def benchmark_size(bench):
+def benchmark_size(bench, metrics):
     """Compute the total size of the desired sections in a benchmark.  Returns
        the size in bytes, which may be zero if the section wasn't found."""
     appexe = os.path.join(gp['bd_benchdir'], bench, bench)
-    sec_size = 0
+    sec_sizes = {}
+
+    # If the benchmark failed to build, then return a 0 size instead of
+    # crashing when failing to open the file.
+    if not os.path.exists(appexe):
+        return {}
 
     with open(appexe, 'rb') as fileh:
         elf = ELFFile(fileh)
-        for metric in gp['metric']:
+        for metric in metrics:
             for secname in gp['secnames'][metric]:
+                sec_sizes[secname] = 0
                 sections = get_section_group_by_name(elf, secname)
                 if sections:
                     for sec in sections:
-                        sec_size += sections[sec]['sh_size']
+                        sec_sizes[secname] += sections[sec]['sh_size']
 
     # Return the section (group) size
-    return sec_size
+    return sec_sizes
 
 
 def collect_data(benchmarks):
@@ -218,9 +249,8 @@ def collect_data(benchmarks):
        to guarantee the layout."""
 
     # Baseline data is held external to the script. Import it here.
-    gp['baseline_dir'] = os.path.join(
-        gp['rootdir'], 'baseline-data', 'size.json')
-    with open(gp['baseline_dir']) as fileh:
+    size_baseline = os.path.join(gp['baseline_dir'], 'size.json')
+    with open(size_baseline) as fileh:
         baseline_all = loads(fileh.read())
 
     # Compute the baseline data we need
@@ -231,58 +261,83 @@ def collect_data(benchmarks):
         for sec in gp['metric']:
             baseline[bench] += data[sec]
 
-    # Collect data and output it
     successful = True
-    raw_data = {}
+    raw_section_data = {}
+    raw_totals = {}
     rel_data = {}
-    if gp['json']:
-        log.info('  "size results" :')
-        log.info('  { "detailed size results" :')
-    else:
-        log.info('Benchmark            size')
-        log.info('---------            ----')
 
+    # Collect data
+    all_metrics = ['text', 'rodata', 'data', 'bss']
     for bench in benchmarks:
-        raw_data[bench] = benchmark_size(bench)
-        rel_data[bench] = {}
-        output = {}
+        if gp['output_format'] == output_format.BASELINE:
+            raw_section_data[bench] = benchmark_size(bench, all_metrics)
+        else:
+            raw_section_data[bench] = benchmark_size(bench, gp['metric'])
+        raw_totals[bench] = sum(raw_section_data[bench].values())
 
-        # Zero is a valid section size, although empty .text should be a
-        # concern.
-        if gp['absolute']:
-            # Want absolute results. Only include non-zero values
-            if gp['json']:
-                output = f'{raw_data[bench]}'
-            else:
-                output = f' {raw_data[bench]:8,}'
+        # Calculate data relative to the baseline if needed
+        if gp['absolute'] or gp['output_format'] == output_format.BASELINE:
+            rel_data[bench] = {}
         else:
             # Want relative results (the default). If baseline is zero, just
             # use 0.0 as the value.  Note this is inverted compared to the
             # speed benchmark, so SMALL is good.
             if baseline[bench] > 0:
-                rel_data[bench] = raw_data[bench] / baseline[bench]
+                rel_data[bench] = raw_totals[bench] / baseline[bench]
             else:
                 rel_data[bench] = 0.0
-            if gp['json']:
-                output = f'{rel_data[bench]:.2f}'
-            else:
-                output = f'   {rel_data[bench]:6.2f}'
 
-        if gp['json']:
+    # Output it
+    if gp['output_format'] == output_format.JSON:
+        log.info('  "size results" :')
+        log.info('  { "detailed size results" :')
+        for bench in benchmarks:
+            res_output = ''
+            if gp['absolute']:
+                res_output = f'{raw_totals[bench]}'
+            else:
+                res_output = f'{rel_data[bench]:.2f}'
+
             if bench == benchmarks[0]:
-                log.info('    { ' + f'"{bench}" : {output},')
+                log.info('    { ' + f'"{bench}" : {res_output},')
             elif bench == benchmarks[-1]:
-                log.info(f'      "{bench}" : {output}')
+                log.info(f'      "{bench}" : {res_output}')
             else:
-                log.info(f'      "{bench}" : {output},')
-        else:
-            log.info(f'{bench:15} {output:8}')
+                log.info(f'      "{bench}" : {res_output},')
 
-    if gp['json']:
         log.info('    },')
+    elif gp['output_format'] == output_format.TEXT:
+        log.info('Benchmark            size')
+        log.info('---------            ----')
+        for bench in benchmarks:
+            res_output = ''
+            if gp['absolute']:
+                res_output = f' {raw_totals[bench]:8,}'
+            else:
+                res_output = f'   {rel_data[bench]:6.2f}'
+            log.info(f'{bench:15} {res_output:8}')
+    elif gp['output_format'] == output_format.BASELINE:
+        log.info('{')
+        for bench in benchmarks:
+            res_output = ''
+            for metric in all_metrics:
+                if metric != all_metrics[0]:
+                    res_output += ',\n'
+
+                value = 0
+                secname = '.' + metric
+                if raw_section_data[bench].get(secname):
+                    value = raw_section_data[bench][secname]
+                res_output += f'    "{metric}" : {value}'
+
+            if bench == benchmarks[-1]:
+                log.info(f'  "{bench}" : {{\n{res_output}\n  }}')
+            else:
+                log.info(f'  "{bench}" : {{\n{res_output}\n  }},')
+        log.info('}')
 
     if successful:
-        return raw_data, rel_data
+        return raw_totals, rel_data
 
     # Otherwise failure return
     return [], []
@@ -318,9 +373,10 @@ def main():
     # separately. Given the size of datasets with which we are concerned the
     # compute overhead is not significant.
     if raw_data:
-        opt_comma = ',' if args.json_comma else ''
-        embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
-        log.info('All benchmarks sized successfully')
+        if gp['output_format'] != output_format.BASELINE:
+            opt_comma = ',' if args.json_comma else ''
+            embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
+            log.info('All benchmarks sized successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')
         sys.exit(1)
