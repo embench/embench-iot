@@ -179,27 +179,29 @@ of surname).
 - Jeremy Bennett.
 
 ### Document history
-| _Revision_ | _Date_    | _Author(s)_     | _Modification_                     |
-| -----------| ----------| ----------------| ---------------------------------- |
-| 0.5        | 27 Feb 20 | David Patterson | Incorporate latest review comments |
-|            |           | Jon Taylor      | to accompany release 0.5. Update   |
-|            |           | Jeremy Bennett  | document versioning for            |
-|            |           |                 | consistency with release
-|            |           |                 | numbering.                         |
-|            |           |                 |                                    |
-|            | 21 Jan 20 | Lyell Read      | Correcting partial sentence and    |
-|            |           |                 | removing duplicate log file flag   |
-|            |           |                 | definition.                        |
-|            |           |                 |                                    |
-| 0.5 rc2    | 13 Nov 19 | Jeremy Bennett  | Migrated to markdown and updated   |
-|            |           |                 | to refer to Python scripts.        |
-|            |		 |                 | Version previously known as draft  |
-|            |           |                 | 0.6.                               |
-|            |           |                 |                                    |
-| 0.5 rc1    |  6 Jun 19 | Jeremy Bennett  | First draft of this document,      |
-|            |           |                 | drawing heavily on the BEEBS       |
-|            |           |                 | documentation. Version previously  |
-|            |           |                 | known as draft 0.5.                |
+| _Revision_  | _Date_     | _Author(s)_      | _Modification_                     |
+| ----------- | ---------- | ---------------- | ---------------------------------- |
+| WIP         | 19 Jul 20  | Jeremy Bennett   | Add pyelftools to prerequisites.   |
+|             |            |                  |                                    |
+| 0.5         | 27 Feb 20  | David Patterson  | Incorporate latest review comments |
+|             |            | Jon Taylor       | to accompany release 0.5. Update   |
+|             |            | Jeremy Bennett   | document versioning for            |
+|             |            |                  | consistency with release           |
+|             |            |                  | numbering.                         |
+|             |            |                  |                                    |
+|             | 21 Jan 20  | Lyell Read       | Correcting partial sentence and    |
+|             |            |                  | removing duplicate log file flag   |
+|             |            |                  | definition.                        |
+|             |            |                  |                                    |
+| 0.5 rc2     | 13 Nov 19  | Jeremy Bennett   | Migrated to markdown and updated   |
+|             |            |                  | to refer to Python scripts.        |
+|             |            |                  | Version previously known as draft  |
+|             |            |                  | 0.6.                               |
+|             |            |                  |                                    |
+| 0.5 rc1     | 6 Jun 19   | Jeremy Bennett   | First draft of this document,      |
+|             |            |                  | drawing heavily on the BEEBS       |
+|             |            |                  | documentation. Version previously  |
+|             |            |                  | known as draft 0.5.                |
 
 
 ## Building and running Embench
@@ -214,6 +216,13 @@ Embench expects the following version of tools. Update your system accordingly.
 | _Components_ | _Version_    |
 | -------------| -------------|
 | python       | 3.6 or later |
+
+The following non-standard Python packages are needed.
+
+| _Package_  | _Comments_ |
+| -----------| -----------|
+| pyelftools |            |
+
 
 ### Preparation
 
