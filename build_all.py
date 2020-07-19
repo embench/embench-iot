@@ -483,12 +483,12 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
             )
             succeeded = False
 
-    if not succeeded:
-        log.debug('Command was:')
-        log.debug(arglist_to_str(arglist))
+        if not succeeded:
+            log.debug('Command was:')
+            log.debug(arglist_to_str(arglist))
 
-    log.debug(res.stdout.decode('utf-8'))
-    log.debug(res.stderr.decode('utf-8'))
+            log.debug(res.stdout.decode('utf-8'))
+            log.debug(res.stderr.decode('utf-8'))
 
     return succeeded
 
