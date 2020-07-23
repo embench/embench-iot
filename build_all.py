@@ -142,10 +142,10 @@ def validate_args(args):
     gp['archdir'] = os.path.join(gp['configdir'], args.arch)
     gp['bd_archdir'] = os.path.join(gp['bd_configdir'], args.arch)
     if not os.path.isdir(gp['archdir']):
-        log.error(f'ERROR: Architecture "{args.arch}" not found: exiting')
+        log.error('ERROR: Architecture "{arch}" not found: exiting'.format(arch=args.arch))
         sys.exit(1)
     if not os.access(gp['archdir'], os.R_OK):
-        log.error(f'ERROR: Unable to read achitecture "{args.arch}": exiting')
+        log.error('ERROR: Unable to read achitecture "{arch}": exiting'.format(arch=args.arch))
         sys.exit(1)
 
     # Chip
@@ -156,14 +156,12 @@ def validate_args(args):
     gp['bd_chipdir'] = os.path.join(gp['bd_archdir'], 'chips', args.chip)
     if not os.path.isdir(gp['chipdir']):
         log.error(
-            f'ERROR: Chip "{args.chip}" not found for architecture '
-            + f'"{args.arch}: exiting'
+            'ERROR: Chip "{chip}" not found for architecture "{arch}": exiting'.format(chip=args.chip, arch=args.arch)
         )
         sys.exit(1)
     if not os.access(gp['chipdir'], os.R_OK):
         log.error(
-            f'ERROR: Unable to read chip "{args.chip}" for architecture '
-            + f'"{args.arch}": exiting'
+            'ERROR: Unable to read chip "{chip}" for architecture "{arch}": exiting'.format(chip=args.chip, arch=args.arch)
         )
         sys.exit(1)
 
@@ -175,14 +173,12 @@ def validate_args(args):
     gp['bd_boarddir'] = os.path.join(gp['bd_archdir'], 'boards', args.board)
     if not os.path.isdir(gp['boarddir']):
         log.error(
-            f'ERROR: Board "{args.board}" not found for architecture '
-            + f'"{args.arch}: exiting'
+            'ERROR: Board "{board}" not found for architecture "{arch}: exiting'.format(board=args.board, arch=args.arch)
         )
         sys.exit(1)
     if not os.access(gp['boarddir'], os.R_OK):
         log.error(
-            f'ERROR: Unable to read board "{args.board}" for architecture '
-            + f'"{args.arch}": exiting'
+            'ERROR: Unable to read board "{board}" for architecture "{arch}": exiting'.format(board=args.board, arch=args.arch)
         )
         sys.exit(1)
 
@@ -211,8 +207,7 @@ def create_builddir(builddir, clean):
             shutil.rmtree(gp['bd'])
         except PermissionError:
             log.error(
-                f'ERROR: Unable to clean build directory "{gp["bd"]}: '
-                + 'exiting'
+                'ERROR: Unable to clean build directory "{bd}: exiting'.format(bd=gp["bd"])
             )
             sys.exit(1)
 
@@ -221,13 +216,13 @@ def create_builddir(builddir, clean):
             os.makedirs(gp['bd'])
         except PermissionError:
             log.error(
-                f'ERROR: Unable to create build directory {gp["bd"]}: exiting'
+                'ERROR: Unable to create build directory {bd}: exiting'.format(bd=gp["bd"])
             )
             sys.exit(1)
 
     if not os.access(gp['bd'], os.W_OK):
         log.error(
-            f'ERROR: Unable to write to build directory {gp["bd"]}, exiting'
+            'ERROR: Unable to write to build directory {bd}, exiting'.format(bd=gp["bd"])
         )
         sys.exit(1)
 
@@ -357,12 +352,12 @@ def validate_tools():
     """Check the compiler and linker are available."""
     # Validate C compiler
     if not shutil.which(gp['cc']):
-        log.error(f'ERROR: Compiler {gp["cc"]} not found on path: exiting')
+        log.error('ERROR: Compiler {cc} not found on path: exiting'.format(cc=gp["cc"]))
         sys.exit(1)
 
     # Validate linker
     if not shutil.which(gp['ld']):
-        log.error(f'ERROR: Linker {gp["ld"]} not found on path: exiting')
+        log.error('ERROR: Linker {ld} not found on path: exiting'.format(ld=gp["ld"]))
         sys.exit(1)
 
 
@@ -420,7 +415,7 @@ def log_parameters():
     log.debug('=================')
 
     for key, val in gp.items():
-        log.debug(f'{key:<21}: {val}')
+        log.debug('{key:<21}: {val}'.format(key=key, val=val))
 
     log.debug('')
 
@@ -441,13 +436,13 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
        everything in the event of failure
 
     """
-    abs_src = os.path.join(f'{srcdir}', f'{f_root}{suffix}')
-    abs_bin = os.path.join(f'{bindir}', f'{f_root}.o')
+    abs_src = os.path.join(srcdir, '{root}{suff}'.format(root=f_root, suff=suffix))
+    abs_bin = os.path.join(bindir, '{root}.o'.format(root=f_root))
 
     # Construct the argument list
-    arglist = [f'{gp["cc"]}']
+    arglist = [gp["cc"]]
     arglist.extend(gp['cflags'])
-    arglist.extend(gp['cc_output_pattern'].format(f'{f_root}.o').split())
+    arglist.extend(gp['cc_output_pattern'].format('{root}.o'.format(root=f_root)).split())
     arglist.extend(gp['cc_input_pattern'].format(abs_src).split())
 
     # Run the compilation, but only if the source file is newer than the
@@ -459,7 +454,7 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
             os.path.getmtime(abs_src) > os.path.getmtime(abs_bin)
     ):
         if gp['verbose']:
-            log.debug(f'Compiling in directory {bindir}')
+            log.debug('Compiling in directory {bin}'.format(bin=bindir))
             log.debug(arglist_to_str(arglist))
 
         try:
@@ -472,14 +467,14 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
             )
             if res.returncode != 0:
                 log.warning(
-                    f'Warning: Compilation of {f_root}{suffix} from source ' +
-                    f'directory {srcdir} to binary directory {bindir} failed'
+                    'Warning: Compilation of {root}{suff} from source directory {src} to binary directory {bin} failed'
+                        .format(root=f_root, suff=suffix, src=srcdir, bin=bindir)
                 )
                 succeeded = False
         except subprocess.TimeoutExpired:
             log.warning(
-                f'Warning: Compilation of {f_root}{suffix} from source ' +
-                f'directory {srcdir} to binary directory {bindir} timed out'
+                'Warning: Compilation of {root}{suff} from source directory {src} to binary directory {bin} timed out'
+                    .format(root=f_root, suff=suffix, src=srcdir, bin=bindir)
             )
             succeeded = False
 
@@ -506,8 +501,7 @@ def compile_benchmark(bench):
             os.makedirs(abs_bd_b)
         except PermissionError:
             log.warning(
-                'Warning: Unable to create build directory for '
-                + f'benchmark {bench}'
+                'Warning: Unable to create build directory for benchmark {bench}'.format(bench=bench)
             )
             return False
 
@@ -532,8 +526,7 @@ def compile_support():
             os.makedirs(gp['bd_supportdir'])
         except PermissionError:
             log.warning(
-                'Warning: Unable to create support build directory '
-                + f'{gp["bd_supportdir"]}'
+                'Warning: Unable to create support build directory {supportdir}'.format(supportdir=gp["bd_supportdir"])
             )
             return False
 
@@ -567,8 +560,7 @@ def compile_support():
                         os.makedirs(builddir)
                     except PermissionError:
                         log.warning(
-                            'Warning: Unable to create build directory '
-                            + f'for {dirname}, "{builddir}'
+                            'Warning: Unable to create build directory for {dirname}, {builddir}'.format(dirname=dirname, builddir=builddir)
                         )
                         return False
 
@@ -600,7 +592,7 @@ def create_link_binlist(abs_bd):
     # Add arch, chip and board binaries
     for dirtype in ['arch', 'chip', 'board']:
         # Build directory
-        bindir = gp[f'bd_{dirtype}dir']
+        bindir = gp['bd_{dirtype}dir'.format(dirtype=dirtype)]
         # List of files in the build directory in alphabetical order
         filelist = sorted(os.listdir(bindir), key=lambda objf: objf)
         # Add every object file
@@ -618,16 +610,16 @@ def create_link_binlist(abs_bd):
         if os.path.isfile(binf):
             binlist.extend(gp['ld_input_pattern'].format(binf).split())
         else:
-            log.warning(f'Warning: Unable to find support library {binf}')
+            log.warning('Warning: Unable to find support library {binf}'.format(binf=binf))
             return []
 
     # Add dummy binaries. These must be sorted in alphabetical order
     for dlib in sorted(gp['dummy_libs'], key=lambda lib: lib):
-        binf = os.path.join(gp['bd_supportdir'], f'dummy-{dlib}.o')
+        binf = os.path.join(gp['bd_supportdir'], 'dummy-{dlib}.o'.format(dlib=dlib))
         if os.path.isfile(binf):
             binlist.extend(gp['ld_input_pattern'].format(binf).split())
         else:
-            log.warning(f'Warning: Unable to find dummy library {binf}')
+            log.warning('Warning: Unable to find dummy library {binf}'.format(binf=binf))
             return []
 
     return binlist
@@ -653,8 +645,7 @@ def link_benchmark(bench):
 
     if not os.path.isdir(abs_bd_b):
         log.warning(
-            'Warning: Unable to find build directory for '
-            + f'benchmark {bench}'
+            'Warning: Unable to find build directory for benchmark {bench}'.format(bench=bench)
         )
         return False
 
@@ -669,7 +660,7 @@ def link_benchmark(bench):
 
     # Run the link
     if gp['verbose']:
-        log.debug(f'Linking in directory {abs_bd_b}')
+        log.debug('Linking in directory {abs_bd_b}'.format(abs_bd_b=abs_bd_b))
         log.debug(arglist_to_str(arglist))
 
     try:
@@ -681,10 +672,10 @@ def link_benchmark(bench):
             timeout=gp['timeout'],
         )
         if res.returncode != 0:
-            log.warning(f'Warning: Link of benchmark "{bench}" failed')
+            log.warning('Warning: Link of benchmark "{bench}" failed'.format(bench=bench))
             succeeded = False
     except subprocess.TimeoutExpired:
-        log.warning(f'Warning: link of benchmark "{bench}" timed out')
+        log.warning('Warning: link of benchmark "{bench}" timed out'.format(bench=bench))
         succeeded = False
 
     if not succeeded:
@@ -736,18 +727,18 @@ def main():
     # Track success
     successful = compile_support()
     if successful:
-        log.debug(f'Compilation of support files successful')
+        log.debug('Compilation of support files successful')
 
     for bench in benchmarks:
         res = compile_benchmark(bench)
         successful &= res
         if res:
-            log.debug(f'Compilation of benchmark "{bench}" successful')
+            log.debug('Compilation of benchmark "{bench}" successful'.format(bench=bench))
             res = link_benchmark(bench)
             successful &= res
             if res:
-                log.debug(f'Linking of benchmark "{bench}" successful')
-                log.info(f'{bench}')
+                log.debug('Linking of benchmark "{bench}" successful'.format(bench=bench))
+                log.info(bench)
 
     if successful:
         log.info('All benchmarks built successfully')
