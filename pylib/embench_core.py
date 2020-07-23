@@ -59,7 +59,7 @@ def check_python_version(major, minor):
     """Check the python version is at least {major}.{minor}."""
     if ((sys.version_info[0] < major)
         or ((sys.version_info[0] == major) and (sys.version_info[1] < minor))):
-        log.error(f'ERROR: Requires Python {major}.{minor} or later')
+        log.error('ERROR: Requires Python {mjr}.{mnr} or later'.format(mjr=major, mnr=minor))
         sys.exit(1)
 
 
@@ -73,10 +73,10 @@ def create_logdir(logdir):
         try:
             os.makedirs(logdir)
         except PermissionError:
-            raise PermissionError(f'Unable to create log directory {logdir}')
+            raise PermissionError('Unable to create log directory {dir}'.format(dir=logdir))
 
     if not os.access(logdir, os.W_OK):
-        raise PermissionError(f'Unable to write to log directory {logdir}')
+        raise PermissionError('Unable to write to log directory {dir}'.format(dir=logdir))
 
     return logdir
 
@@ -92,7 +92,7 @@ def setup_logging(logdir, prefix):
     # Create the log directory first if necessary.
     logdir_abs = create_logdir(logdir)
     logfile = os.path.join(
-        logdir_abs, time.strftime(f'{prefix}-%Y-%m-%d-%H%M%S.log')
+        logdir_abs, time.strftime('{pref}-%Y-%m-%d-%H%M%S.log'.format(pref=prefix))
     )
 
     # Set up logging
@@ -105,7 +105,7 @@ def setup_logging(logdir, prefix):
     log.addHandler(file_h)
 
     # Log where the log file is
-    log.debug(f'Log file: {logfile}\n')
+    log.debug('Log file: {log}\n'.format(log=logfile))
     log.debug('')
 
 
@@ -117,7 +117,7 @@ def log_args(args):
     for arg in vars(args):
         realarg = re.sub('_', '-', arg)
         val = getattr(args, arg)
-        log.debug(f'--{realarg:20}: {val}')
+        log.debug('--{arg:20}: {val}'.format(arg=realarg, val=val))
 
     log.debug('')
 
@@ -238,22 +238,22 @@ def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
     if count > 0:
         if gp['absolute']:
             if gp['output_format'] == output_format.JSON:
-                geomean_op = f'{round(geomean)}'
-                geosd_op = f'{(geosd):.2f}'
+                geomean_op = '{gm}'.format(gm=round(geomean))
+                geosd_op = '{gs:.2f}'.format(gs=geosd)
             elif gp['output_format'] == output_format.TEXT:
-                geomean_op = f'{round(geomean):8,}'
-                geosd_op = f'     {(geosd):6.2f}'
+                geomean_op = '{gm:8,}'.format(gm=round(geomean))
+                geosd_op = '     {gs:6.2f}'.format(gs=geosd)
 
-            georange_op = f'{round(georange):8,}'
+            georange_op = '{gr:8,}'.format(gr=georange)
         else:
             if gp['output_format'] == output_format.JSON:
-                geomean_op = f'{geomean:.2f}'
-                geosd_op = f'{geosd:.2f}'
+                geomean_op = '{gm:.2f}'.format(gm=geomean)
+                geosd_op = '{gs:.2f}'.format(gs=geosd)
             elif gp['output_format'] == output_format.TEXT:
-                geomean_op = f'  {geomean:6.2f}'
-                geosd_op = f'  {geosd:6.2f}'
+                geomean_op = '  {gm:6.2f}'.format(gm=geomean)
+                geosd_op = '  {gs:6.2f}'.format(gs=geosd)
 
-            georange_op = f'  {georange:6.2f}'
+            georange_op = '  {gr:6.2f}'.format(gr=georange)
     else:
         geomean_op = ' -   '
         geosd_op = ' -   '
@@ -261,14 +261,14 @@ def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
 
     # Output the results
     if gp['output_format'] == output_format.JSON:
-        log.info(f'    "{bm_type} geometric mean" : {geomean_op},')
-        log.info(f'    "{bm_type} geometric standard deviation" : {geosd_op}')
-        log.info('  }' + f'{opt_comma}')
+        log.info('    "{bm} geometric mean" : {gmo},'.format(bm=bm_type, gmo=geomean_op))
+        log.info('    "{bm} geometric standard deviation" : {gso}'.format(bm=bm_type, gso=geosd_op))
+        log.info('  }{oc}'.format(oc=opt_comma))
     elif gp['output_format'] == output_format.TEXT:
         log.info('---------           -----')
-        log.info(f'Geometric mean   {geomean_op:8}')
-        log.info(f'Geometric SD     {geosd_op:8}')
-        log.info(f'Geometric range  {georange_op:8}')
+        log.info('Geometric mean   {gmo:8}'.format(gmo=geomean_op))
+        log.info('Geometric SD     {gso:8}'.format(gso=geosd_op))
+        log.info('Geometric range  {gro:8}'.format(gro=georange_op))
 
 
 def embench_stats(benchmarks, raw_data, rel_data, bm_type, opt_comma):
