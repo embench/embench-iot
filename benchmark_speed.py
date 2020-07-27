@@ -133,11 +133,11 @@ def validate_args(args):
         gp['bd'] = os.path.join(gp['rootdir'], args.builddir)
 
     if not os.path.isdir(gp['bd']):
-        log.error(f'ERROR: build directory {gp["bd"]} not found: exiting')
+        log.error('ERROR: build directory {} not found: exiting'.format(gp["bd"]))
         sys.exit(1)
 
     if not os.access(gp['bd'], os.R_OK):
-        log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
+        log.error('ERROR: Unable to read build directory {}: exiting'.format(gp["bd"]))
         sys.exit(1)
 
     if os.path.isabs(args.baselinedir):
@@ -157,7 +157,7 @@ def validate_args(args):
         newmodule = importlib.import_module(args.target_module)
     except ImportError as error:
         log.error(
-            f'ERROR: Target module import failure: {error}: exiting'
+            'ERROR: Target module import failure: {}: exiting'.format(error)
         )
         sys.exit(1)
 
@@ -185,13 +185,13 @@ def benchmark_speed(bench, target_args):
                 timeout=gp['timeout'],
             )
             if res.returncode != 0:
-                log.warning(f'Warning: Run of {bench} failed.')
+                log.warning('Warning: Run of {} failed.'.format(bench))
                 succeeded = False
         except subprocess.TimeoutExpired:
-            log.warning(f'Warning: Run of {bench} timed out.')
+            log.warning('Warning: Run of {} timed out.'.format(bench))
             succeeded = False
     else:
-        log.warning(f'Warning: {bench} executable not found.')
+        log.warning('Warning: {} executable not found.'.format(bench))
         succeeded = False
 
     # Process results
@@ -213,7 +213,7 @@ def benchmark_speed(bench, target_args):
                 comm = " '" + arg + "'"
 
         log.debug('Args to subprocess:')
-        log.debug(f'{comm}')
+        log.debug(format(comm))
         if 'res' in locals():
             log.debug(res.stdout.decode('utf-8'))
             log.debug(res.stderr.decode('utf-8'))
@@ -263,16 +263,16 @@ def collect_data(benchmarks, remnant):
             output = ''
             if raw_data[bench] != 0.0:
                 if gp['absolute']:
-                    output = f'{round(raw_data[bench])}'
+                    output = format(round(raw_data[bench]))
                 else:
-                    output = f'{rel_data[bench]:.2f}'
+                    output = '{:.2f}'.format(rel_data[bench])
 
                 if bench == benchmarks[0]:
-                    log.info(f'    {{ ' + f'"{bench}" : {output},')
+                    log.info('    {{ "{}" : {},'.format(bench, output))
                 elif bench == benchmarks[-1]:
-                    log.info(f'      "{bench}" : {output}')
+                    log.info('      "{}" : {}'.format(bench, output))
                 else:
-                    log.info(f'      "{bench}" : {output},')
+                    log.info('      "{}" : {},'.format(bench, output))
         log.info('    },')
     elif gp['output_format'] == output_format.TEXT:
         log.info('Benchmark           Speed')
@@ -281,18 +281,18 @@ def collect_data(benchmarks, remnant):
             output = ''
             if raw_data[bench] != 0.0:
                 if gp['absolute']:
-                    output = f'{round(raw_data[bench]):8,}'
+                    output = '{:8,}'.format(round(raw_data[bench]))
                 else:
-                    output = f'  {rel_data[bench]:6.2f}'
+                    output = '  {:6.2f}'.format(rel_data[bench])
             # Want relative results (the default). Only use non-zero values.
-            log.info(f'{bench:15}  {output:8}')
+            log.info('{:15}  {:8}'.format(bench, output))
     elif gp['output_format'] == output_format.BASELINE:
         log.info('{')
         for bench in benchmarks:
             if bench == benchmarks[-1]:
-                log.info(f'  "{bench}" : {raw_data[bench]}')
+                log.info('  "{}" : {}'.format(bench, raw_data[bench]))
             else:
-                log.info(f'  "{bench}" : {raw_data[bench]},')
+                log.info('  "{}" : {},'.format(bench, raw_data[bench]))
         log.info('}')
 
     if successful:

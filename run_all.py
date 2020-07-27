@@ -1209,24 +1209,24 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
 
     # Construct the argument list
     arglist = [
-        f'./build_all.py',
-        f'--clean',
-        f'--verbose',
-        f'--arch={arch}',
-        f'--chip={chip}',
-	f'--board={board}',
-        f'--cc={cc}',
+        './build_all.py',
+        '--clean',
+        '--verbose',
+        '--arch={}'.format(arch),
+        '--chip={}'.format(chip),
+	    '--board={}'.format(board),
+        '--cc={}'.format((cc)),
     ]
     if cflags:
-        arglist.append(f'--cflags={cflags}')
+        arglist.append('--cflags={}'.format(cflags))
     if ldflags:
-        arglist.append(f'--ldflags={ldflags}')
+        arglist.append('--ldflags={}'.format(ldflags))
     if dummy_libs:
-        arglist.append(f'--dummy-libs={dummy_libs}')
+        arglist.append('--dummy-libs={}'.format(dummy_libs))
     if user_libs:
-        arglist.append(f'--user-libs={user_libs}')
+        arglist.append('--user-libs={}'.format(user_libs))
     if env:
-        arglist.append(f'--env={env}')
+        arglist.append('--env={}'.format(env))
 
     # Do we need a different path?
     if path:
@@ -1257,10 +1257,10 @@ def build_benchmarks(arch, chip, board, cc='cc', cflags=None, ldflags=None,
                 print('ERROR: Not all benchmarks built successfully')
                 sys.exit(1)
         else:
-            print(f'ERROR: {arglist_to_str(arglist)} failed')
+            print('ERROR: {} failed'.format(arglist_to_str(arglist)))
             sys.exit(1)
     except subprocess.TimeoutExpired:
-        print(f'ERROR: {arglist_to_str(arglist)} timed out')
+        print('ERROR: {} timed out'.format(arglist_to_str(arglist)))
         sys.exit(1)
 
     # Restore the environment
@@ -1286,10 +1286,10 @@ def benchmark(arglist, timeout, desc, resfile, append):
                 print('Warning: Not all benchmarks ' + desc + ' successfully')
                 succeeded = False
         else:
-            print(f'Warning: {arglist_to_str(arglist)} failed')
+            print('Warning: {} failed'.format(arglist_to_str(arglist)))
             succeeded = False
     except subprocess.TimeoutExpired:
-        print(f'Warning: {arglist_to_str(arglist)} timed out')
+        print('Warning: {} timed out'.format(arglist_to_str(arglist)))
         succeeded = False
 
     # Dump the data if successful
@@ -1359,7 +1359,7 @@ def main():
             else:
                 env = None
 
-            print(f'  {name}')
+            print(format(name))
             resfile = os.path.join('results', name + '.json')
 
             # Size benchmark

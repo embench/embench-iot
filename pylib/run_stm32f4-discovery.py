@@ -61,7 +61,7 @@ def build_benchmark_cmd(bench, args):
     global cpu_mhz
     cpu_mhz = args.cpu_mhz
 
-    cmd = [f'{args.gdb_command}']
+    cmd = [format(args.gdb_command)]
     gdb_comms = [
         'set confirm off',
         'file {0}',
