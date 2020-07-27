@@ -58,14 +58,14 @@ def build_benchmark_cmd(bench, args):
     """Construct the command to run the benchmark.  "args" is a
        namespace with target specific arguments"""
 
-    cmd = [f'{args.gdb_command}']
+    cmd = [format(args.gdb_command)]
     gdb_comms = [
         'set confirm off',
         'set style enabled off',
         'set height 0',
         'file {0}',
-        f'target remote | {args.gdbserver_command} '
-        + f'-c {args.gdbserver_target} --stdin',
+        'target remote | {} '.format(args.gdbserver_command)
+        + '-c {} --stdin'.format(args.gdbserver_target),
         'stepi',
         'stepi',
         'load',

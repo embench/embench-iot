@@ -158,11 +158,11 @@ def validate_args(args):
         gp['bd'] = os.path.join(gp['rootdir'], args.builddir)
 
     if not os.path.isdir(gp['bd']):
-        log.error(f'ERROR: build directory {gp["bd"]} not found: exiting')
+        log.error('ERROR: build directory {} not found: exiting'.format(gp["bd"]))
         sys.exit(1)
 
     if not os.access(gp['bd'], os.R_OK):
-        log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
+        log.error('ERROR: Unable to read build directory {}: exiting'.format(gp["bd"]))
         sys.exit(1)
 
     if os.path.isabs(args.baselinedir):
@@ -294,16 +294,16 @@ def collect_data(benchmarks):
         for bench in benchmarks:
             res_output = ''
             if gp['absolute']:
-                res_output = f'{raw_totals[bench]}'
+                res_output = format(raw_totals[bench])
             else:
-                res_output = f'{rel_data[bench]:.2f}'
+                res_output = '{:.2f}'.format(rel_data[bench])
 
             if bench == benchmarks[0]:
-                log.info('    { ' + f'"{bench}" : {res_output},')
+                log.info('    { "{}" : {},'.format(bench, res_output))
             elif bench == benchmarks[-1]:
-                log.info(f'      "{bench}" : {res_output}')
+                log.info('      "{}" : {}'.format(bench, res_output))
             else:
-                log.info(f'      "{bench}" : {res_output},')
+                log.info('      "{}" : {},'.format(bench, res_output))
 
         log.info('    },')
     elif gp['output_format'] == output_format.TEXT:
@@ -312,10 +312,10 @@ def collect_data(benchmarks):
         for bench in benchmarks:
             res_output = ''
             if gp['absolute']:
-                res_output = f' {raw_totals[bench]:8,}'
+                res_output = ' {:8,}'.format(raw_totals[bench])
             else:
-                res_output = f'   {rel_data[bench]:6.2f}'
-            log.info(f'{bench:15} {res_output:8}')
+                res_output = '   {:6.2f}'.format(rel_data[bench])
+            log.info('{:15} {:8}'.format(bench, res_output))
     elif gp['output_format'] == output_format.BASELINE:
         log.info('{')
         for bench in benchmarks:
@@ -328,12 +328,12 @@ def collect_data(benchmarks):
                 secname = '.' + metric
                 if raw_section_data[bench].get(secname):
                     value = raw_section_data[bench][secname]
-                res_output += f'    "{metric}" : {value}'
+                res_output += '    "{}" : {}'.format(metric, value)
 
             if bench == benchmarks[-1]:
-                log.info(f'  "{bench}" : {{\n{res_output}\n  }}')
+                log.info('  "{}" : {{\n{}\n  }}'.format(bench, res_output))
             else:
-                log.info(f'  "{bench}" : {{\n{res_output}\n  }},')
+                log.info('  "{}" : {{\n{}\n  }},'.format(bench, res_output))
         log.info('}')
 
     if successful:
