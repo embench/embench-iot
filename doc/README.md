@@ -181,6 +181,7 @@ of surname).
 ### Document history
 | _Revision_  | _Date_     | _Author(s)_      | _Modification_                     |
 | ----------- | ---------- | ---------------- | ---------------------------------- |
+| WIP         | 9 Aug 20   | Roger Shepherd   | Note re python module names        |
 | WIP         | 19 Jul 20  | Jeremy Bennett   | Add pyelftools to prerequisites.   |
 |             |            |                  |                                    |
 | 0.5         | 27 Feb 20  | David Patterson  | Incorporate latest review comments |
@@ -488,7 +489,10 @@ script, which takes the following general arguments.
   instead of the reference data in `baseline-data/speed.json`.
 - `--target-module <target module>`: This mandatory argument specifies a
   python module in the [`pylib`](../pylib) directory with definitions of
-  routines to run the benchmark.
+  routines to run the benchmark. Note that the argument specifies the name of
+  module (e.g. [`run_stm32f4-discovery`](../pylib/run_stm32f4-discovery.py))
+  not the name of the file that contains the module
+  (e.g. [`run_stm32f4-discovery.py`](../pylib/run_stm32f4-discovery.py)).
 - `--timeout`: The maximum time (in seconds) allowed for each benchmark program
   to run. Default value 30.
 - `--help`: Provide help on the arguments.
