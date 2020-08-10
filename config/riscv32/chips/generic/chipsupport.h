@@ -14,4 +14,7 @@
 
 /* Nothing here.  */
 
+/* Dummy typedef: ISO C forbids an empty translation unit */
+typedef int ISO_C_COMPLIANCE;
+
 #endif
