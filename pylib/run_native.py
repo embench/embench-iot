@@ -63,7 +63,7 @@ def decode_results(stdout_str, stderr_str):
     time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S)
     if time:
         ms_elapsed = int(time.group(1)) * 1000 + \
-                     int('{:<03d}'.format(int(time.group(2)))) # 0-pad
+                     int(time.group(2).ljust(3,'0')) # 0-pad
         # Return value cannot be zero (will be interpreted as error)
         return max(float(ms_elapsed), 0.001)
 
