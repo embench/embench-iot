@@ -208,9 +208,9 @@ def benchmark_speed(bench, target_args):
             if arg == arglist[0]:
                 comm = arg
             elif arg == '-ex':
-                comm = ' ' + arg
+                comm += ' ' + arg
             else:
-                comm = " '" + arg + "'"
+                comm += " '" + arg + "'"
 
         log.debug('Args to subprocess:')
         log.debug(f'{comm}')
