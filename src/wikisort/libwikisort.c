@@ -36,7 +36,7 @@
 typedef uint8_t bool;
 #endif
 
-#define Var(name, value) __typeof__(value) name = value
+#define Var(name, value, type) type name = value
 
 long
 Min (const long a, const long b)
@@ -94,15 +94,16 @@ MakeRange (const long start, const long end)
   return range;
 }
 
+typedef long int (* TestCasePtr)(long int, long int);
 
 /* toolbox functions used by the sorter */
 
 /* swap value1 and value2 */
-#define Swap(value1, value2) { \
-	Var(a, &(value1)); \
-	Var(b, &(value2)); \
+#define Swap(value1, value2, type) { \
+	Var(a, &(value1), type*); \
+	Var(b, &(value2), type*); \
 	\
-	Var(c, *a); \
+	Var(c, *a, type); \
 	*a = *b; \
 	*b = c; \
 }
@@ -183,7 +184,7 @@ Reverse (Test array[], const Range range)
 {
   long index;
   for (index = Range_length (range) / 2 - 1; index >= 0; index--)
-    Swap (array[range.start + index], array[range.end - index - 1]);
+    Swap (array[range.start + index], array[range.end - index - 1], Test);
 }
 
 /* swap a series of values in the array */
@@ -193,7 +194,7 @@ BlockSwap (Test array[], const long start1, const long start2,
 {
   long index;
   for (index = 0; index < block_size; index++)
-    Swap (array[start1 + index], array[start2 + index]);
+    Swap (array[start1 + index], array[start2 + index], Test);
 }
 
 /* rotate the values in an array ([0 1 2 3] becomes [1 2 3 0] if we rotate by 1) */
@@ -303,7 +304,7 @@ WikiMerge (Test array[], const Range buffer, const Range A, const Range B,
 		  (array[B.start + B_count], array[buffer.start + A_count]))
 		{
 		  Swap (array[A.start + insert],
-			array[buffer.start + A_count]);
+			array[buffer.start + A_count], Test);
 		  A_count++;
 		  insert++;
 		  if (A_count >= Range_length (A))
@@ -311,7 +312,7 @@ WikiMerge (Test array[], const Range buffer, const Range A, const Range B,
 		}
 	      else
 		{
-		  Swap (array[A.start + insert], array[B.start + B_count]);
+		  Swap (array[A.start + insert], array[B.start + B_count], Test);
 		  B_count++;
 		  insert++;
 		  if (B_count >= Range_length (B))
@@ -700,7 +701,7 @@ WikiSort (Test array[], const long size, const Comparison compare)
 	      index = 0;
 	      for (indexA = firstA.end + 1; indexA < blockA.end;
 		   index++, indexA += block_size)
-		Swap (array[buffer1.start + index], array[indexA]);
+		Swap (array[buffer1.start + index], array[indexA], Test);
 
 	      /* start rolling the A blocks through the B blocks! */
 	      /* whenever we leave an A block behind, we'll need to merge the previous A block with any B blocks that follow it, so track that information as well */
@@ -742,7 +743,7 @@ WikiSort (Test array[], const long size, const Comparison compare)
 		      /* we need to swap the second item of the previous A block back with its original value, which is stored in buffer1 */
 		      /* since the firstA block did not have its value swapped out, we need to make sure the previous A block is not unevenly sized */
 		      Swap (array[blockA.start + 1],
-			    array[buffer1.start + indexA++]);
+			    array[buffer1.start + indexA++], Test);
 
 		      /* locally merge the previous A block with the B values that follow it, using the buffer as swap space */
 		      WikiMerge (array, buffer2, lastA,
@@ -1066,7 +1067,7 @@ benchmark_body (int rpt)
   long total, index, test_case;
   Comparison compare = TestCompare;
 
-  __typeof__ (&TestingPathological) test_cases[9] =
+  TestCasePtr test_cases[9] =
   {
   &TestingPathological,
       &TestingRandom,
