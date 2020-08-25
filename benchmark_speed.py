@@ -323,7 +323,7 @@ def main():
     benchmarks = find_benchmarks()
     log_benchmarks(benchmarks)
 
-    # Collect the size data for the benchmarks. Pass any remaining args.
+    # Collect the speed data for the benchmarks. Pass any remaining args.
     raw_data, rel_data = collect_data(benchmarks, remnant)
 
     # We can't compute geometric SD on the fly, so we need to collect all the
