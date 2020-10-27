@@ -23,6 +23,8 @@ import importlib
 import os
 import subprocess
 import sys
+import threading
+import queue
 
 from json import loads
 
@@ -118,6 +120,18 @@ def get_common_args():
         default=30,
         help='Timeout used for running each benchmark program'
     )
+    parser.add_argument(
+        '--sim-parallel',
+        action='store_true',
+        default=False,
+        help='Launch all benchmarks in parallel'
+    )
+    parser.add_argument(
+        '--sim-serial',
+        dest='sim_parallel',
+        action='store_false',
+        help='Launch all benchmarks in series (the default)'
+    )
 
     return parser.parse_known_args()
 
@@ -152,6 +166,7 @@ def validate_args(args):
         gp['output_format'] = output_format.TEXT
 
     gp['timeout'] = args.timeout
+    gp['sim_parallel'] = args.sim_parallel
 
     try:
         newmodule = importlib.import_module(args.target_module)
@@ -169,7 +184,9 @@ def validate_args(args):
 def benchmark_speed(bench, target_args):
     """Time the benchmark.  "target_args" is a namespace of arguments
        specific to the target.  Result is a time in milliseconds, or zero on
-       failure."""
+       failure.
+
+       For the parallel option, this method must be thread-safe."""
     succeeded = True
     appdir = os.path.join(gp['bd_benchdir'], bench)
     appexe = os.path.join(appdir, bench)
@@ -219,7 +236,10 @@ def benchmark_speed(bench, target_args):
             log.debug(res.stderr.decode('utf-8'))
         return 0.0
 
-
+def run_threads(bench, target_args, data_collect_q):
+    item = benchmark_speed(bench, target_args)
+    data_collect_q.put_nowait([bench, item])
+    
 def collect_data(benchmarks, remnant):
     """Collect and log all the raw and optionally relative data associated with
        the list of benchmarks supplied in the "benchmarks" argument. "remant"
@@ -243,8 +263,28 @@ def collect_data(benchmarks, remnant):
     raw_data = {}
     rel_data = {}
 
+    # Run the benchmarks in parallel
+    if gp['sim_parallel']:
+        collect_data_q = queue.Queue()
+        benchmark_threads = list()
+        for bench in benchmarks:
+            curr_thread = threading.Thread(target=run_threads, args=(bench, target_args, collect_data_q))
+            benchmark_threads.append(curr_thread)
+            curr_thread.start()
+        # Join threads
+        for thd in benchmark_threads:
+            thd.join() 
+        # All thread have returned
+        # Go through Q and make sure all benchmarks returned
+        while not collect_data_q.empty():
+            [bench_id, raw_score] = collect_data_q.get()
+            raw_data[bench_id] = raw_score
+    # Run the benchmarks in serial
+    else: 
+        for bench in benchmarks:
+            raw_data[bench] = benchmark_speed(bench, target_args)
+
     for bench in benchmarks:
-        raw_data[bench] = benchmark_speed(bench, target_args)
         rel_data[bench] = 0.0
         if raw_data[bench] == 0.0:
             del raw_data[bench]
@@ -279,7 +319,7 @@ def collect_data(benchmarks, remnant):
         log.info('---------           -----')
         for bench in benchmarks:
             output = ''
-            if raw_data[bench] != 0.0:
+            if (bench in raw_data and raw_data[bench] != 0.0):
                 if gp['absolute']:
                     output = f'{round(raw_data[bench]):8,}'
                 else:
