@@ -12,7 +12,7 @@ Patterson, Jeremy Bennett, Palmer Dabbelt, Cesare Garlati, G. S. Madhusudan
 and Trevor Mudge (see https://tmt.knect365.com/risc-v-workshop-zurich/agenda/2#software_embench-tm-a-free-benchmark-suite-for-embedded-computing-from-an-academic-industry-cooperative-towards-the-long-overdue-and-deserved-demise-of-dhrystone).
 
 The benchmarks are largely derived from the Bristol/Embecosm Embedded
-Benchmark Suite (BEEBS, see http://beebs.eu), which in turn draws its material
+Benchmark Suite (BEEBS, see https://github.com/mageec/beebs), which in turn draws its material
 from various earlier projects.  A full description and user manual is in the
 [`doc` directory](./doc/README.md).
 
