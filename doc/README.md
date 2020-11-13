@@ -133,8 +133,8 @@ Embench is based on the following principles:
 
 ### The Bristol/Embecosm Embedded Benchmark Suite (BEEBS)
 
-The benchmarks are largely derived from [BEEBS](http://beebs.eu), which in
-turn draws its material from various earlier projects, notably:
+The benchmarks are largely derived from [BEEBS](https://beebs.mageec.org/),
+which in turn draws its material from various earlier projects, notably:
 
 - [MiBench](http://vhosts.eecs.umich.edu/mibench);
 - [the WCET benchmark collection](http://www.mrtc.mdh.se/projects/wcet/benchmarks.html);
