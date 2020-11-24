@@ -14,8 +14,11 @@
 
 #include "support.h"
 
-#define LOCAL_SCALE_FACTOR 1700
+#define LOCAL_SCALE_FACTOR 170
 
+/* BEEBS heap is just an array */
+#define HEAP_SIZE 819200
+static char heap[HEAP_SIZE];
 
 // leftrotate function definition
 #define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
@@ -194,6 +197,8 @@ static int __attribute__ ((noinline))
 benchmark_body (int len)
 {
   int i;
+
+  init_heap_beebs ((void *) heap, HEAP_SIZE);
 
   uint8_t *msg = malloc_beebs(len);
   for (i = 0; i < len; i++){
