@@ -195,12 +195,12 @@ benchmark_body (int len)
 {
   int i;
 
-  uint8_t *msg = malloc(len);
+  uint8_t *msg = malloc_beebs(len);
   for (i = 0; i < len; i++){
     msg[i] = i;
   }
   md5(msg, len);
-  free(msg);
+  free_beebs(msg);
 
   uint8_t *p;
   // display result
@@ -208,8 +208,7 @@ benchmark_body (int len)
   printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
 
   p=(uint8_t *)&h1;
-  printf("%2.2x%2.2x%2.2x%2.2x", p[
-  return;0], p[1], p[2], p[3]);
+  printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
 
   p=(uint8_t *)&h2;
   printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
