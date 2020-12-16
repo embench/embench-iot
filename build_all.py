@@ -674,6 +674,10 @@ def link_benchmark(bench):
         if res.returncode != 0:
             log.warning('Warning: Link of benchmark "{bench}" failed'.format(bench=bench))
             succeeded = False
+
+        log.debug(res.stdout.decode('utf-8'))
+        log.debug(res.stderr.decode('utf-8'))
+
     except subprocess.TimeoutExpired:
         log.warning('Warning: link of benchmark "{bench}" timed out'.format(bench=bench))
         succeeded = False
