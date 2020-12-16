@@ -687,9 +687,6 @@ def link_benchmark(bench):
         log.debug('Command was:')
         log.debug(arglist_to_str(arglist))
 
-    log.debug(res.stdout.decode('utf-8'))
-    log.debug(res.stderr.decode('utf-8'))
-
     return succeeded
 
 
