@@ -22,6 +22,7 @@ The following git tags may be used to select the version of the repository for
 a stable release.
 
 - `embench-0.5`
+- `embench-1.0`
 
 ## Using the benchmarks
 
