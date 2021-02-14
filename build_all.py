@@ -142,7 +142,9 @@ def validate_args(args):
     gp['archdir'] = os.path.join(gp['configdir'], args.arch)
     gp['bd_archdir'] = os.path.join(gp['bd_configdir'], args.arch)
     if not os.path.isdir(gp['archdir']):
-        log.error('ERROR: Architecture "{arch}" not found: exiting'.format(arch=args.arch))
+        choices = sorted(os.listdir(gp['configdir']))
+        _s = 'ERROR: Architecture "{arch}" not found. Valid choices are "{choices}": exiting'
+        log.error(_s.format(arch=args.arch, choices='", "'.join(choices)))
         sys.exit(1)
     if not os.access(gp['archdir'], os.R_OK):
         log.error('ERROR: Unable to read achitecture "{arch}": exiting'.format(arch=args.arch))
@@ -155,9 +157,11 @@ def validate_args(args):
     gp['chipdir'] = os.path.join(gp['archdir'], 'chips', args.chip)
     gp['bd_chipdir'] = os.path.join(gp['bd_archdir'], 'chips', args.chip)
     if not os.path.isdir(gp['chipdir']):
-        log.error(
-            'ERROR: Chip "{chip}" not found for architecture "{arch}": exiting'.format(chip=args.chip, arch=args.arch)
-        )
+        choices = sorted(os.listdir(os.path.join(gp['archdir'], 'chips')))
+        _s = 'ERROR: Chip "{chip}" not found for architecture "{arch}". Valid choices are "{choices}": exiting'
+        log.error(_s.format(chip    = args.chip,
+                            arch    = args.arch,
+                            choices = '", "'.join(choices)))
         sys.exit(1)
     if not os.access(gp['chipdir'], os.R_OK):
         log.error(
@@ -172,9 +176,11 @@ def validate_args(args):
     gp['boarddir'] = os.path.join(gp['archdir'], 'boards', args.board)
     gp['bd_boarddir'] = os.path.join(gp['bd_archdir'], 'boards', args.board)
     if not os.path.isdir(gp['boarddir']):
-        log.error(
-            'ERROR: Board "{board}" not found for architecture "{arch}: exiting'.format(board=args.board, arch=args.arch)
-        )
+        choices = sorted(os.listdir(os.path.join(gp['archdir'], 'boards')))
+        _s = 'ERROR: Board "{board}" not found for architecture "{arch}". Valid choices are "{choices}": exiting'
+        log.error(_s.format(board   = args.board,
+                            arch    = args.arch,
+                            choices = '", "'.join(choices)))
         sys.exit(1)
     if not os.access(gp['boarddir'], os.R_OK):
         log.error(
