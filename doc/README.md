@@ -1,73 +1,4 @@
-# Embench&#x2122; User Guide
 
-<!--
-Contributor Jeremy Bennett <jeremy.bennett@embecosm.com>
-
-SPDX-License-Identifier: GFDL-1.2
-
-Document conventions:
-- 80 character lines
-- Wikipedia heading conventions (First word only capitalized, unless a proper
-  noun)
-- US spelling throughout.
-- Run "make spell" before committing changes.
-- Do not commit the PDF!
--->
-
-Authors: Embench&#x2122; Task Group
-Issue:   0.5
-
-Copyright (C) 2009, 2013, 2019 Embecosm Limited
-
-This document is part of Embench and was formerly part of the
-Bristol/Embecosm Embedded Benchmark Suite.  It is made freely available under
-the terms of the GNU Free Documentation License version 1.2 or later.
-
-Embench is a trade mark of the Embench Task Group of the Free and Open Source
-Silicon Foundation.
-
-## Table of Contents
-
-<!-- ToC can be updated using 'make toc' in a Linux like systems -->
-<!-- Insert ToC here -->
-
-- [About Embench](#about-embench)
-    - [The Bristol/Embecosm Embedded Benchmark Suite (BEEBS)](#the-bristolembecosm-embedded-benchmark-suite-beebs)
-    - [Future work](#future-work)
-    - [Feedback and how to contribute](#feedback-and-how-to-contribute)
-    - [Contributors](#contributors)
-    - [Document history](#document-history)
-- [Building and running Embench](#building-and-running-embench)
-    - [Prerequisites](#prerequisites)
-    - [Preparation](#preparation)
-    - [Configuring the benchmarks](#configuring-the-benchmarks)
-    - [Building the benchmarks](#building-the-benchmarks)
-    - [Running the benchmark of code size](#running-the-benchmark-of-code-size)
-    - [Running the benchmark of code speed](#running-the-benchmark-of-code-speed)
-- [Recording reliable results](#recording-reliable-results)
-- [Statistics of computing benchmarks](#statistics-of-computing-benchmarks)
-    - [Computing a benchmark value for speed](#computing-a-benchmark-value-for-speed)
-    - [Computing a benchmark value for code size](#computing-a-benchmark-value-for-code-size)
-- [Reference platform](#reference-platform)
-- [Documentation](#documentation)
-    - [Building the documentation](#building-the-documentation)
-- [Adding a New Board to Embench](#adding-a-new-board-to-embench)
-    - [Where to add files](#where-to-add-files)
-    - [Configuration files](#configuration-files)
-    - [Header files](#header-files)
-- [The GNU Free Documentation License version 1.2, November 2002](#the-gnu-free-documentation-license-version-1.2-november-2002)
-    - [Preamble](#preamble)
-    - [Applicability and definitions](#applicability-and-definitions)
-    - [Verbatim copying](#verbatim-copying)
-    - [Copying in quantity](#copying-in-quantity)
-    - [Modifications](#modifications)
-    - [Combining documents](#combining-documents)
-    - [Collections of documents](#collections-of-documents)
-    - [Aggregation with independent works](#aggregation-with-independent-works)
-    - [Translation](#translation)
-    - [Termination](#termination)
-    - [Future revisions of this license](#future-revisions-of-this-license)
-    - [Addendum: how to use this License for your documents](#addendum-how-to-use-this-license-for-your-documents)
 
 <!-- End of ToC insertion -->
 
@@ -538,8 +469,8 @@ These computations are carried out by the benchmark scripts.
 
 Carry out the following steps.
 
-- For each benchmark record the time take to execute between `start_benchmark`
-  and `stop_benchmark`, which should be a few seconds.
+- For each benchmark record the time take to execute between `start_trigger`
+  and `stop_trigger`, which should be a few seconds.
 - This time should be recorded using hardware internal to the device being
   benchmarked - e.g., CPU cycle counter or other fast timer (i.e., running at
   a significantly higher rate than the benchmark takes to run).
