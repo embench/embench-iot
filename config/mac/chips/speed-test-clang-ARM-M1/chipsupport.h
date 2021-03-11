@@ -1,8 +1,9 @@
-/* Chip support for Baseline RISC-V configuration
+/* Chip support for Apple Mac configuration
 
    Copyright (C) 2019 Clemson University
 
    Contributor Ola Jeppsson <ola.jeppsson@gmail.com>
+   Contributor Roger Shepherd <rog@rcjd.net>
 
    This file is part of Embench.
 

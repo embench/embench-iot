@@ -42,8 +42,8 @@ def build_benchmark_cmd(bench, args):
 
     # Due to way the target interface currently works we need to construct
     # a command that records both the return value and execution time to
-    # stdin/stdout. Obviously using time will not be very precise.
-    return ['sh', '-c', 'time -p ./' + bench + '; echo RET=$?']
+    # stdin/stdout.
+    return ['sh', '-c', './' + bench + '; echo RET=$?']
 
 
 def decode_results(stdout_str, stderr_str):
@@ -54,16 +54,15 @@ def decode_results(stdout_str, stderr_str):
     # standard error.
 
     # Match "RET=rc"
-    rcstr = re.search('^RET=(\d+)', stdout_str, re.S)
+    rcstr = re.search('^RET=(\d+)', stdout_str, re.M)
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
 
-    # Match "real s.mm?m?"
-    time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S)
+    # Match "Real time: dd.ddd"
+    time = re.search('^Real time: (\d+)[.](\d+)', stdout_str, re.S)
     if time:
-        ms_elapsed = int(time.group(1)) * 1000 + \
-                     int('{:<03d}'.format(int(time.group(2)))) # 0-pad
+        ms_elapsed = float(time.group(1) + '.' + time.group(2))
         # Return value cannot be zero (will be interpreted as error)
         return max(float(ms_elapsed), 0.001)
 
