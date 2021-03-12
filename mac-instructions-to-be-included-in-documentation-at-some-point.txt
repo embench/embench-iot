@@ -1,2 +1,0 @@
-./build_all.py --arch mac_intel --chip speed-test-clang
-./benchmark_speed.py --target-module run_mac_intel
