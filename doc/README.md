@@ -538,8 +538,8 @@ These computations are carried out by the benchmark scripts.
 
 Carry out the following steps.
 
-- For each benchmark record the time take to execute between `start_benchmark`
-  and `stop_benchmark`, which should be a few seconds.
+- For each benchmark record the time take to execute between `start_trigger`
+  and `stop_trigger`, which should be a few seconds.
 - This time should be recorded using hardware internal to the device being
   benchmarked - e.g., CPU cycle counter or other fast timer (i.e., running at
   a significantly higher rate than the benchmark takes to run).
