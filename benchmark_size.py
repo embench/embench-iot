@@ -110,35 +110,35 @@ def build_parser():
         '--text',
         type=str,
         default=[],
-        action='append',
+        nargs='+',
         help='Section name(s) containing code'
     )
     parser.add_argument(
         '--data',
         type=str,
         default=[],
-        action='append',
+        nargs='+',
         help='Section name(s) containing non-zero initialized writable data'
     )
     parser.add_argument(
         '--rodata',
         type=str,
         default=[],
-        action='append',
+        nargs='+',
         help='Section name(s) containing read only data'
     )
     parser.add_argument(
         '--bss',
         type=str,
         default=[],
-        action='append',
+        nargs='+',
         help='Section name(s) containing zero initialized writable data'
     )
     parser.add_argument(
         '--metric',
         type=str,
         default=[],
-        action='append',
+        nargs='+',
         choices=['text', 'rodata', 'data', 'bss'],
         help='Sections to include in metric: one or more of "text", "rodata", '
         + '"data" or "bss". Default "text"',
