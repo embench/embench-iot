@@ -441,14 +441,21 @@ script, which takes the following arguments.
 - `--text`: A space separated list of sections containing code.  Default value
   `.text`.
 - `--data`: A space separated list of sections containing non-zero initialized
-  writable data.  Default value `.data`.
+  writable data. Default value `.data`.
+  The option `--metric` with the respective section type needs to be used in
+  order to have the sections added to the size calculation.
 - `--rodata`: A space separated list of sections containing read only data.
   Default value `.rodata`.
+  The option `--metric` with the respective section type needs to be used in
+  order to have the sections added to the size calculation.
 - `--bss`: A space separated list of sections containing zero initialized
-  data.  Default value `.bss`.
+  data. Default value `.bss`.
+  The option `--metric` with the respective section type needs to be used in
+  order to have the sections added to the size calculation.
 - `--metric`. A space separated list of section types to include when
-  calculating the benchmark metric. Permitted values ares `text`, `data`,
-  `rodata`, `bss`.  Default value `text`.
+  calculating the benchmark metric. Any section listed with the options `--text`,
+  `--data`, `--rodata` and `--bss` is included in the respective section type.
+   Permitted values ares `text`, `data`, `rodata`, `bss`.  Default value `text`.
 - `--text-output`: Output the text in a plain text format. This is the
   default.
 - `--json-output`: Output the results in json format, instead of the
