@@ -4,8 +4,16 @@ These instructions cover both Intel and Apple Silicon Macs
 
 ## Size benchmarks
 
-As the Mac uses Mach-O files for executables the current scripts which assume ELF
-do not work. **This is work to be done.**
+### Building the size benchmarks
+
+To build for x86: `./build_all.py --arch mac --chip size-test-clang-X86-64 --board size`
+
+To build for ARM `./build_all.py --arch mac --chip size-test-clang-ARM-M1 --board size`
+
+### Getting size information
+
+To size the current build `./benchmark_size.py --format macho`
+
 
 ## Speed benchmarks
 
