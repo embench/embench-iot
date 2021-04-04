@@ -43,7 +43,7 @@ abort (void)
 void *
 memcpy (void *dest __attribute__ ((unused)),
 	const void *src __attribute__ ((unused)),
-	unsigned int n __attribute__ ((unused)))
+	size_t n __attribute__ ((unused)))
 {
   return 0;
 }
@@ -52,7 +52,7 @@ memcpy (void *dest __attribute__ ((unused)),
 void *
 memmove (void *dest __attribute__ ((unused)),
 	 const void *src __attribute__ ((unused)),
-	 unsigned int n __attribute__ ((unused)))
+	 size_t n __attribute__ ((unused)))
 {
   return 0;
 }
@@ -61,7 +61,7 @@ memmove (void *dest __attribute__ ((unused)),
 void *
 memset (void *s __attribute__ ((unused)),
 	int c __attribute__ ((unused)),
-	unsigned int n __attribute__ ((unused)))
+	size_t n __attribute__ ((unused)))
 {
   return 0;
 }
@@ -69,7 +69,7 @@ memset (void *s __attribute__ ((unused)),
 int
 memcmp (const void *s1 __attribute__ ((unused)),
 	const void *s2 __attribute__ ((unused)),
-	unsigned int n __attribute__ ((unused)))
+	size_t n __attribute__ ((unused)))
 {
   return 0;
 }
@@ -89,15 +89,15 @@ srand (unsigned int seed __attribute__ ((unused)))
 
 
 void *
-calloc (unsigned int nmemb __attribute__ ((unused)),
-	unsigned int size __attribute__ ((unused)))
+calloc (size_t nmemb __attribute__ ((unused)),
+	size_t size __attribute__ ((unused)))
 {
   return 0;
 }
 
 
 void *
-malloc (unsigned int size __attribute__ ((unused)))
+malloc (size_t size __attribute__ ((unused)))
 {
   return 0;
 }
@@ -119,7 +119,7 @@ __assert_func (const char *arg1 __attribute__ ((unused)),
     ;
 }
 
-unsigned int
+size_t
 strlen (const char *s __attribute__ ((unused)))
 {
   return 0;
