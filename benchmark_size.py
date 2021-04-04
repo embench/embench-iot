@@ -3,9 +3,11 @@
 # Script to benchmark size
 
 # Copyright (C) 2017, 2019 Embecosm Limited
+# Copyright (C) 2021 Roger Shepherd
 #
 # Contributor: Graham Markall <graham.markall@embecosm.com>
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
+# Contributor: Roger Shepherd <roger.shepherd@rcjd.net>
 #
 # This file is part of Embench.
 
@@ -21,7 +23,7 @@ import os
 import sys
 
 from json import loads
-from elftools.elf.elffile import ELFFile
+import lief
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
@@ -37,10 +39,71 @@ from embench_core import log_benchmarks
 from embench_core import embench_stats
 from embench_core import output_format
 
+"""
+This script was originally written to handle elf format files and has been
+extended to handle macho (Apple) format in a way that should make further extension
+to pe (Microsoft) straightforward.
+
+Categories of sections
+
+This script is concerned with 4 categories of section. These sections are associated
+by default with the name of a section (elf), or sections (macho). The default 
+associations are:
+
+    category of section                    elf      macho
+    -----------------------------------   -----     -----------------
+    executable code                       .text     __text
+    non-zero initialized writeable data   .data     __data
+    read onlydata                         .rodata   __cstring __const
+    zero initialised data                 .bss      __bss
+"""
+
+# the default sections names are used both in validate_args and in collect_data
+DEFAULT_SECNAMELIST_ELF =   {'text'  : ['.text'], 
+                             'rodata': ['.rodata'],
+                             'data'  : ['.data'],
+                             'bss'   : ['.bss']
+                            }
+DEFAULT_SECNAMELIST_MACHO = {'text'  : ['__text'], 
+                             'rodata': ['__cstring', '__const'],
+                             'data'  : ['__data'],
+                             'bss'   : ['__bss']
+                            }
+DEFAULT_SECNAMELIST_DICT =  {'elf': DEFAULT_SECNAMELIST_ELF,
+                             'macho': DEFAULT_SECNAMELIST_MACHO
+                            }
+"""
+For each category, the user can override the default and explicitly set the names 
+of sections in that category. This is done by using command line parameters named
+after the default elf sections. On the command line the parameters are followed 
+by the name(s) of the section(s)
+
+    category of section                   parameter
+    -----------------------------------   ---------
+    executable code                       --text
+    non-zero initialized writeable data   --data
+    read-only data                        --rodata
+    zero initialised data                 --bss
+
+Metrics
+
+The script reports a metric which is the sum of the sizes of a number of the 
+categories of sections. By default the metric reported is executable code (text) 
+category. This can be overridden using the `—metric` parameter which takes the space
+separated list of categories to be included in the metric. [NB the category names
+are the same for elf and macho].
+"""
+# the categories and the metrics happen to be the same; they could be different
+ALL_CATEGORIES = ['text', 'rodata', 'data', 'bss']
+ALL_METRICS    = ['text', 'rodata', 'data', 'bss']
+
 
 def build_parser():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(description='Compute the size benchmark')
+    
+    parser.add_argument('--format', default='elf', choices=['elf', 'macho'],
+        help='File format')
 
     parser.add_argument(
         '--builddir',
@@ -139,8 +202,8 @@ def build_parser():
         type=str,
         default=[],
         nargs='+',
-        choices=['text', 'rodata', 'data', 'bss'],
-        help='Sections to include in metric: one or more of "text", "rodata", '
+        choices=ALL_METRICS,
+        help='Section categories to include in metric: one or more of "text", "rodata", '
         + '"data" or "bss". Default "text"',
     )
 
@@ -152,6 +215,8 @@ def validate_args(args):
        working when we get here.
 
        Update the gp dictionary with all the useful info"""
+    gp['format'] = args.format
+
     if os.path.isabs(args.builddir):
         gp['bd'] = args.builddir
     else:
@@ -176,41 +241,21 @@ def validate_args(args):
     else:
         gp['output_format'] = output_format.TEXT
 
-    # Sort out the list of section names to use
+    # Produce the list of section names associated with each category
     gp['secnames'] = dict()
-
-    for argname in ['text', 'rodata', 'data', 'bss']:
+    
+    for argname in ALL_CATEGORIES:
         secnames = getattr(args, argname)
         if secnames:
             gp['secnames'][argname] = secnames
         else:
-            gp['secnames'][argname] = ['.' + argname]
+            gp['secnames'][argname] = (DEFAULT_SECNAMELIST_DICT[gp['format']])[argname]
 
-    # If no sections are specified, we just use .text
+    # If no categories are specified, we just use text
     if args.metric:
         gp['metric'] = args.metric
     else:
         gp['metric'] = ['text']
-
-def get_section_group_by_name(elf, name):
-    """ Get a group of sections matching with the provided name from the file.
-        Return None if no such section exists.
-    """
-    # The first time this method is called, construct a name to number
-    # mapping
-    #
-    if elf._section_name_map is None:
-        elf._section_name_map = {}
-        for i, sec in enumerate(elf.iter_sections()):
-            elf._section_name_map[sec.name] = i
-
-    sec_group = {}
-    for i, sec in enumerate(elf.iter_sections()):
-        if sec.name.startswith(name):
-            secnum = elf._section_name_map.get(sec.name, None)
-            sec_group[sec.name] = elf.get_section(secnum)
-
-    return None if sec_group is None else sec_group
 
 def benchmark_size(bench, metrics):
     """Compute the total size of the desired sections in a benchmark.  Returns
@@ -222,17 +267,26 @@ def benchmark_size(bench, metrics):
     # crashing when failing to open the file.
     if not os.path.exists(appexe):
         return {}
-
+        
+    # read format from file and check it is as expected
     with open(appexe, 'rb') as fileh:
-        elf = ELFFile(fileh)
-        for metric in metrics:
-            for secname in gp['secnames'][metric]:
-                sec_sizes[secname] = 0
-                sections = get_section_group_by_name(elf, secname)
-                if sections:
-                    for sec in sections:
-                        sec_sizes[secname] += sections[sec]['sh_size']
-
+        magic = fileh.read(4)
+        # lief does not appear to have ability to work from an already opened file
+        fileh.close()
+    if (((gp['format'] == 'elf')   and (magic != b'\x7fELF')) or
+        ((gp['format'] == 'macho') and (magic != b'\xcf\xfa\xed\xfe'))):
+        log.info('ERROR: File format does not match parameter')
+        sys.exit(1)  
+         
+    binary = lief.parse(appexe)
+    sections = binary.sections
+    for metric in metrics:
+        sec_sizes[metric] = 0 
+        for target_name in gp['secnames'][metric]:
+            for section in sections:
+                if ((gp['format'] == 'elf' and section.name.startswith(target_name)) or
+                    (target_name == section.name)):
+                    sec_sizes[metric] += section.size            
     # Return the section (group) size
     return sec_sizes
 
@@ -267,10 +321,9 @@ def collect_data(benchmarks):
     rel_data = {}
 
     # Collect data
-    all_metrics = ['text', 'rodata', 'data', 'bss']
     for bench in benchmarks:
         if gp['output_format'] == output_format.BASELINE:
-            raw_section_data[bench] = benchmark_size(bench, all_metrics)
+            raw_section_data[bench] = benchmark_size(bench, ALL_METRICS)
         else:
             raw_section_data[bench] = benchmark_size(bench, gp['metric'])
         raw_totals[bench] = sum(raw_section_data[bench].values())
@@ -304,7 +357,7 @@ def collect_data(benchmarks):
                 log.info(f'      "{bench}" : {res_output}')
             else:
                 log.info(f'      "{bench}" : {res_output},')
-
+                
         log.info('    },')
     elif gp['output_format'] == output_format.TEXT:
         log.info('Benchmark            size')
@@ -320,16 +373,14 @@ def collect_data(benchmarks):
         log.info('{')
         for bench in benchmarks:
             res_output = ''
-            for metric in all_metrics:
-                if metric != all_metrics[0]:
+            for metric in ALL_METRICS:
+                # newline before the first metric
+                if metric != ALL_METRICS[0]:
                     res_output += ',\n'
-
-                value = 0
-                secname = '.' + metric
-                if raw_section_data[bench].get(secname):
-                    value = raw_section_data[bench][secname]
+                value = raw_section_data[bench][metric]
                 res_output += f'    "{metric}" : {value}'
 
+            # comma after all but last benchmark in the log
             if bench == benchmarks[-1]:
                 log.info(f'  "{bench}" : {{\n{res_output}\n  }}')
             else:
@@ -380,7 +431,7 @@ def main():
     else:
         log.info('ERROR: Failed to compute size benchmarks')
         sys.exit(1)
-
+ 
 
 # Make sure we have new enough Python and only run if this is the main package
 
