@@ -4,15 +4,15 @@ These instructions cover both Intel and Apple Silicon Macs
 
 ## Size benchmarks
 
-### Building the speed benchmarks
+### Building the size benchmarks
 
 To build for x86: `./build_all.py --arch mac --chip size-test-clang-X86-64 --board size`
 
 To build for ARM `./build_all.py --arch mac --chip size-test-clang-ARM-M1 --board size` 
 
-### Getting size iinformation the speed benchmarks
+### Getting size information
 
-To run the current build `./benchmark_size.py --format macho`
+To size the current build `./benchmark_size.py --format macho`
 
 
 ## Speed benchmarks
