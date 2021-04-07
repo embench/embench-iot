@@ -5,6 +5,7 @@
 # Copyright (C) 2019 Embecosm Limited
 #
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
+# Contributor: Roger Shepherd <rog@rcjd.net>
 #
 # This file is part of Embench.
 
@@ -22,7 +23,7 @@ mangle2 ()
 {
     while read h
     do
-	htxt=$(echo ${h} | sed -e 's/###\? //')
+	htxt=$(echo ${h} | sed -e 's/###\{0,1\} //')
 	hnospc=$(echo ${htxt} |  tr -c -d "[:alnum:]_. -" |
 		 tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ' 'abcdefghijklmnopqrstuvwxyz-')
 	if echo ${h} | grep -q '^## '
@@ -37,14 +38,14 @@ mangle2 ()
 # Copy the preamble to the document
 
 sed < README.md > ${tmpf} \
-    -n -e '0,/Insert ToC here/p'
+    -n -e '1,/Insert ToC here/p'
 
 echo >> ${tmpf}
 
 # Generate the ToC block
 
 sed < README.md -n -e '/End of ToC insertion/,$p' |
-    sed -n -e '/^###\? /p' |
+    sed -n -e '/^###\{0,1\} /p' |
     mangle2 >> ${tmpf}
 
 # And copy in the rest of the document
