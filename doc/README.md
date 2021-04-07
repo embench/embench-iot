@@ -2,6 +2,7 @@
 
 <!--
 Contributor Jeremy Bennett <jeremy.bennett@embecosm.com>
+Contributor Roger Shepherd <roger.shepherd@rcjd.net>
 
 SPDX-License-Identifier: GFDL-1.2
 
@@ -12,6 +13,7 @@ Document conventions:
 - US spelling throughout.
 - Run "make spell" before committing changes.
 - Do not commit the PDF!
+- The first line must not be the "comment" which inserts the ToC 
 -->
 
 Authors: Embench&#x2122; Task Group
