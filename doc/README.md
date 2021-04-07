@@ -17,7 +17,7 @@ Document conventions:
 -->
 
 Authors: Embench&#x2122; Task Group
-Issue:   0.5
+Issue:   1.0
 
 Copyright (C) 2009, 2013, 2019 Embecosm Limited
 
@@ -107,8 +107,8 @@ Embench is based on the following principles:
 
 4. **Embench must have a supporting organization that maintains its
    relevance over time:**
-   - need an organization to evolve suite over time;
-   - goal of refreshes every two years once we get to Embench 1.0; and
+   - need an organization to evolve the suite over time;
+   - goal of refreshes every two years; and
    - set up inside an existing organization, the Free and Open Source Silicon
      Foundation (FOSSi), rather than creating a new organization.
 
@@ -423,6 +423,8 @@ which takes the following arguments.
 Benchmarking code size uses the [`benchmark_size.py`](../benchmark_size.py)
 script, which takes the following arguments.
 
+- `--format`: Specifies the file format of executable executable and/or object
+  files. The option are `elf` and `macho`. Default value `elf`.
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which the programs were built.  It may be an absolute or
   relative directory name; if the latter, it will be relative to the top level
@@ -441,13 +443,16 @@ script, which takes the following arguments.
   specified, present absolute benchmark results.  If neither is specified,
   present relative results, because this is the defined norm for Embench.
 - `--text`: A space separated list of sections containing code.  Default value
-  `.text`.
+  for elf format files `.text`; for macho format files `__text`.
 - `--data`: A space separated list of sections containing non-zero initialized
-  writable data.  Default value `.data`.
+  writable data.  Default value for elf format files `.data`; for macho format 
+  files `__data`.
 - `--rodata`: A space separated list of sections containing read only data.
-  Default value `.rodata`.
+  Default value for elf format files `.rodata`; for macho format files
+  `__cstring __const`.
 - `--bss`: A space separated list of sections containing zero initialized
-  data.  Default value `.bss`.
+  data. Default value for elf format files `.bss`, for macho format files
+  `__bss`.
 - `--metric`. A space separated list of section types to include when
   calculating the benchmark metric. Permitted values ares `text`, `data`,
   `rodata`, `bss`.  Default value `text`.
