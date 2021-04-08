@@ -445,17 +445,10 @@ script, which takes the following arguments.
 - `--text`: A space separated list of sections containing code.  Default value
   for elf format files `.text`; for macho format files `__text`.
 - `--data`: A space separated list of sections containing non-zero initialized
-  writable data.  Default value for elf format files `.data`; for macho format 
-  files `__data`.
-- `--rodata`: A space separated list of sections containing read only data.
-  Default value for elf format files `.rodata`; for macho format files
-  `__cstring __const`.
-- `--bss`: A space separated list of sections containing zero initialized
-  data. Default value for elf format files `.bss`, for macho format files
-  `__bss`.
 - `--metric`. A space separated list of section types to include when
-  calculating the benchmark metric. Permitted values ares `text`, `data`,
-  `rodata`, `bss`.  Default value `text`.
+  calculating the benchmark metric. Any section listed with the options `--text`,
+  `--data`, `--rodata` and `--bss` is included in the respective section type.
+   Permitted values ares `text`, `data`, `rodata`, `bss`.  Default value `text`.
 - `--text-output`: Output the text in a plain text format. This is the
   default.
 - `--json-output`: Output the results in json format, instead of the
