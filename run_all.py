@@ -17,6 +17,7 @@ Run sets of Embench benchmarks
 
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -1187,6 +1188,11 @@ def build_parser():
         action='store_true',
         help='Run Arm GCC version comparison benchmarks'
     )
+    parser.add_argument(
+        '--runset',
+        type=str,
+        help='Run benchmarks from .json configuration file',
+    )
 
     return parser
 
@@ -1333,6 +1339,21 @@ def main():
         runsets.append(gcc9_arch_runset)
     if args.arm_gcc_version:
         runsets.append(arm_gcc_version_runset)
+
+    json_runset = args.runset
+    if json_runset is not None:
+        try:
+            with open(json_runset, 'r') as json_file:
+                try:
+                    json_runset_data = json.load(json_file)
+                    runsets.append(json_runset_data)
+                except ValueError:
+                    print(f'ERROR: Failed to parse \'{json_runset}\'')
+                    sys.exit(1)
+
+        except IOError as e:
+            print(f'ERROR: Failed to open \'{json_runset}\': {e}')
+            sys.exit(1)
 
     if not runsets:
         print("ERROR: No run sets specified")
