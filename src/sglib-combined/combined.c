@@ -22,7 +22,7 @@
 /* BEEBS heap is just an array */
 
 #define HEAP_SIZE 8192
-static char heap[HEAP_SIZE];
+static char heap[HEAP_SIZE] __attribute__((aligned));
 
 /* General array to sort for all ops */
 
