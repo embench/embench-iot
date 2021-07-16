@@ -47,6 +47,13 @@
       "data" : 0,
       "bss" : 112
   },
+  "md5sum" :
+  {
+      "text" : 744,
+      "rodata" : 556,
+      "data" : 0,
+      "bss" : 2032
+  },
   "nbody" :
   {
       "text" : 950,
