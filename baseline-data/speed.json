@@ -5,6 +5,7 @@
   "huffbench" : 4120,
   "matmult-int" : 3985,
   "minver" : 3998,
+  "md5sum" : 4002,
   "nbody" : 2808,
   "nettle-aes" : 4026,
   "nettle-sha256" : 3997,
