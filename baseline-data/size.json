@@ -131,6 +131,13 @@
       "data" : 0,
       "bss" : 292
   },
+  "tarfind" :
+  {
+      "text" : 478,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 9012
+  },
   "ud" :
   {
       "text" : 720,
