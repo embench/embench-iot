@@ -15,6 +15,7 @@
    there is variation between platforms and architectures. */
 
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include "beebsc.h"
 
@@ -90,17 +91,35 @@ check_heap_beebs (void *heap)
 void *
 malloc_beebs (size_t size)
 {
-  void *new_ptr = heap_ptr;
+  if (size == 0)
+    return NULL;
+
+  void *next_heap_ptr = (char *)heap_ptr + size;
 
   heap_requested += size;
 
-  if (((void *) ((char *) heap_ptr + size) > heap_end) || (0 == size))
-    return NULL;
-  else
+  const size_t alignment = sizeof (void *);
+
+  /* Check if the next heap pointer is aligned, otherwise add some padding */
+  if (((uintptr_t)next_heap_ptr % alignment) != 0)
     {
-      heap_ptr = (void *) ((char *) heap_ptr + size);
-      return new_ptr;
+      size_t padding = alignment - ((uintptr_t)next_heap_ptr % alignment);
+
+      next_heap_ptr = (char *)next_heap_ptr + padding;
+
+      /* padding is added to heap_requested because otherwise it will break
+         check_heap_beebs() */
+      heap_requested += padding;
     }
+
+  /* Check if we can "allocate" enough space */
+  if (next_heap_ptr > heap_end)
+    return NULL;
+
+  void *new_ptr = heap_ptr;
+  heap_ptr = next_heap_ptr;
+
+  return new_ptr;
 }
 
 
@@ -131,31 +150,22 @@ calloc_beebs (size_t nmemb, size_t size)
 void *
 realloc_beebs (void *ptr, size_t size)
 {
-  void *new_ptr = heap_ptr;
-
-  heap_requested += size;
-
-  if (((void *) ((char *) heap_ptr + size) > heap_end) || (0 == size))
+  if (ptr == NULL)
     return NULL;
-  else
-    {
-      heap_ptr = (void *) ((char *) heap_ptr + size);
 
-      /* This is clunky, since we don't know the size of the original
-         pointer. However it is a read only action and we know it must
-         be big enough if we right off the end, or we couldn't have
-         allocated here. If the size is smaller, it doesn't matter. */
+  /* Get a new aligned pointer */
+  void *new_ptr = malloc_beebs (size);
 
-      if (NULL != ptr)
-	{
-	  size_t i;
+  /* This is clunky, since we don't know the size of the original pointer.
+     However it is a read only action and we know it must be big enough if we
+     right off the end, or we couldn't have allocated here. If the size is
+     smaller, it doesn't matter. */
 
-	  for (i = 0; i < size; i++)
-	    ((char *) new_ptr)[i] = ((char *) ptr)[i];
-	}
+  if (new_ptr != NULL)
+    for (size_t i = 0; i < size; i++)
+      ((char *)new_ptr)[i] = ((char *)ptr)[i];
 
-      return new_ptr;
-    }
+  return new_ptr;
 }
 
 

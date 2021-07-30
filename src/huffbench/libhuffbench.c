@@ -57,7 +57,7 @@
 /* BEEBS heap is just an array */
 
 #define HEAP_SIZE 8192
-static char heap[HEAP_SIZE];
+static char heap[HEAP_SIZE] __attribute__((aligned));
 
 #define TEST_SIZE 500
 
