@@ -82,6 +82,13 @@
       "data" : 0,
       "bss" : 2404
   },
+  "primecount" :
+  {
+      "text" : 292,
+      "rodata" : 0,
+      "data" : 0,
+      "bss" : 0
+  },
   "qrduino" :
   {
       "text" : 5814,
