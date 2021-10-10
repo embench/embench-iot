@@ -206,6 +206,20 @@ def build_parser():
         help='Section categories to include in metric: one or more of "text", "rodata", '
         + '"data" or "bss". Default "text"',
     )
+    parser.add_argument(
+        '--benchmark',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to measure. By default all tests are measure.'
+    )
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to exclude.'
+    )
 
     return parser
 
@@ -256,6 +270,9 @@ def validate_args(args):
         gp['metric'] = args.metric
     else:
         gp['metric'] = ['text']
+
+    gp['benchmark'] = args.benchmark
+    gp['exclude'] = args.exclude
 
 def benchmark_size(bench, metrics):
     """Compute the total size of the desired sections in a benchmark.  Returns

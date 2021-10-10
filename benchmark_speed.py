@@ -132,6 +132,20 @@ def get_common_args():
         action='store_false',
         help='Launch all benchmarks in series (the default)'
     )
+    parser.add_argument(
+        '--benchmark',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to measure. By default all tests are measure.'
+    )
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to exclude.'
+    )
 
     return parser.parse_known_args()
 
@@ -167,6 +181,9 @@ def validate_args(args):
 
     gp['timeout'] = args.timeout
     gp['sim_parallel'] = args.sim_parallel
+
+    gp['benchmark'] = args.benchmark
+    gp['exclude'] = args.exclude
 
     try:
         newmodule = importlib.import_module(args.target_module)

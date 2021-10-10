@@ -121,6 +121,20 @@ def build_parser():
         default=5,
         help='Timeout used for the compiler and linker invocations'
     )
+    parser.add_argument(
+        '--benchmark',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to build. By default all tests are build.'
+    )
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to exclude.'
+    )
 
     return parser
 
@@ -195,6 +209,9 @@ def validate_args(args):
         for envarg in envlist:
             var, val = envarg.split('=', 1)
             gp['env'][var] = val
+
+    gp['benchmark'] = args.benchmark
+    gp['exclude'] = args.exclude
 
     # Other args validated later.
 
