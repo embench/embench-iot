@@ -24,7 +24,7 @@
  * of 1000 and a msg initiated incrementally from 0 to 999 as in benchmark_body.
  * If MSG_SIZE or the initialization mechanism of the array change the RESULT
  * value needs to be updated accordingly. */
-#define RESULT 0x30C0DA225
+#define RESULT 0x33f673b4
 
 static char heap[HEAP_SIZE];
 
@@ -231,7 +231,7 @@ benchmark_body (int rpt, int len)
     printf("%2.2x%2.2x%2.2x%2.2x\n", p[0], p[1], p[2], p[3]);
   }
 
-  return h0 + h1 + h2 + h3;
+  return h0 ^ h1 ^ h2 ^ h3;
 }
 
 
