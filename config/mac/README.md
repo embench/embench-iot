@@ -29,5 +29,5 @@ To build for ARM `./build_all.py --arch mac --chip speed-test-clang-ARM-M1`
 
 To run the current build `./benchmark_speed.py --target-module run_mac`
 
-Note that you can run both x86 and ARM
-builds on an Apple Silicon Mac, but you can only run a x86 build on an Intel Mac.
+Note that on an Apple Silicon Mac you can run both x86 and ARM builds, but on an 
+Intel Mac you can only run a x86 build.
