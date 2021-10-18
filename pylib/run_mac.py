@@ -58,6 +58,10 @@ def decode_results(stdout_str, stderr_str):
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
+    exit_status = int(rcstr.group(1))
+    if exit_status:
+        log.debug('Warning: verify_benchmark() failed')
+        return 0.0
 
     # Match "Real time: dd.ddd"
     time = re.search('^Real time: (\d+)[.](\d+)', stdout_str, re.S)

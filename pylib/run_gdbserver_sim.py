@@ -99,6 +99,10 @@ def decode_results(stdout_str, stderr_str):
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
+    exit_status = int(rcstr.group(1))
+    if exit_status:
+        log.debug('Warning: verify_benchmark() failed')
+        return 0.0
 
     # The start and end cycle counts are in the stderr string
     times = re.search('(\d+)\D+(\d+)', stderr_str, re.S)
