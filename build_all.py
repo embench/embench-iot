@@ -386,8 +386,8 @@ def set_parameters(args):
             with open(conf_file) as fileh:
                 try:
                     exec(fileh.read(), globals(), config[conf])
-                except PermissionError:
-                    log.error('ERROR: Corrupt config file {conf_file}: exiting')
+                except Exception:
+                    log.error(f'ERROR: Corrupt config file "{conf_file}": exiting')
                     sys.exit(1)
 
     # Populate user values from the command line
