@@ -187,6 +187,7 @@ Use `load` command to reload a recompiled program.
 ### Debugging in VS Code
 
 Example of `launch.json`:
+See [Configuring C/C++ debugging](https://code.visualstudio.com/docs/cpp/launch-json-reference) for more configuration options.
 
 ```json
         {
@@ -194,9 +195,7 @@ Example of `launch.json`:
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bd/src/nbody/nbody",
-            // "args": [],
             "cwd": "${workspaceRoot}",
-            // "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "riscv64-unknown-elf-gdb",
