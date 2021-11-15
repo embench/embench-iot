@@ -188,11 +188,9 @@ benchmark_body (int rpt)
     {
       int i;
       offset_momentum (solar_bodies, BODIES_SIZE);
-      /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
       tot_e = 0.0;
       for (i = 0; i < 100; ++i)
 	tot_e += bodies_energy (solar_bodies, BODIES_SIZE);
-      /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
     }
   /* Result is known good value for total energy. */
   return double_eq_beebs(tot_e, -16.907516382852478);
@@ -203,18 +201,6 @@ int
 verify_benchmark (int tot_e_ok)
 {
   int i, j;
-  /* print expected values */
-  // printf("static struct body solar_bodies[] = {\n");
-  // for (i=0; i<BODIES_SIZE; i++) {
-  //    printf("  {\n");
-  //    printf("    .x = { %.30g, %.30g, %.30g },\n", solar_bodies[i].x[0],  solar_bodies[i].x[1],  solar_bodies[i].x[2]);
-  //    printf("    .v = { %.30g, %.30g, %.30g },\n", solar_bodies[i].v[0],  solar_bodies[i].v[1],  solar_bodies[i].v[2]);
-  //    printf("    .mass = %.30g\n", solar_bodies[i].mass);
-  //    printf("  }");
-  //    if (i<BODIES_SIZE-1) printf(",");
-  //    printf("\n");
-  // }
-  // printf("};\n");
   static struct body expected[] = {
     {
      .x = {0, 0, 0},

@@ -4548,15 +4548,6 @@ verify_benchmark (int unused)
     {
       return 0;
     }
-  // for (i=0; i<3; i++)
-  //   printf("%ld, ", P1_marking_member_0[i]);
-  // printf("\n");
-  // for (i=0; i<5; i++)
-  //   printf("%ld, ", P2_marking_member_0[i]);
-  // printf("\n");
-  // for (i=0; i<6; i++)
-  //   printf("%ld, ", P3_marking_member_0[i]);
-  // printf("\n");
   for (i = 0; i < 3; i++)
     {
       if (expP1_marking_member_0[i] != P1_marking_member_0[i] ||
