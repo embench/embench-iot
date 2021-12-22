@@ -191,6 +191,7 @@ def benchmark_speed(bench, target_args):
     appdir = os.path.join(gp['bd_benchdir'], bench)
     appexe = os.path.join(appdir, bench)
 
+    arglist = []
     if os.path.isfile(appexe):
         arglist = build_benchmark_cmd(bench, target_args)
         try:
@@ -221,6 +222,7 @@ def benchmark_speed(bench, target_args):
     if succeeded:
         return exec_time
     else:
+        comm = ""
         for arg in arglist:
             if arg == arglist[0]:
                 comm = arg
@@ -239,7 +241,7 @@ def benchmark_speed(bench, target_args):
 def run_threads(bench, target_args, data_collect_q):
     item = benchmark_speed(bench, target_args)
     data_collect_q.put_nowait([bench, item])
-    
+
 def collect_data(benchmarks, remnant):
     """Collect and log all the raw and optionally relative data associated with
        the list of benchmarks supplied in the "benchmarks" argument. "remant"
@@ -268,7 +270,8 @@ def collect_data(benchmarks, remnant):
         collect_data_q = queue.Queue()
         benchmark_threads = list()
         for bench in benchmarks:
-            curr_thread = threading.Thread(target=run_threads, args=(bench, target_args, collect_data_q))
+            curr_thread = threading.Thread(target=run_threads, args=(bench, target_args,
+                                                                     collect_data_q))
             benchmark_threads.append(curr_thread)
             curr_thread.start()
         # Join threads
