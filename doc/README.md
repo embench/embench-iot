@@ -418,6 +418,20 @@ which takes the following arguments.
   of the script.
 - `--help`: Provide help on the arguments.
 
+Example: The following command builds the benchmarks for generic RISC-V RV32IMC machine. The flags include:
+- -c (to compile the C code prior to linking)
+- -O2 to optimize for speed 
+- -ffunction-sections to generate a separate ELF section for each function, allowing the linker to delete unused functions
+- -march=rv32imc to target the RV32IMC variant
+- -mabi=ilp32 to use 32-bit integers, longs, and pointers
+- -Wl,-gc-sections pass an option to the linker to delete unused sections
+- -lm to link the math libraries needed for some benchmarks
+
+`./build_all.py --arch riscv32 --chip generic --board ri5cyverilator --cc riscv64-unknown-elf-gcc --cflags="-c -O2 -ffunction-sections -march=rv32imc -mabi=ilp32" --ldflags="-Wl,-gc-sections" --user-libs="-lm"`
+
+Depending on your GCC installation, your compiler might be called riscv32-unknown-elf-gcc instead.
+
+
 ### Running the benchmark of code size
 
 Benchmarking code size uses the [`benchmark_size.py`](../benchmark_size.py)
