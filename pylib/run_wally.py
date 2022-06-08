@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
-# Python module to run programs natively.
+# Python module to open and decode results from Wally.
 
-# Copyright (C) 2019 Clemson University
+# Copyright (C) 2022 Embecosm Limited and University of Bristol
 #
-# Contributor: Ola Jeppsson <ola.jeppsson@gmail.com>
+# Contributor: Daniel Torres <dtorres@hmc.edu>
 #
 # This file is part of Embench.
 
-# SPDX-License-Identifier: GPL-3.0-or-later
 
 """
 Embench module to run benchmark programs.
 
-This version is suitable for running programs natively.
+This version is suitable for running programs on wally.
 """
 
 __all__ = [

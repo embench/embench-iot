@@ -1,6 +1,6 @@
-/* Copyright (C) 2017 Embecosm Limited and University of Bristol
+/* Copyright (C) 2022 Embecosm Limited and University of Bristol
 
-   Contributor Graham Markall <graham.markall@embecosm.com>
+   Contributor: Daniel Torres <dtorres@hmc.edu>
 
    This file is part of Embench and was formerly part of the Bristol/Embecosm
    Embedded Benchmark Suite.
