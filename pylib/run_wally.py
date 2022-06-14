@@ -52,7 +52,7 @@ def build_benchmark_cmd(bench, args):
     # to run wally, we use the modelsim that inputs the compiled C code and outputs a .outputfile
     # that contains the content of begin_signature, which writes the instret & cycles of begin & end triggers
     # along with the return code, which tells us if the test passed
-    log.debug(bench)
+    log.debug("\"" + bench + "\" : ")
     return ['sh', '-c', ('cat *.output')]
 
 def decode_results(stdout_str, stderr_str):
@@ -80,9 +80,7 @@ def decode_results(stdout_str, stderr_str):
         result = ((pc_trigger)[1]-(pc_trigger)[0]) / cpu_mhz / 1000.0
 
     # log.debug('Simulation returned %d. 1 is Success, 3 is Failure', pc_trigger[4])
-    log.debug("cycles:" + str((pc_trigger)[1]-(pc_trigger)[0]))
-    log.debug("instret:" + str(pc_trigger[3]-pc_trigger[2]))
-    log.debug("cycles/instret:" + str((pc_trigger[1]-pc_trigger[0]) / (pc_trigger[3]-pc_trigger[2])))
-    log.debug("elapsed time (ms): " + str(result) + "  clk freq (MHz): " + str(cpu_mhz))
+    # cycles, #insret, #CPI, Elapsed Time, ClkFreq
+    log.debug( "[" + str((pc_trigger)[1]-(pc_trigger)[0]) + "," +  str(pc_trigger[3]-pc_trigger[2]) + "," + str((pc_trigger[1]-pc_trigger[0]) / (pc_trigger[3]-pc_trigger[2])) + "," + str(result) + "," + str(cpu_mhz) + "],") 
 
     return (result)
