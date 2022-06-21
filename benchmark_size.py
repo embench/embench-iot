@@ -289,7 +289,7 @@ def collect_data(benchmarks):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
-        log.info('  "size results" :')
+        log.info('{  "size results" :')
         log.info('  { "detailed size results" :')
         for bench in benchmarks:
             res_output = ''
@@ -376,7 +376,8 @@ def main():
         if gp['output_format'] != output_format.BASELINE:
             opt_comma = ',' if args.json_comma else ''
             embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
-            log.info('All benchmarks sized successfully')
+            if gp['output_format'] == output_format.JSON: log.info('}')
+            else: log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute size benchmarks')
         sys.exit(1)
