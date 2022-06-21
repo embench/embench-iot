@@ -99,6 +99,13 @@ void md5(uint8_t *initial_msg, size_t initial_len) {
         // break chunk into sixteen 32-bit words w[j], 0 ≤ j ≤ 15
         uint32_t *w = (uint32_t *) (msg + offset);
 
+#ifdef DEBUG
+        printf("offset: %d %x\n", offset, offset);
+
+        int j;
+        for(j =0; j < 64; j++) printf("%x ", ((uint8_t *) w)[j]);
+        puts("");
+#endif
 
         // Initialize hash value for this chunk:
         uint32_t a = h0;
@@ -110,6 +117,22 @@ void md5(uint8_t *initial_msg, size_t initial_len) {
         uint32_t i;
         for(i = 0; i<64; i++) {
 
+#ifdef ROUNDS
+            uint8_t *p;
+            printf("%i: ", i);
+            p=(uint8_t *)&a;
+            printf("%2.2x%2.2x%2.2x%2.2x ", p[0], p[1], p[2], p[3], a);
+
+            p=(uint8_t *)&b;
+            printf("%2.2x%2.2x%2.2x%2.2x ", p[0], p[1], p[2], p[3], b);
+
+            p=(uint8_t *)&c;
+            printf("%2.2x%2.2x%2.2x%2.2x ", p[0], p[1], p[2], p[3], c);
+
+            p=(uint8_t *)&d;
+            printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3], d);
+            puts("");
+#endif
 
 
             uint32_t f, g;
@@ -128,9 +151,15 @@ void md5(uint8_t *initial_msg, size_t initial_len) {
                 g = (7*i) % 16;
             }
 
+#ifdef ROUNDS
+            printf("f=%x g=%d w[g]=%x\n", f, g, w[g]);
+#endif
             uint32_t temp = d;
             d = c;
             c = b;
+#ifdef DEBUG
+            printf("rotateLeft(%x + %x + %x + %x, %d)\n", a, f, k[i], w[g], r[i]);
+#endif
             b = b + LEFTROTATE((a + f + k[i] + w[g]), r[i]);
             a = temp;
         }
@@ -187,6 +216,19 @@ benchmark_body (int rpt, int len)
     md5(msg, len);
     free_beebs(msg);
 
+    uint8_t *p;
+    // display result
+    p=(uint8_t *)&h0;
+    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+
+    p=(uint8_t *)&h1;
+    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+
+    p=(uint8_t *)&h2;
+    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+
+    p=(uint8_t *)&h3;
+    printf("%2.2x%2.2x%2.2x%2.2x\n", p[0], p[1], p[2], p[3]);
   }
 
   return h0 ^ h1 ^ h2 ^ h3;
