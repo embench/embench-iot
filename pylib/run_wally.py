@@ -52,7 +52,7 @@ def build_benchmark_cmd(bench, args):
     # to run wally, we use the modelsim that inputs the compiled C code and outputs a .outputfile
     # that contains the content of begin_signature, which writes the instret & cycles of begin & end triggers
     # along with the return code, which tells us if the test passed
-    log.debug("\"" + bench + "\" : ")
+    log.debug("\"" + bench + "\" : cycles, insret, CPI, Elapsed Time, ClkFreq")
     return ['sh', '-c', ('cat *.output')]
 
 def decode_results(stdout_str, stderr_str):
