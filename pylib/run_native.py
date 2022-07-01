@@ -54,7 +54,7 @@ def decode_results(stdout_str, stderr_str):
     # standard error.
 
     # Match "RET=rc"
-    rcstr = re.search('^RET=(\d+)', stdout_str, re.S)
+    rcstr = re.search('^RET=(\d+)', stdout_str, re.S | re.M)
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
