@@ -297,7 +297,7 @@ def collect_data(benchmarks, remnant):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
-        log.info('  "speed results" :')
+        log.info('{  "speed results" :')
         log.info('  { "detailed speed results" :')
         for bench in benchmarks:
             output = ''
@@ -375,7 +375,8 @@ def main():
         if gp['output_format'] != output_format.BASELINE:
             opt_comma = ',' if args.json_comma else ''
             embench_stats(benchmarks, raw_data, rel_data, 'speed', opt_comma)
-            log.info('All benchmarks run successfully')
+            if gp['output_format'] == output_format.JSON: log.info('}')
+            else: log.info('All benchmarks run successfully')
     else:
         log.info('ERROR: Failed to compute speed benchmarks')
         sys.exit(1)

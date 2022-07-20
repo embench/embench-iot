@@ -263,7 +263,7 @@ def output_stats(geomean, geosd, georange, count, bm_type, opt_comma):
     if gp['output_format'] == output_format.JSON:
         log.info('    "{bm} geometric mean" : {gmo},'.format(bm=bm_type, gmo=geomean_op))
         log.info('    "{bm} geometric standard deviation" : {gso}'.format(bm=bm_type, gso=geosd_op))
-        log.info('  }{oc}'.format(oc=opt_comma))
+        log.info('  }' + '{oc}'.format(oc=opt_comma))
     elif gp['output_format'] == output_format.TEXT:
         log.info('---------           -----')
         log.info('Geometric mean   {gmo:8}'.format(gmo=geomean_op))
