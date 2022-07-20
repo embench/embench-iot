@@ -1,6 +1,4 @@
-# Embench&#x2122; 1.0: Open Benchmarks for Embedded Platforms
-
-This is the branch for Embench release 1.0.
+# Embench&#x2122;: Open Benchmarks for Embedded Platforms
 
 This repository contains the Embench&#x2122; free and open source benchmark
 suite.  These benchmarks are designed to test the performance of deeply
