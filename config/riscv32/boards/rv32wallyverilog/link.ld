@@ -161,6 +161,7 @@ SECTIONS
   .data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*) }
   .dynamic        : { *(.dynamic) }
   . = DATA_SEGMENT_RELRO_END (0, .);
+  . = ALIGN(0x4);
   .data           :
   {
     __DATA_BEGIN__ = .;
@@ -173,6 +174,7 @@ SECTIONS
   /* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */
+  . = ALIGN(0x4);
   .sdata          :
   {
     __SDATA_BEGIN__ = .;
