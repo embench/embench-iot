@@ -338,8 +338,6 @@ compdecomp (byte * data, size_t data_len)
   comp[comp_len] = bout;
   ++comp_len;
 
-  // printf("data len = %u\n",data_len);
-  // printf("comp len = %u\n",comp_len);
 
   /*
      DECOMPRESSION

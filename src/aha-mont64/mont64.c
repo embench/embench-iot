@@ -186,7 +186,6 @@ xbinGCD (uint64 a, uint64 b, volatile uint64 * pu, volatile uint64 * pv)
   /* The invariant maintained from here on is:
      a = u*2*alpha - v*beta. */
 
-// printf("Before, a u v = %016llx %016llx %016llx\n", a, u, v);
   while (a > 0)
     {
       a = a >> 1;
@@ -202,10 +201,8 @@ xbinGCD (uint64 a, uint64 b, volatile uint64 * pu, volatile uint64 * pv)
 	  u = ((u ^ beta) >> 1) + (u & beta);
 	  v = (v >> 1) + alpha;
 	}
-//    printf("After,  a u v = %016llx %016llx %016llx\n", a, u, v);
     }
 
-// printf("At end,    a u v = %016llx %016llx %016llx\n", a, u, v);
   *pu = u;
   *pv = v;
   return;
