@@ -137,14 +137,14 @@ def get_common_args():
         type=str,
         default=[],
         nargs='+',
-        help='Benchmark name(s) to measure. By default all tests are measure.'
+        help='Benchmark name(s) to measure. By default all tests are measured. Results obtained from subsets are not valid Embench scores.'
     )
     parser.add_argument(
         '--exclude',
         type=str,
         default=[],
         nargs='+',
-        help='Benchmark name(s) to exclude.'
+        help='Benchmark name(s) to exclude. Results obtained from subsets are not valid Embench scores.'
     )
 
     return parser.parse_known_args()
@@ -314,6 +314,8 @@ def collect_data(benchmarks, remnant):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
         log.info('{  "speed results" :')
         log.info('  { "detailed speed results" :')
         for bench in benchmarks:
@@ -332,6 +334,8 @@ def collect_data(benchmarks, remnant):
                     log.info(f'      "{bench}" : {output},')
         log.info('    },')
     elif gp['output_format'] == output_format.TEXT:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
         log.info('Benchmark           Speed')
         log.info('---------           -----')
         for bench in benchmarks:
@@ -344,6 +348,9 @@ def collect_data(benchmarks, remnant):
             # Want relative results (the default). Only use non-zero values.
             log.info(f'{bench:15}  {output:8}')
     elif gp['output_format'] == output_format.BASELINE:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('ERROR: These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
+            return [], []
         log.info('{')
         for bench in benchmarks:
             if bench == benchmarks[-1]:

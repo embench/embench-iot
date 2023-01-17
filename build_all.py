@@ -126,14 +126,14 @@ def build_parser():
         type=str,
         default=[],
         nargs='+',
-        help='Benchmark name(s) to build. By default all tests are build.'
+        help='Benchmark name(s) to build. By default all tests are built. Results obtained from subsets are not valid Embench scores.'
     )
     parser.add_argument(
         '--exclude',
         type=str,
         default=[],
         nargs='+',
-        help='Benchmark name(s) to exclude.'
+        help='Benchmark name(s) to exclude. Results obtained from subsets are not valid Embench scores.'
     )
 
     return parser
