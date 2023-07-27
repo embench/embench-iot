@@ -18,7 +18,7 @@ int __attribute__ ((used))
 main (int argc __attribute__ ((unused)),
       char *argv[] __attribute__ ((unused)))
 #else
-_start ()
+WASM_ENTRY
 #endif
 {
   int i;

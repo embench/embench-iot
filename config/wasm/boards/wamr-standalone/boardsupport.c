@@ -7,7 +7,19 @@
 
    SPDX-License-Identifier: GPL-3.0-or-later */
 
-#define CPU_MHZ 10
-// redefines main() to _start()
-#define WASM 1
-#define WASM_ENTRY _start()
+#include <support.h>
+
+void
+initialise_board ()
+{
+}
+
+void 
+start_trigger ()
+{
+}
+
+void 
+stop_trigger ()
+{
+}

@@ -8,6 +8,6 @@
    SPDX-License-Identifier: GPL-3.0-or-later */
 
 #define CPU_MHZ 10
-// redefines main() to _start()
+// redefines main() to WASM_ENTRY
 #define WASM 1
-#define WASM_ENTRY _start()
+#define WASM_ENTRY _run()
