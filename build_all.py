@@ -357,12 +357,12 @@ def add_internal_flags():
 def validate_tools():
     """Check the compiler and linker are available."""
     # Validate C compiler
-    if not shutil.which(gp['cc']):
+    if not shutil.which(gp['cc'].split()[0]):
         log.error('ERROR: Compiler {cc} not found on path: exiting'.format(cc=gp["cc"]))
         sys.exit(1)
 
     # Validate linker
-    if not shutil.which(gp['ld']):
+    if not shutil.which(gp['ld'].split()[0]):
         log.error('ERROR: Linker {ld} not found on path: exiting'.format(ld=gp["ld"]))
         sys.exit(1)
 
@@ -446,7 +446,7 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
     abs_bin = os.path.join(bindir, '{root}.o'.format(root=f_root))
 
     # Construct the argument list
-    arglist = [gp["cc"]]
+    arglist = gp["cc"].split()
     arglist.extend(gp['cflags'])
     arglist.extend(gp['cc_output_pattern'].format('{root}.o'.format(root=f_root)).split())
     arglist.extend(gp['cc_input_pattern'].format(abs_src).split())
@@ -634,7 +634,7 @@ def create_link_binlist(abs_bd):
 def create_link_arglist(bench, binlist):
     """Create the argument list for linking benchmark, "bench", from the binaries
        in "binlist"."""
-    arglist = [gp['ld']]
+    arglist = gp['ld'].split()
     arglist.extend(gp['ldflags'])
     arglist.extend(gp['ld_output_pattern'].format(bench).split())
     arglist.extend(binlist)
