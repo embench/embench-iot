@@ -43,7 +43,8 @@ def build_benchmark_cmd(bench, args):
     # Due to way the target interface currently works we need to construct
     # a command that records both the return value and execution time to
     # stdin/stdout. Obviously using time will not be very precise.
-    return ['spike', '--isa=RV32GC', bench]
+    # Hacky workaround for https://github.com/riscv-software-src/riscv-isa-sim/issues/1493
+    return ['script', '-c', f'spike --isa=RV32GC {bench}']
 
 
 def decode_results(stdout_str, stderr_str):
@@ -54,16 +55,18 @@ def decode_results(stdout_str, stderr_str):
     # standard error.
 
     # Match "RET=rc"
-    rcstr = re.search('^RET=(\d+)', stdout_str, re.S | re.M)
-    if not rcstr:
-        log.debug('Warning: Failed to find return code')
-        return 0.0
+    # rcstr = re.search('^RET=(\d+)', stdout_str, re.S | re.M)
+    # if not rcstr:
+    #     log.debug('Warning: Failed to find return code')
+    #     return 0.0
 
-    # Match "real s.mm?m?"
-    time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S)
+    time = re.search('Spike mcycle timer delta: (\d+)', stdout_str, re.S)
+    fake_freq = 1e8 # 100 MHz
+    fake_period = 1.0 / fake_freq
+
     if time:
-        ms_elapsed = int(time.group(1)) * 1000 + \
-                     int(time.group(2).ljust(3,'0')) # 0-pad
+        s_elapsed = int(time.group(1)) * fake_period
+        ms_elapsed = s_elapsed * 1000
         # Return value cannot be zero (will be interpreted as error)
         return max(float(ms_elapsed), 0.001)
 
