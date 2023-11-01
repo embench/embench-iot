@@ -19,7 +19,7 @@ extern int errno;
 #pragma GCC diagnostic ignored "-Winvalid-noreturn"
 void _exit(int i)
 {
-    tohost_exit(0);
+    tohost_exit(i);
 	asm volatile (" ebreak ");
 }
 #pragma GCC diagnostic pop

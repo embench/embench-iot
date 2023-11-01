@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-# Python module to run programs natively.
+# Python module to run programs with RISC-V ISA simulator spike.
 
-# Copyright (C) 2019 Clemson University
+# Copyright (C) 2023 HighTec edV-Systeme GmbH
 #
-# Contributor: Ola Jeppsson <ola.jeppsson@gmail.com>
+# Contributor: Emil J. Tywoniak <emil.tywoniak@gmail.com>
 #
 # This file is part of Embench.
 
@@ -13,7 +13,7 @@
 """
 Embench module to run benchmark programs.
 
-This version is suitable for running programs natively.
+This version is suitable for running programs with RISC-V ISA simulator spike.
 """
 
 __all__ = [
@@ -44,24 +44,17 @@ def build_benchmark_cmd(bench, args):
     # a command that records both the return value and execution time to
     # stdin/stdout. Obviously using time will not be very precise.
     # Hacky workaround for https://github.com/riscv-software-src/riscv-isa-sim/issues/1493
-    return ['script', '-c', f'spike --isa=RV32GC {bench}']
+    return ['script', '-c', f'spike --isa=RV32GC {bench}', '-e']
 
 
 def decode_results(stdout_str, stderr_str):
     """Extract the results from the output string of the run. Return the
        elapsed time in milliseconds or zero if the run failed."""
     # See above in build_benchmark_cmd how we record the return value and
-    # execution time. Return code is in standard output. Execution time is in
-    # standard error.
-
-    # Match "RET=rc"
-    # rcstr = re.search('^RET=(\d+)', stdout_str, re.S | re.M)
-    # if not rcstr:
-    #     log.debug('Warning: Failed to find return code')
-    #     return 0.0
+    # execution time.
 
     time = re.search('Spike mcycle timer delta: (\d+)', stdout_str, re.S)
-    fake_freq = 1e8 # 100 MHz
+    fake_freq = 1e6 # 1 MHz
     fake_period = 1.0 / fake_freq
 
     if time:
