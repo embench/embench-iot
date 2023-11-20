@@ -7,6 +7,10 @@ _start:
   la gp, __global_pointer$
 .option pop
 
+  // enable floating-point
+  li t0, 0x2000
+  csrs mstatus, t0  // mstatus.FS = 01 to enable floating-point
+
   // set the thread pointer
   la  tp, _end + 63
   and tp, tp, -64
