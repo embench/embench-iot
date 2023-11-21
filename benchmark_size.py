@@ -266,6 +266,7 @@ def benchmark_size(bench, metrics):
     # If the benchmark failed to build, then return a 0 size instead of
     # crashing when failing to open the file.
     if not os.path.exists(appexe):
+        log.warning(f'Warning: {bench} executable not found.')
         return {}
 
     # read format from file and check it is as expected
