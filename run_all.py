@@ -18,21 +18,15 @@ Run sets of Embench benchmarks
 
 import argparse
 import os
-import shutil
 import subprocess
 import sys
+import pathlib
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
 )
 
 from embench_core import check_python_version
-from embench_core import log
-from embench_core import gp
-from embench_core import setup_logging
-from embench_core import log_args
-from embench_core import find_benchmarks
-from embench_core import log_benchmarks
 
 # The various sets of benchmarks we could run
 
@@ -1295,6 +1289,7 @@ def benchmark(arglist, timeout, desc, resfile, append):
     # Dump the data if successful
     if succeeded:
         mode = 'a' if append else 'w'
+        pathlib.Path(resfile).resolve().parent.mkdir(exist_ok=True)
         with open(resfile, mode) as fileh:
             for line in res.stdout.decode('utf-8').splitlines(keepends=True):
                 if not 'All benchmarks ' + desc + ' successfully' in line:
