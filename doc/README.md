@@ -183,6 +183,9 @@ of surname).
 ### Document history
 | _Revision_  | _Date_     | _Author(s)_      | _Modification_                     |
 | ----------- | ---------- | ---------------- | ---------------------------------- |
+| WIP         | 6 Oct 21   | Craig Blackmore  | Replace pyelftools with lief in    |
+|             |            |                  | prerequisites.                     |
+|             |            |                  |                                    |
 | WIP         | 9 Aug 20   | Roger Shepherd   | Note re python module names        |
 | WIP         | 19 Jul 20  | Jeremy Bennett   | Add pyelftools to prerequisites.   |
 |             |            |                  |                                    |
@@ -224,7 +227,7 @@ The following non-standard Python packages are needed.
 
 | _Package_  | _Comments_ |
 | -----------| -----------|
-| pyelftools |            |
+| lief       |            |
 
 
 ### Preparation
