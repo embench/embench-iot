@@ -206,6 +206,20 @@ def build_parser():
         help='Section categories to include in metric: one or more of "text", "rodata", '
         + '"data" or "bss". Default "text"',
     )
+    parser.add_argument(
+        '--benchmark',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to measure. By default all tests are measured. Results obtained from subsets are not valid Embench scores.'
+    )
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        default=[],
+        nargs='+',
+        help='Benchmark name(s) to exclude. Results obtained from subsets are not valid Embench scores.'
+    )
 
     return parser
 
@@ -256,6 +270,9 @@ def validate_args(args):
         gp['metric'] = args.metric
     else:
         gp['metric'] = ['text']
+
+    gp['benchmark'] = args.benchmark
+    gp['exclude'] = args.exclude
 
 def benchmark_size(bench, metrics):
     """Compute the total size of the desired sections in a benchmark.  Returns
@@ -342,6 +359,8 @@ def collect_data(benchmarks):
 
     # Output it
     if gp['output_format'] == output_format.JSON:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
         log.info('{  "size results" :')
         log.info('  { "detailed size results" :')
         for bench in benchmarks:
@@ -360,6 +379,8 @@ def collect_data(benchmarks):
 
         log.info('    },')
     elif gp['output_format'] == output_format.TEXT:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
         log.info('Benchmark            size')
         log.info('---------            ----')
         for bench in benchmarks:
@@ -370,6 +391,9 @@ def collect_data(benchmarks):
                 res_output = f'   {rel_data[bench]:6.2f}'
             log.info(f'{bench:15} {res_output:8}')
     elif gp['output_format'] == output_format.BASELINE:
+        if gp['benchmark'] or gp['exclude']:
+            log.info('ERROR: These results are not valid Embench scores as they are taken from a subset of the Embench suite.')
+            return [], []
         log.info('{')
         for bench in benchmarks:
             res_output = ''

@@ -130,11 +130,16 @@ def find_benchmarks():
        Return the list of benchmarks."""
     gp['benchdir'] = os.path.join(gp['rootdir'], 'src')
     gp['bd_benchdir'] = os.path.join(gp['bd'], 'src')
-    dirlist = os.listdir(gp['benchdir'])
+    if gp['benchmark']:
+        dirlist = gp['benchmark']
+    else:
+        dirlist = os.listdir(gp['benchdir'])
 
     benchmarks = []
 
     for bench in dirlist:
+        if bench in gp['exclude']:
+            continue
         abs_b = os.path.join(gp['benchdir'], bench)
         if os.path.isdir(abs_b):
             benchmarks.append(bench)
