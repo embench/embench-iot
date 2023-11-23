@@ -254,7 +254,7 @@ The benchmarks are configured in several ways:
 - a board specific configuration file
     - found in `config/<architecture>/boards/<board>/board.cfg`
     - for example
-      [`config/riscv32/boards/ri5cyverilator/board.cfg`](../config/riscv32/boards/ri5cyverilator/board.cfg); and
+      [`config/riscv32/boards/generic/board.cfg`](../config/riscv32/boards/generic/board.cfg); and
 - on the command line to the build script.
 
 Any number of these may be specified, they may duplicate specification, in
@@ -274,11 +274,11 @@ In addition there may be chip and board specific heads and code:
 - a board specific header in
   `config/<architecture>/boards/<board>/boardsupport.h`
     - for example
-    [`config/riscv32/boards/ri5cyverilator/boardsupport.h`](../config/riscv32/boards/ri5cyverilator/boardsupport.h); and
+    [`config/riscv32/boards/generic/boardsupport.h`](../config/riscv32/boards/generic/boardsupport.h); and
 - board specific code in
   `config/<architecture>/boards/<board>/boardsupport.c`
     - for example
-    [`config/riscv32/boards/ri5cyverilator/boardsupport.c`](../config/riscv32/boards/ri5cyverilator/boardsupport.c).
+    [`config/riscv32/boards/generic/boardsupport.c`](../config/riscv32/boards/generic/boardsupport.c).
 
 The configuration files (architecture, chip, board) take the form of
 assignments to python variables.  The following parameters may be set.
@@ -427,7 +427,7 @@ Example: The following command builds the benchmarks for generic RISC-V RV32IMC 
 - -Wl,-gc-sections pass an option to the linker to delete unused sections
 - -lm to link the math libraries needed for some benchmarks
 
-`./build_all.py --arch riscv32 --chip generic --board ri5cyverilator --cc riscv64-unknown-elf-gcc --cflags="-c -O2 -ffunction-sections -march=rv32imc -mabi=ilp32" --ldflags="-Wl,-gc-sections" --user-libs="-lm"`
+`./build_all.py --arch riscv32 --chip generic --board generic --cc riscv64-unknown-elf-gcc --cflags="-c -O2 -ffunction-sections -march=rv32imc -mabi=ilp32" --ldflags="-Wl,-gc-sections" --user-libs="-lm"`
 
 Depending on your GCC installation, your compiler might be called riscv32-unknown-elf-gcc instead.
 
