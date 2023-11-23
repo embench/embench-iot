@@ -9,9 +9,13 @@
 *.swp
 *.tmp
 
+# configuration file directory for VS Code
+.vscode/
+
 # Python things
 __pycache__/
 .pylintrc
+.venv/
 
 # Default build and log directories
 bd*/
