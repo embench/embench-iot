@@ -13,10 +13,13 @@
 
 #include "support.h"
 
-
 int __attribute__ ((used))
+#ifndef WASM
 main (int argc __attribute__ ((unused)),
       char *argv[] __attribute__ ((unused)))
+#else
+WASM_ENTRY
+#endif
 {
   int i;
   volatile int result;
