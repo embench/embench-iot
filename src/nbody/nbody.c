@@ -58,6 +58,8 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <string.h>
 
 #include "support.h"
 
@@ -72,7 +74,8 @@ struct body
   double x[3], fill, v[3], mass;
 };
 
-static struct body solar_bodies[] = {
+#define BODIES_SIZE 5
+static const struct body solar_bodies_init[BODIES_SIZE] = {
   /* sun */
   {
    .x = {0., 0., 0.},
@@ -115,9 +118,7 @@ static struct body solar_bodies[] = {
 	 -9.51592254519715870e-05 * DAYS_PER_YEAR},
    .mass = 5.15138902046611451e-05 * SOLAR_MASS}
 };
-
-static const int BODIES_SIZE =
-  sizeof (solar_bodies) / sizeof (solar_bodies[0]);
+static struct body solar_bodies[BODIES_SIZE];
 
 void
 offset_momentum (struct body *bodies, unsigned int nbodies)
@@ -156,6 +157,7 @@ bodies_energy (struct body *bodies, unsigned int nbodies)
 void
 initialise_benchmark (void)
 {
+  assert(sizeof (solar_bodies_init) / sizeof (solar_bodies_init[0]) == BODIES_SIZE);
 }
 
 
@@ -165,7 +167,9 @@ static int benchmark_body (int  rpt);
 void
 warm_caches (int  heat)
 {
+  assert(memcpy(solar_bodies, solar_bodies_init, sizeof(solar_bodies)));
   int  res = benchmark_body (heat);
+  assert(memcpy(solar_bodies, solar_bodies_init, sizeof(solar_bodies)));
 
   return;
 }
@@ -177,6 +181,19 @@ benchmark (void)
   return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
 }
 
+void expand_universe(void)
+{
+  for (int i = 0; i < BODIES_SIZE; i++) {
+    solar_bodies[i].x[0] *= 1.01;
+    solar_bodies[i].x[1] *= 1.01;
+    solar_bodies[i].x[2] *= 1.01;
+    solar_bodies[i].v[0] *= 1.01;
+    solar_bodies[i].v[1] *= 1.01;
+    solar_bodies[i].v[2] *= 1.01;
+    // Evaporation or something
+    solar_bodies[i].mass /= 1.01;
+  }
+}
 
 static int __attribute__ ((noinline))
 benchmark_body (int rpt)
@@ -189,13 +206,15 @@ benchmark_body (int rpt)
       int i;
       offset_momentum (solar_bodies, BODIES_SIZE);
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
-      tot_e = 0.0;
-      for (i = 0; i < 100; ++i)
+      for (i = 0; i < 100; ++i) {
+        expand_universe();
 	tot_e += bodies_energy (solar_bodies, BODIES_SIZE);
+      }
       /*printf("%.9f\n", bodies_energy(solar_bodies, BODIES_SIZE)); */
     }
   /* Result is known good value for total energy. */
-  return double_eq_beebs(tot_e, -16.907516382852478);
+  // printf("%.20f\n", tot_e);
+  return double_eq_beebs(tot_e, 20.58416113689254700603);
 }
 
 
@@ -217,44 +236,30 @@ verify_benchmark (int tot_e_ok)
   // printf("};\n");
   static struct body expected[] = {
     {
-     .x = {0, 0, 0},
-     .v =
-     {-0.000387663407198742665776131088862,
-      -0.0032753590371765706722173572274,
-      2.39357340800030020670947916717e-05},
-     .mass = 39.4784176043574319692197605036},
+      .x = { 0, 0, 0 },
+      .v = { -0.00104855734495182826085390992432, -0.00885923642007596483238796025717, 6.47417045569482606931499546477e-05 },
+      .mass = 14.5956136333422072937082702992
+    },
     {
-     .x =
-     {4.84143144246472090230781759601, -1.16032004402742838777840006514,
-      -0.103622044471123109232735259866},
-     .v =
-     {0.606326392995832019749968821998, 2.81198684491626016423992950877,
-      -0.0252183616598876288172892401462},
-     .mass = 0.0376936748703894930478952574049},
+      .x = { 13.095170719774786860511994746, -3.13844970164038450377574918093, -0.280278338918426239700920632458 },
+      .v = { 1.64000001291839869743682811531, 7.60590090628090553792617356521, -0.0682109733730176942545497809078 },
+      .mass = 0.0139357742334713305409898964626
+    },
     {
-     .x =
-     {8.34336671824457987156620220048, 4.1247985641243047894022311084,
-      -0.403523417114321381049535375496},
-     .v =
-     {-1.01077434617879236000703713216, 1.82566237123041186229954746523,
-      0.00841576137658415351916474378413},
-     .mass = 0.0112863261319687668143840753032},
+      .x = { 22.5672536834432406749328947626, 11.1568121998214788703762678779, -1.09145571910624816780455148546 },
+      .v = { -2.73395642996889920439684829034, 4.93807682955851579009731722181, 0.0227630677564963739001324682931 },
+      .mass = 0.00417268131699198401018957582664
+    },
     {
-     .x =
-     {12.8943695621391309913406075793, -15.1111514016986312469725817209,
-      -0.223307578892655733682204299839},
-     .v =
-     {1.08279100644153536414648897335, 0.868713018169608219842814378353,
-      -0.0108326374013636358983880825235},
-     .mass = 0.0017237240570597111687795033319},
+      .x = { 34.8768691133459114439574477728, -40.8728512897969551431742729619, -0.604005427603493738608619878505 },
+      .v = { 2.92874808859631841073678515386, 2.3497069853436709507832347299, -0.0293002674523172371157109239448 },
+      .mass = 0.000637280110856412534102444222839
+    },
     {
-     .x =
-     {15.3796971148509165061568637611, -25.9193146099879641042207367718,
-      0.179258772950371181309492385481},
-     .v =
-     {0.979090732243897976516677772452, 0.594698998647676169149178804219,
-      -0.0347559555040781037460462243871},
-     .mass = 0.00203368686992463042206846779436}
+      .x = { 41.5992174485631238667338038795, -70.1069206062228715836681658402, 0.484861608121297582574271700651 },
+      .v = { 2.6482581528317457042476235074, 1.60855007588536924600930433371, -0.0940083891021896989048656223531 },
+      .mass = 0.000751876838177645951365180021497
+    }
   };
 
   /* Check we have the correct total energy and we have set up the
