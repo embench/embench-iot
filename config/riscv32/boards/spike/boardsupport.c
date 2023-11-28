@@ -30,7 +30,6 @@ stop_trigger ()
     unsigned long lo = read_csr(mcycle);
     unsigned long long end = (unsigned long long)(((CORETIMETYPE)hi) << 32) | lo;
     printf("Spike mcycle timer delta: %llu\n", end - start);
-    _exit(0);
 }
 
 void __attribute__ ((noinline))
