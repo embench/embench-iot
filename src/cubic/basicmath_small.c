@@ -8,6 +8,7 @@
    SPDX-License-Identifier: GPL-3.0-or-later */
 
 #include <string.h>
+#include <assert.h>
 #include "support.h"
 #include "snipmath.h"
 
@@ -66,6 +67,7 @@ static int
 benchmark_body (int rpt)
 {
   int  i;
+  int runs = 0;
 
   for (i = 0; i < rpt; i++)
     {
@@ -90,16 +92,18 @@ benchmark_body (int rpt)
       SolveCubic(a3, b3, c3, d3, &solutions, output);
       SolveCubic(a4, b4, c4, d4, &solutions, output);
       /* Now solve some random equations */
-      for(a1=1;a1<3;a1++) {
+      for(a1=1 + 3*i;a1<3*(1+i);a1++) {
 	for(b1=10;b1>8;b1--) {
 	  for(c1=5;c1<6;c1+=0.5) {
             for(d1=-1;d1>-3;d1--) {
 	      SolveCubic(a1, b1, c1, d1, &solutions, output_pos);
+              runs++;
             }
 	  }
 	}
       }
     }
+    assert(runs == rpt*16);
 
    return 0;
 }
