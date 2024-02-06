@@ -17,7 +17,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
 #include "beebsc.h"
 
 /* Seed for the random number generator */
@@ -62,7 +61,7 @@ srand_beebs (unsigned int new_seed)
 void
 init_heap_beebs (void *heap, size_t heap_size)
 {
-  assert(heap_size % sizeof(void *) == 0);  /* see #138 */
+  assert_beebs(heap_size % sizeof(void *) == 0);  /* see #138 */
   heap_ptr = (void *) heap;
   heap_end = (void *) ((char *) heap_ptr + heap_size);
   heap_requested = 0;
