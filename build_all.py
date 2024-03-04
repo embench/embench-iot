@@ -102,6 +102,9 @@ def build_parser():
         '--dummy-libs', help='Dummy libraries to build and link'
     )
     parser.add_argument(
+        '--dummy-benchmark', help='Dummy benchmark to measure library size overhead'
+    )
+    parser.add_argument(
         '--cpu-mhz', type=int, help='Processor clock speed in MHz'
     )
     parser.add_argument(
@@ -250,6 +253,7 @@ def populate_defaults():
     conf['ld_output_pattern'] = '-o {0}'
     conf['user_libs'] = {}
     conf['dummy_libs'] = {}
+    conf['dummy_benchmark'] = {}
     conf['cpu_mhz'] = 1
     conf['warmup_heat'] = 1
     conf['timeout'] = 5
@@ -310,6 +314,8 @@ def populate_user_libs(conf, args):
         conf['user_libs'] = args.user_libs.split()
     if args.dummy_libs:
         conf['dummy_libs'] = args.dummy_libs.split()
+    if args.dummy_benchmark:
+        conf['dummy_benchmark'] = args.dummy_benchmark
 
     return conf
 
@@ -494,12 +500,12 @@ def compile_file(f_root, srcdir, bindir, suffix='.c'):
     return succeeded
 
 
-def compile_benchmark(bench):
+def compile_benchmark(bench, src_path, bd_path):
     """Compile the benchmark, "bench".
 
        Return True if all files compile successfully, False otherwise."""
-    abs_src_b = os.path.join(gp['benchdir'], bench)
-    abs_bd_b = os.path.join(gp['bd_benchdir'], bench)
+    abs_src_b = os.path.join(src_path, bench)
+    abs_bd_b = os.path.join(bd_path, bench)
     succeeded = True
 
     if not os.path.isdir(abs_bd_b):
@@ -643,11 +649,11 @@ def create_link_arglist(bench, binlist):
     return arglist
 
 
-def link_benchmark(bench):
+def link_benchmark(bench, bd_path):
     """Link the benchmark, "bench".
 
        Return True if link is successful, False otherwise."""
-    abs_bd_b = os.path.join(gp['bd_benchdir'], bench)
+    abs_bd_b = os.path.join(bd_path, bench)
 
     if not os.path.isdir(abs_bd_b):
         log.warning(
@@ -736,12 +742,15 @@ def main():
     if successful:
         log.debug('Compilation of support files successful')
 
+    if isinstance(gp['dummy_benchmark'], str):
+        compile_benchmark(gp['dummy_benchmark'], gp['supportdir'], gp['bd_supportdir'])
+        link_benchmark(gp['dummy_benchmark'], gp['bd_supportdir'])
     for bench in benchmarks:
-        res = compile_benchmark(bench)
+        res = compile_benchmark(bench, gp['benchdir'], gp['bd_benchdir'])
         successful &= res
         if res:
             log.debug('Compilation of benchmark "{bench}" successful'.format(bench=bench))
-            res = link_benchmark(bench)
+            res = link_benchmark(bench, gp['bd_benchdir'])
             successful &= res
             if res:
                 log.debug('Linking of benchmark "{bench}" successful'.format(bench=bench))
