@@ -22,30 +22,6 @@
 /* BEEBS heap is just an array */
 /* 8995 = sizeof(tar_header_t) * ARCHIVE_FILES */
 #define roundup(d, u) ((((d)+(u))/(u))*(u))
-#define HEAP_SIZE roundup(8995, sizeof(void *))
-static char heap[HEAP_SIZE];
-
-void
-initialise_benchmark (void)
-{
-}
-
-
-static int benchmark_body (int rpt);
-
-void
-warm_caches (int  heat)
-{
-  benchmark_body (heat);
-  return;
-}
-
-
-int
-benchmark (void)
-{
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
-}
 
 // this is the basic TAR header format which is in ASCII
 typedef struct {
@@ -60,6 +36,26 @@ typedef struct {
   char linkedFile[100];
 } tar_header_t;
 
+#define HEAP_SIZE roundup((sizeof(tar_header_t) * ARCHIVE_FILES), sizeof(void *))
+static char _Alignas(_Alignof(tar_header_t)) heap[HEAP_SIZE]; 
+static int benchmark_body (int rpt);
+
+void
+warm_caches (int  heat)
+{
+  benchmark_body (heat);
+  return;
+}
+
+int
+benchmark (void)
+{
+  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+}
+void
+initialise_benchmark (void)
+{
+}
 
 static int __attribute__ ((noinline))
 benchmark_body (int rpt)
