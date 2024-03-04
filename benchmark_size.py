@@ -166,6 +166,10 @@ def build_parser():
         action='store_false',
         help='Specify to not append a comma to the JSON output',
     )
+    parser.add_argument(
+        '--dummy-benchmark', help='Dummy benchmark to measure library size overhead',
+        default={}
+    )
     # List arguments are empty by default, a user specified value then takes
     # precedence. If the list is empty after parsing, then we can install a
     # default value.
@@ -230,6 +234,8 @@ def validate_args(args):
         log.error(f'ERROR: Unable to read build directory {gp["bd"]}: exiting')
         sys.exit(1)
 
+    gp['bd_supportdir'] = os.path.join(gp['bd'], 'support')
+
     if os.path.isabs(args.baselinedir):
         gp['baseline_dir'] = args.baselinedir
     else:
@@ -257,10 +263,15 @@ def validate_args(args):
     else:
         gp['metric'] = ['text']
 
-def benchmark_size(bench, metrics):
+    if args.dummy_benchmark:
+        gp['dummy_benchmark'] = args.dummy_benchmark
+    else:
+        gp['dummy_benchmark'] = "dummy-benchmark"
+
+def benchmark_size(bench, bd_path, metrics, dummy_sec_sizes):
     """Compute the total size of the desired sections in a benchmark.  Returns
        the size in bytes, which may be zero if the section wasn't found."""
-    appexe = os.path.join(gp['bd_benchdir'], bench, bench)
+    appexe = os.path.join(bd_path, bench, bench)
     sec_sizes = {}
 
     # If the benchmark failed to build, then return a 0 size instead of
@@ -287,6 +298,9 @@ def benchmark_size(bench, metrics):
                 if ((gp['format'] == 'elf' and section.name.startswith(target_name)) or
                     (target_name == section.name)):
                     sec_sizes[metric] += section.size
+    for metric, size in dummy_sec_sizes.items():
+        if metric in metrics:
+            sec_sizes[metric] -= size
     # Return the section (group) size
     return sec_sizes
 
@@ -321,11 +335,19 @@ def collect_data(benchmarks):
     rel_data = {}
 
     # Collect data
+    if isinstance(gp['dummy_benchmark'], str):
+        dummy_section_data = benchmark_size(gp['dummy_benchmark'], gp['bd_supportdir'], ALL_METRICS, {})
+    else:
+        dummy_section_data = {}
+    if dummy_section_data == {}:
+        dummy_benchmark_abs_path = os.path.join(gp['dummy_benchmark'], gp['bd_supportdir'])
+        log.error(f'ERROR: could not find dummy benchmark at {dummy_benchmark_abs_path}')
+        sys.exit(1)
     for bench in benchmarks:
         if gp['output_format'] == output_format.BASELINE:
-            raw_section_data[bench] = benchmark_size(bench, ALL_METRICS)
+            raw_section_data[bench] = benchmark_size(bench, gp['bd_benchdir'], ALL_METRICS, dummy_section_data)
         else:
-            raw_section_data[bench] = benchmark_size(bench, gp['metric'])
+            raw_section_data[bench] = benchmark_size(bench, gp['bd_benchdir'], gp['metric'], dummy_section_data)
         raw_totals[bench] = sum(raw_section_data[bench].values())
 
         # Calculate data relative to the baseline if needed
