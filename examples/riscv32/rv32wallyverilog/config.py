@@ -1,30 +1,34 @@
-# Board configuration for NATIVE
+# Board configuration for rv32 HMC Wally Processor
 #
-# Copyright (C) 2019 Embecosm Limited and the University of Bristol
+# Copyright (C) 2022 Embecosm Limited and University of Bristol
 #
-# Contributor Graham Markall <graham.markall@embecosm.com>
-# Contributor Jeremy Bennett <jeremy.bennett@embecosm.com>
-# Contributor Ola Jeppsson   <ola.jeppsson@gmail.com>
+# Contributor Daniel Torres <dtorres@hmc.edu>
 #
-# This file is part of Embench.
+# This file is part of Embench and was formerly part of the Bristol/Embecosm
+# Embedded Benchmark Suite.
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # This is a python setting of parameters for the board.  The following
 # parameters may be set (other keys are silently ignored).  Defaults are shown
 # in brackets
-# - cc ('cc')
+cc = 'riscv32-unknown-none-elf-gcc'
 # - ld (same value as for cc)
-# - cflags ([])
-# - ldflags ([])
+# cflags = (['-c', '-Os', '-ffunction-sections', '-nostdlib', '-march=rv32imac', '-mabi=ilp32'])
+# ldflags = (['-Wl,-gc-sections', '-nostdlib', '-march=rv32imac', '-mabi=ilp32', '-T../../../config/riscv32/boards/rv32wallyverilog/link.ld'])
+# cflags = (['-c', '-Os', '-ffunction-sections', '-nostartfiles', '-march=rv32imac', '-mabi=ilp32'])
+# ldflags = (['-Wl,-gc-sections', '-nostartfiles', '-march=rv32imac', '-mabi=ilp32', '-T../../../config/riscv32/boards/rv32wallyverilog/link.ld'])
+cflags = (['-fdata-sections', '-ffunction-sections', '-mabi=ilp32d'])
+ldflags = (['-Wl,-gc-sections', '-mabi=ilp32d', '-T${CONFIG_DIR}/link.ld', '-nostartfiles'])
 # - cc_define_pattern ('-D{0}')
 # - cc_incdir_pattern ('-I{0}')
 # - cc_input_pattern ('{0}')
 # - cc_output_pattern ('-o {0}')
 # - ld_input_pattern ('{0}')
 # - ld_output_pattern ('-o {0}')
-# - user_libs ([])
-# - dummy_libs ([])
+user_libs = (['-lm'])
+# dummy_libs = (['libm'])
+# dummy_libs = (['libgcc', 'libm', 'libc'])
 # - cpu_mhz (1)
 # - warmup_heat (1)
 
