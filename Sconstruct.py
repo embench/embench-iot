@@ -1,14 +1,15 @@
 from pathlib import Path
 import os
 
-def find_benchmarks(bd):
+def find_benchmarks(bd, env):
     dir_iter = Path('src').iterdir()
-    return [bench for bench in dir_iter if bench.is_dir()]
+    return ([bench for bench in dir_iter if bench.is_dir()] + [env['dummy_benchmark']])
 
 def parse_options():
     AddOption('--build-dir', nargs=1, type='string', default='bd')
     AddOption('--config-dir', nargs=1, type='string', default='config2')
-    config_dir = Path(GetOption('config_dir'))
+    config_dir = Path(GetOption('config_dir')).absolute()
+    bd = Path(GetOption('build_dir')).absolute()
 
     vars = Variables(config_dir / 'config.py', ARGUMENTS)
     vars.Add('cc', default=env['CC'])
@@ -18,6 +19,7 @@ def parse_options():
     vars.Add('user_libs', default=[])
     vars.Add('warmup_heat', default=1)
     vars.Add('cpu_mhz', default=1)
+    vars.Add('dummy_benchmark', default=(bd / 'support/dummy-benchmark'))
     return vars
 
 def setup_directories(bd, config_dir):
@@ -50,10 +52,12 @@ def build_support_objects(env):
 env = DefaultEnvironment()
 vars = parse_options()
 
-bd = Path(GetOption('build_dir'))
-config_dir = Path(GetOption('config_dir'))
+bd = Path(GetOption('build_dir')).absolute()
+config_dir = Path(GetOption('config_dir')).absolute()
 
 setup_directories(bd, config_dir)
+env.Replace(BUILD_DIR=bd)
+env.Replace(CONFIG_DIR=config_dir)
 populate_build_env(env, vars)
 
 # Setup Help Text
@@ -61,7 +65,7 @@ env.Help("\nCustomizable Variables:", append=True)
 env.Help(vars.GenerateHelpText(env), append=True)
 
 support_objects = build_support_objects(env)
-benchmark_paths = find_benchmarks(bd)
+benchmark_paths = find_benchmarks(bd, env)
 
 benchmark_objects = {
     (bd / bench / bench.name): env.Object(Glob(str(bd / bench / "*.c")))
