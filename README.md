@@ -23,6 +23,7 @@ a stable release.
 
 - `embench-0.5`
 - `embench-1.0`
+- `embench-2.0`
 
 ## Using the benchmarks
 
@@ -53,15 +54,10 @@ is described in the [user manual](./doc/README.md).
 ## Structure of the repository
 
 The top level directory contains Python scripts to build and execute the
-benchmarks.  The following are the key top level directories.
+benchmarks. The following are the key top level directories.
 
-- [`config`](./config): containing a directory for each
-  architecture supported, and within that directory subdirectories for board
-  and cpu descriptions.  Configuation data can be provided for individual CPUs
-  and individual boards.
-  - **Note.** The structure of the [`config`](./config) directory is proving
-    overly complex, yet inflexible. It is likely it will be flattened in a
-    future release of the scripts.
+- [`examples`](./examples): containing examples for Embench build configurations
+  for different boards.
 
 - [`doc`](./doc): The user manual for Embench.
 
@@ -69,7 +65,7 @@ benchmarks.  The following are the key top level directories.
   per benchmark.
 
 - [`support`](./support): The generic wrapper code for
-  benchmarks, including substitutes for some library and emulation functions.
+  benchmarks.
 
 - [`pylib`](./pylib): Support code for the python scripts
 
