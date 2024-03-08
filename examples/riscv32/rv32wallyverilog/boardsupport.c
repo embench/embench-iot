@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-//defined in the assembly file, either crt0.S for speed or dummy.S for size
 extern void start_trigger();
 extern void stop_trigger();
 
