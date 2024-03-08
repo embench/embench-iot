@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+
+# Script to build all benchmarks
+
+# Copyright (C) 2017, 2024 Embecosm Limited
+#
+# Contributor: Konrad Moron <konrad.moron@tum.de>
+#
+# This file is part of Embench.
+
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 from pathlib import Path
 import os
 
@@ -11,7 +23,8 @@ def parse_options():
     config_dir = Path(GetOption('config_dir')).absolute()
     bd = Path(GetOption('build_dir')).absolute()
 
-    vars = Variables(config_dir / 'config.py', ARGUMENTS)
+    vars = Variables(None, ARGUMENTS)
+    print(ARGUMENTS)
     vars.Add('cc', default=env['CC'])
     vars.Add('cflags', default=env['CCFLAGS'])
     vars.Add('ld', default=env['LINK'])
@@ -77,6 +90,3 @@ env.Default(benchmark_objects.values())
 for benchname, objects in benchmark_objects.items():
     bench_exe = env.Program(str(benchname), objects + support_objects)
     env.Default(bench_exe)
-
-# call user script
-SConscript(config_dir / "SConscript.py", exports='env')
