@@ -12,13 +12,6 @@
       "data" : 0,
       "bss" : 16
   },
-  "cubic" :
-  {
-      "text" : 1584,
-      "rodata" : 0,
-      "data" : 0,
-      "bss" : 48
-  },
   "edn" :
   {
       "text" : 1324,
@@ -54,13 +47,6 @@
       "data" : 0,
       "bss" : 2032
   },
-  "nbody" :
-  {
-      "text" : 950,
-      "rodata" : 320,
-      "data" : 320,
-      "bss" : 0
-  },
   "nettle-aes" :
   {
       "text" : 2148,
@@ -88,13 +74,6 @@
       "rodata" : 982,
       "data" : 0,
       "bss" : 2404
-  },
-  "primecount" :
-  {
-      "text" : 292,
-      "rodata" : 0,
-      "data" : 0,
-      "bss" : 0
   },
   "qrduino" :
   {
