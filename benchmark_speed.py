@@ -21,7 +21,6 @@ server to use as a target.
 import argparse
 import importlib
 import os
-import subprocess
 import sys
 import threading
 import queue
@@ -177,8 +176,7 @@ def validate_args(args):
         sys.exit(1)
 
     globals()['get_target_args'] = newmodule.get_target_args
-    globals()['build_benchmark_cmd'] = newmodule.build_benchmark_cmd
-    globals()['decode_results'] = newmodule.decode_results
+    globals()['run_benchmark'] = newmodule.run_benchmark
 
 
 def benchmark_speed(bench, target_args):
@@ -190,51 +188,17 @@ def benchmark_speed(bench, target_args):
     succeeded = True
     appdir = os.path.join(gp['bd_benchdir'], bench)
     appexe = os.path.join(appdir, bench)
-
+    
     if os.path.isfile(appexe):
-        arglist = build_benchmark_cmd(bench, target_args)
-        try:
-            res = subprocess.run(
-                arglist,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                cwd=appdir,
-                timeout=gp['timeout'],
-            )
-            if res.returncode != 0:
-                log.warning(f'Warning: Run of {bench} failed.')
-                succeeded = False
-        except subprocess.TimeoutExpired:
-            log.warning(f'Warning: Run of {bench} timed out.')
-            succeeded = False
+        res = run_benchmark(bench, appexe, target_args)
+        if res is None:
+            log.warning(f'Warning: Run of {bench} failed.')
     else:
         log.warning(f'Warning: {bench} executable not found.')
-        succeeded = False
-
-    # Process results
-    if succeeded:
-        exec_time = decode_results(
-            res.stdout.decode('utf-8'), res.stderr.decode('utf-8')
-        )
-        succeeded = exec_time > 0
-
-    if succeeded:
-        return exec_time
-    else:
-        for arg in arglist:
-            if arg == arglist[0]:
-                comm = arg
-            elif arg == '-ex':
-                comm += ' ' + arg
-            else:
-                comm += " '" + arg + "'"
-
-        log.debug('Args to subprocess:')
-        log.debug(f'{comm}')
-        if 'res' in locals():
-            log.debug(res.stdout.decode('utf-8'))
-            log.debug(res.stderr.decode('utf-8'))
-        return 0.0
+    
+    if res is None:
+        return 0
+    return res
 
 def run_threads(bench, target_args, data_collect_q):
     item = benchmark_speed(bench, target_args)

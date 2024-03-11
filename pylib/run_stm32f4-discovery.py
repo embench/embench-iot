@@ -16,13 +16,8 @@ Embench module to run benchmark programs.
 This version is suitable for a gdbserver with simulator.
 """
 
-__all__ = [
-    'get_target_args',
-    'build_benchmark_cmd',
-    'decode_results',
-]
-
 import argparse
+import subprocess
 import re
 
 from embench_core import log
@@ -55,7 +50,7 @@ def get_target_args(remnant):
     return parser.parse_args(remnant)
 
 
-def build_benchmark_cmd(bench, args):
+def build_benchmark_cmd(path, args):
     """Construct the command to run the benchmark.  "args" is a
        namespace with target specific arguments"""
     global cpu_mhz
@@ -81,7 +76,7 @@ def build_benchmark_cmd(bench, args):
     ]
 
     for arg in gdb_comms:
-        cmd.extend(['-ex', arg.format(bench)])
+        cmd.extend(['-ex', arg.format(path)])
 
     return cmd
 
@@ -108,3 +103,25 @@ def decode_results(stdout_str, stderr_str):
     # Time from cycles to milliseconds
     global cpu_mhz
     return (int(endtime.group(1)) - int(starttime.group(1))) / cpu_mhz / 1000.0
+
+def run_benchmark(bench, path, args):
+    """Runs the benchmark "bench" at "path". "args" is a namespace
+       with target specific arguments. This function will be called
+       in parallel unless if the number of tasks is limited via
+       command line. "run_benchmark" should return the result in
+       milliseconds.
+    """
+    arglist = build_benchmark_cmd(path, args)
+    try:
+        res = subprocess.run(
+            arglist,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=50,
+        )
+    except subprocess.TimeoutExpired:
+        log.warning(f'Warning: Run of {bench} timed out.')
+        return None
+    if res.returncode != 0:
+        return None
+    return decode_results(res.stdout.decode('utf-8'), res.stderr.decode('utf-8'))

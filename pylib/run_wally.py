@@ -15,13 +15,9 @@ Embench module to run benchmark programs.
 This version is suitable for running programs on wally.
 """
 
-__all__ = [
-    'get_target_args',
-    'build_benchmark_cmd',
-    'decode_results',
-]
-
 import argparse
+import subprocess
+import os
 import configparser
 import re
 
@@ -44,7 +40,7 @@ def get_target_args(remnant):
     return parser.parse_args(remnant)
 
 
-def build_benchmark_cmd(bench, args):
+def build_benchmark_cmd(path, args):
     """Construct the command to run the benchmark.  "args" is a
        namespace with target specific arguments"""
     global cpu_mhz
@@ -52,8 +48,8 @@ def build_benchmark_cmd(bench, args):
     # to run wally, we use the modelsim that inputs the compiled C code and outputs a .outputfile
     # that contains the content of begin_signature, which writes the instret & cycles of begin & end triggers
     # along with the return code, which tells us if the test passed
-    log.debug("\"" + bench + "\" : cycles, insret, CPI, Elapsed Time, ClkFreq")
-    return ['sh', '-c', ('cat *.output')]
+    log.debug("\"" + path + "\" : cycles, insret, CPI, Elapsed Time, ClkFreq")
+    return ['sh', '-c', (f'cat {os.path.dirname(path)}*.output')]
 
 def decode_results(stdout_str, stderr_str):
     """Extract the results from the output string of the run. Return the
@@ -84,3 +80,25 @@ def decode_results(stdout_str, stderr_str):
     log.debug( "[" + str((pc_trigger)[1]-(pc_trigger)[0]) + "," +  str(pc_trigger[3]-pc_trigger[2]) + "," + str((pc_trigger[1]-pc_trigger[0]) / (pc_trigger[3]-pc_trigger[2])) + "," + str(result) + "," + str(cpu_mhz) + "],") 
 
     return (result)
+
+def run_benchmark(bench, path, args):
+    """Runs the benchmark "bench" at "path". "args" is a namespace
+       with target specific arguments. This function will be called
+       in parallel unless if the number of tasks is limited via
+       command line. "run_benchmark" should return the result in
+       milliseconds.
+    """
+    arglist = build_benchmark_cmd(path, args)
+    try:
+        res = subprocess.run(
+            arglist,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=50,
+        )
+    except subprocess.TimeoutExpired:
+        log.warning(f'Warning: Run of {bench} timed out.')
+        return None
+    if res.returncode != 0:
+        return None
+    return decode_results(res.stdout.decode('utf-8'), res.stderr.decode('utf-8'))
