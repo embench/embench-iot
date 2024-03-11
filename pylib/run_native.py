@@ -16,13 +16,8 @@ Embench module to run benchmark programs.
 This version is suitable for running programs natively.
 """
 
-__all__ = [
-    'get_target_args',
-    'build_benchmark_cmd',
-    'decode_results',
-]
-
 import argparse
+import subprocess
 import re
 
 from embench_core import log
@@ -35,17 +30,6 @@ def get_target_args(remnant):
     # No target arguments
     return parser.parse_args(remnant)
 
-
-def build_benchmark_cmd(bench, args):
-    """Construct the command to run the benchmark.  "args" is a
-       namespace with target specific arguments"""
-
-    # Due to way the target interface currently works we need to construct
-    # a command that records both the return value and execution time to
-    # stdin/stdout. Obviously using time will not be very precise.
-    return ['sh', '-c', 'time -p ./' + bench + '; echo RET=$?']
-
-
 def decode_results(stdout_str, stderr_str):
     """Extract the results from the output string of the run. Return the
        elapsed time in milliseconds or zero if the run failed."""
@@ -57,7 +41,7 @@ def decode_results(stdout_str, stderr_str):
     rcstr = re.search('^RET=(\d+)', stdout_str, re.S | re.M)
     if not rcstr:
         log.debug('Warning: Failed to find return code')
-        return 0.0
+        return None
 
     # Match "real s.mm?m?"
     time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S)
@@ -69,4 +53,26 @@ def decode_results(stdout_str, stderr_str):
 
     # We must have failed to find a time
     log.debug('Warning: Failed to find timing')
-    return 0.0
+    return None
+
+def run_benchmark(bench, path, args):
+    """Runs the benchmark "bench" at "path". "args" is a namespace
+       with target specific arguments. This function will be called
+       in parallel unless if the number of tasks is limited via
+       command line. "run_benchmark" should return the result in
+       milliseconds.
+    """
+
+    try:
+        res = subprocess.run(
+            ['sh', '-c', 'time -p ' + path + '; echo RET=$?'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=50,
+        )
+    except subprocess.TimeoutExpired:
+        log.warning(f'Warning: Run of {bench} timed out.')
+        return None
+    if res.returncode != 0:
+        return None
+    return decode_results(res.stdout.decode('utf-8'), res.stderr.decode('utf-8'))
