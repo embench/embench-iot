@@ -24,6 +24,7 @@ import sys
 
 from json import loads
 import lief
+from lief.ELF import SECTION_FLAGS as FLAGS
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
@@ -40,70 +41,46 @@ from embench_core import embench_stats
 from embench_core import output_format
 
 """
-This script was originally written to handle elf format files and has been
-extended to handle macho (Apple) format in a way that should make further extension
-to pe (Microsoft) straightforward.
+This script only handles elf format files as they are the standard executable
+format for microprocessors.
 
 Categories of sections
 
-This script is concerned with 4 categories of section. These sections are associated
-by default with the name of a section (elf), or sections (macho). The default
+This script is concerned with 3 categories of section. These sections are associated
+by their elf flags. The default
 associations are:
 
-    category of section                    elf      macho
-    -----------------------------------   -----     -----------------
-    executable code                       .text     __text
-    non-zero initialized writeable data   .data     __data
-    read onlydata                         .rodata   __cstring __const
-    zero initialised data                 .bss      __bss
+    category of section                    elf
+    -----------------------------------   ------------
+    executable code                       AX
+    non-zero initialized writeable data   AW or AWX
+    read onlydata                         A
 """
 
 # the default sections names are used both in validate_args and in collect_data
-DEFAULT_SECNAMELIST_ELF =   {'text'  : ['.text'],
-                             'rodata': ['.rodata'],
-                             'data'  : ['.data'],
-                             'bss'   : ['.bss']
-                            }
-DEFAULT_SECNAMELIST_MACHO = {'text'  : ['__text'],
-                             'rodata': ['__cstring', '__const'],
-                             'data'  : ['__data'],
-                             'bss'   : ['__bss']
-                            }
-DEFAULT_SECNAMELIST_DICT =  {'elf': DEFAULT_SECNAMELIST_ELF,
-                             'macho': DEFAULT_SECNAMELIST_MACHO
+DEFAULT_FLAGS_ELF =   { 'text'  : {int(FLAGS.ALLOC | FLAGS.EXECINSTR)},
+                        'rodata': {int(FLAGS.ALLOC)},
+                        'data'  : {int(FLAGS.ALLOC | FLAGS.WRITE), int(FLAGS.ALLOC | FLAGS.WRITE | FLAGS.EXECINSTR)},
+                      }
+
+DEFAULT_SECNAMELIST_DICT =  {'elf': DEFAULT_FLAGS_ELF,
                             }
 """
-For each category, the user can override the default and explicitly set the names
-of sections in that category. This is done by using command line parameters named
-after the default elf sections. On the command line the parameters are followed
-by the name(s) of the section(s)
-
-    category of section                   parameter
-    -----------------------------------   ---------
-    executable code                       --text
-    non-zero initialized writeable data   --data
-    read-only data                        --rodata
-    zero initialised data                 --bss
-
 Metrics
 
 The script reports a metric which is the sum of the sizes of a number of the
 categories of sections. By default the metric reported is executable code (text)
 category. This can be overridden using the `—metric` parameter which takes the space
-separated list of categories to be included in the metric. [NB the category names
-are the same for elf and macho].
+separated list of categories to be included in the metric.
 """
 # the categories and the metrics happen to be the same; they could be different
-ALL_CATEGORIES = ['text', 'rodata', 'data', 'bss']
-ALL_METRICS    = ['text', 'rodata', 'data', 'bss']
+ALL_CATEGORIES = ['text', 'rodata', 'data']
+ALL_METRICS    = ['text', 'rodata', 'data']
 
 
 def build_parser():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(description='Compute the size benchmark')
-
-    parser.add_argument('--format', default='elf', choices=['elf', 'macho'],
-        help='File format')
 
     parser.add_argument(
         '--builddir',
@@ -174,41 +151,13 @@ def build_parser():
     # precedence. If the list is empty after parsing, then we can install a
     # default value.
     parser.add_argument(
-        '--text',
-        type=str,
-        default=[],
-        nargs='+',
-        help='Section name(s) containing code'
-    )
-    parser.add_argument(
-        '--data',
-        type=str,
-        default=[],
-        nargs='+',
-        help='Section name(s) containing non-zero initialized writable data'
-    )
-    parser.add_argument(
-        '--rodata',
-        type=str,
-        default=[],
-        nargs='+',
-        help='Section name(s) containing read only data'
-    )
-    parser.add_argument(
-        '--bss',
-        type=str,
-        default=[],
-        nargs='+',
-        help='Section name(s) containing zero initialized writable data'
-    )
-    parser.add_argument(
         '--metric',
         type=str,
         default=[],
         nargs='+',
         choices=ALL_METRICS,
         help='Section categories to include in metric: one or more of "text", "rodata", '
-        + '"data" or "bss". Default "text"',
+        + 'or "data". Default "text"',
     )
 
     return parser
@@ -219,7 +168,7 @@ def validate_args(args):
        working when we get here.
 
        Update the gp dictionary with all the useful info"""
-    gp['format'] = args.format
+    gp['format'] = 'elf'
 
     if os.path.isabs(args.builddir):
         gp['bd'] = args.builddir
@@ -246,16 +195,6 @@ def validate_args(args):
         gp['output_format'] = args.output_format
     else:
         gp['output_format'] = output_format.TEXT
-
-    # Produce the list of section names associated with each category
-    gp['secnames'] = dict()
-
-    for argname in ALL_CATEGORIES:
-        secnames = getattr(args, argname)
-        if secnames:
-            gp['secnames'][argname] = secnames
-        else:
-            gp['secnames'][argname] = (DEFAULT_SECNAMELIST_DICT[gp['format']])[argname]
 
     # If no categories are specified, we just use text
     if args.metric:
@@ -284,20 +223,20 @@ def benchmark_size(bench, bd_path, metrics, dummy_sec_sizes):
         magic = fileh.read(4)
         # lief does not appear to have ability to work from an already opened file
         fileh.close()
-    if (((gp['format'] == 'elf')   and (magic != b'\x7fELF')) or
-        ((gp['format'] == 'macho') and (magic != b'\xcf\xfa\xed\xfe'))):
-        log.info('ERROR: File format does not match parameter')
+    if ((magic != b'\x7fELF')):
+        log.info(f'ERROR: Only ELF is supported, {appexe} does not contain magic identifier')
         sys.exit(1)
 
     binary = lief.parse(appexe)
+    if not isinstance(binary, lief.ELF.Binary):
+        log.info(f'ERROR: Only ELF is supported, {appexe} is {type(binary)}')
+        sys.exit(1)
     sections = binary.sections
     for metric in metrics:
         sec_sizes[metric] = 0
-        for target_name in gp['secnames'][metric]:
-            for section in sections:
-                if ((gp['format'] == 'elf' and section.name.startswith(target_name)) or
-                    (target_name == section.name)):
-                    sec_sizes[metric] += section.size
+        for section in sections:
+            if (section.flags in DEFAULT_FLAGS_ELF[metric]):
+                sec_sizes[metric] += section.size
     for metric, size in dummy_sec_sizes.items():
         if metric in metrics:
             sec_sizes[metric] -= size
