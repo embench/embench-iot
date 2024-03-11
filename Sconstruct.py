@@ -18,6 +18,8 @@ def find_benchmarks(bd, env):
     return ([bench for bench in dir_iter if bench.is_dir()] + [env['dummy_benchmark']])
 
 def parse_options():
+    num_cpu = int(os.environ.get('NUM_CPU', 2))
+    SetOption('num_jobs', num_cpu)
     AddOption('--build-dir', nargs=1, type='string', default='bd')
     AddOption('--config-dir', nargs=1, type='string', default='config2')
     config_dir = Path(GetOption('config_dir')).absolute()
