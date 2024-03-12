@@ -1,3 +1,12 @@
+/* Common dummy benchmark
+
+   Copyright (C) 2018-2024 Embecosm Limited
+
+   Contributor: Konrad Moron <konrad.moron@tum.de>
+
+   SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* This is just a wrapper for the board specific support file. */
 #define MAGIC 0xBE
 void __attribute__ ((noinline))
 initialise_benchmark (void)

@@ -8,6 +8,7 @@
 # Contributor: Graham Markall <graham.markall@embecosm.com>
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
 # Contributor: Roger Shepherd <roger.shepherd@rcjd.net>
+# Contributor: Konrad Moreon <konrad.moron@tum.de>
 #
 # This file is part of Embench.
 
