@@ -183,6 +183,8 @@ of surname).
 ### Document history
 | _Revision_  | _Date_     | _Author(s)_      | _Modification_                     |
 | ----------- | ---------- | ---------------- | ---------------------------------- |
+| 2.0 rc1     | 12 Mar 24  | Konrad Moron     | Update README to account for       |
+|             |            |                  | changes to new toolchain.          |
 | WIP         | 9 Aug 20   | Roger Shepherd   | Note re python module names        |
 | WIP         | 19 Jul 20  | Jeremy Bennett   | Add pyelftools to prerequisites.   |
 |             |            |                  |                                    |
@@ -219,12 +221,13 @@ Embench expects the following version of tools. Update your system accordingly.
 | _Components_ | _Version_    |
 | -------------| -------------|
 | python       | 3.6 or later |
+| scons        | 4.5 or later |
 
 The following non-standard Python packages are needed.
 
 | _Package_  | _Comments_ |
 | -----------| -----------|
-| pyelftools |            |
+| lief       |            |
 
 
 ### Preparation
@@ -242,100 +245,54 @@ git clone https://github.com/embench/embench-iot.git
 
 The benchmarks are configured in several ways:
 
-- default values in the build script
-- an architecture specific configuration file
-    - found in `config/<architecture>/arch.cfg`
-    - for example
-      [`config/riscv32/arch.cfg`](../config/riscv32/arch.cfg);
-- a chip specific configuration file
-    - found in `config/<architecture>/chips/<chip>/chip.cfg`
-    - for example
-      [`config/riscv32/chips/speed-test/chip.cfg`](../config/riscv32/chips/speed-test/chip.cfg);
-- a board specific configuration file
-    - found in `config/<architecture>/boards/<board>/board.cfg`
-    - for example
-      [`config/riscv32/boards/ri5cyverilator/board.cfg`](../config/riscv32/boards/ri5cyverilator/board.cfg); and
-- on the command line to the build script.
+- default values in the scons build script
+- on the command line to the scons build script.
 
-Any number of these may be specified, they may duplicate specification, in
-which case the configuration latest in the list takes precedence, or in the
-case of flags, the flags are appended to the list, so any later flags take
-precedence.
+Command line variables overwrite default values.
 
-In addition there may be chip and board specific heads and code:
+In addition, there must be board specific code in a
+directory specified with `--config-dir`:
 
-- a chip specific header in `config/<architecture>/chips/<chip>/chipsupport.h`
+- a board specific header 
+  `boardsupport.h`.
     - for example
-    [`config/riscv32/chips/speed-test/chipsupport.h`](../config/riscv32/chips/speed-test/chipsupport.h);
-- chip specific code in
-  `config/<architecture>/chips/<chip>/chipsupport.c`
-    - for example
-    [`config/riscv32/chips/speed-test/chipsupport.c`](../config/riscv32/chips/speed-test/chipsupport.c);
-- a board specific header in
-  `config/<architecture>/boards/<board>/boardsupport.h`
-    - for example
-    [`config/riscv32/boards/ri5cyverilator/boardsupport.h`](../config/riscv32/boards/ri5cyverilator/boardsupport.h); and
+    [`examples/native/speed/boardsupport.h`](../examples/native/speed/boardsupport.h); and
 - board specific code in
-  `config/<architecture>/boards/<board>/boardsupport.c`
+  `boardsupport.c`.
     - for example
-    [`config/riscv32/boards/ri5cyverilator/boardsupport.c`](../config/riscv32/boards/ri5cyverilator/boardsupport.c).
+    [`examples/natvie/speed/boardsupport.c`](../examples/native/speed/boardsupport.c).
 
-The configuration files (architecture, chip, board) take the form of
-assignments to python variables.  The following parameters may be set.
+
+`scons --help` prints the available configuration variables.
+The following variables can be specified on the command line when building the benchmarks:
 
 - `cc`: The C compiler to use. Default value `cc`.
-- `ld`: The linker to use. Default value is be the same value as was set for
-  `cc`, which means with most modern compilers there is no need to set `ld`,
-  since the compiler can act as a linker driver.
-- `cflags`: A Python list of additional compiler flags, which are appended to
-  any other compiler flags. Default is the empty list.
-- `ldflags`: A Python list of additional linker flags, which are appended to
-  any other linker flags.  Default is the empty list.
-- `cc-define1-pattern`: A Python formatted string pattern with positional
-  arguments to be used when defining a constant on the compiler command
-  line. Default value `-D{0}`.
-- `cc-define2-pattern`: A Python formatted string pattern with positional
-  arguments to be used when defining a constant to a specific value on the
-  compiler command line.  Default value `-D{0}={1}`.
-- `cc-incdir-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying an include directory on the compiler
-  command line.  Default value `-I{0}`.
-- `cc-input-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the input file on the compiler command
-  line.  Default value `{0}`.
-- `cc-output-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the output file on the compiler command
-  line.  Default value `-o {0}`.
-- `ld-input-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the input file on the linker command
-  line.  Default value `{0}`.
-- `ld-output-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the output file on the linker command
-  line.  Default value `-o {0}`.
-- `user-libs`: A list of libraries to be appended to the linker command line.
+- `ld`: The linker to use. Default value is determined by scons.
+- `cflags`: A list of compiler flags, which are passed
+  to `cc` for the compilation of object files.
+  Default value `[]`.
+- `ldflags`: A list of linker flags, which are passed to
+  `ld`. Default value `[]`.
+- `user_libs`: A list of libraries to be linked with all executables. 
   The libraries may be absolute file names or arguments to the linker.  In the
   latter case corresponding arguments in `ldflags` may be needed.  For example
-  with GCC or Clang/LLVM if `-l` flags are used in `user_libs`, then `-L`
+  with GCC or Clang/LLVM if `-l` or `-l:` flags are used in `user_libs`, then `-L`
   flags may be needed in `ldflags`.  Default value is the empty list.
-- `dummy-libs`: A list of dummy libraries to be used (for example if system
-  libraries have been disabled through options in `ldflags`). Dummy libraries
-  have their source in the [`support`](../support) subdirectory. Thus if
-  `crt0` is specified, there should be a source file `dummy-crt0.c` in the
-  [`support`](../support) directory.  Default value is the empty list.
-- `cpu-mhz`: The clock rate of the target in MHz.  Default value 1.
-- `warmup-heat`: How many times the benchmark code should be run to warm up
+- `dummy_benchmark`: The directory of an empty benchmark used to
+  calculate the code size overhead of startup routines and libraries.
+  The dummy benchmark's size is subtracted from other benchmarks.
+  Default value [`support/dummy-benchmark`](../support/dummy-benchmark/).
+- `cpu_mhz`: The clock rate of the target in MHz.  Default value 1.
+- `warmup_heat`: How many times the benchmark code should be run to warm up
   the caches.  Default value 1.
-- `timeout`: The maximum time (in seconds) allowed for the compiler or the
-  linker to run for each invocation. Default value 5.
 
 Any other variables are silently ignored.  There is no need to set an unused
 parameter, and any configuration file may be empty or missing if no flags need
 to be set.
 
-The board and chip specific files are used only to provide code essential to
-the functionality. Chip support files are usually empty. The board support
-header (`boardsupport.h`) is typically used to define the clock rate of the
-board, for example:
+The board specific files are used only to provide code essential to
+the functionality. The board support header (`boardsupport.h`) is 
+used to define the clock rate of the board, for example:
 ```C
 #define CPU_MHZ 1
 ```
@@ -350,95 +307,42 @@ any board specific timing mechanism.
 
 ### Building the benchmarks
 
-Embench is built with the [`build_all.py`](../build_all.py) script,
-which takes the following arguments.
+Embench is built with [`scons`](https://scons.org/).
+The build script is [`Sconstruct.py`](../Sconstruct.py).
+See the [`examples`](../examples/) directory for quick-start scons invocations.
+Next to the variables specified above, scons takes the following options:
 
-- `--builddir`: The programs are build out of tree, this specifies the
+- `--build-dir`: The programs are built out of tree, this specifies the
   directory in which to build.  It may be an absolute or relative directory
   name; if the latter, it will be relative to the top level directory of the
   repository. Default value `bd`.
-- `--logdir`: A log file is created with detailed information about the
-  build. This specifies the directory in which to place the log file.  It may
-  be an absolute or relative directory name; if the latter, it will be
-  relative to the top level directory of the repository. Default value `logs`.
-- `--arch`: This mandatory argument specifies the architecture for which the
-  benchmarks are to be built. It corresponds to a directory name in the main
-  [`config`](../config) directory.
-- `--chip`: This mandatory argument specifies the chip being used and
-  corresponds to a directory within the `chips` subdirectory of the
-  architecture configuration directory.
-- `--board`: This mandatory argument specifies the board being used and
-  corresponds to a directory within the `boards` subdirectory of the
-  architecture configuration directory.
-- `--cc`: The C compiler to be used. Default value `cc`.
-- `--ld`: The linker to be used. Default value the same value as for `--cc`
-- `--cflags`: A space separated list of additional C flags to be appended to
-  the compiler flags.  Default value empty.
-- `--ldflags`: A space separated list of additional linker flags to be
-  appended to the linker flags.  Default value empty.
-- `--cc-define1-pattern`: A Python formatted string pattern with positional
-  arguments to be used when defining a constant on the compiler command line.
-  Default value `-D{0}`.
-- `--cc-define2-pattern`: A Python formatted string pattern with positional
-  arguments to be used when defining a constant to a specific value on the
-  compiler command line.  Default value `-D{0}={1}`.
-- `--cc-incdir-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying an include directory on the compiler
-  command line.  Default value `-I{0}`.
-- `--cc-input-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the input file on the compiler command
-  line.  Default value `{0}`.
-- `--cc-output-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the output file on the compiler command
-  line.  Default value `-o {0}`.
-- `--ld-input-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the input file on the linker command
-  line.  Default value `{0}`.
-- `--ld-output-pattern`: A Python formatted string pattern with positional
-  arguments to be used when specifying the output file on the linker command
-  line.  Default value `-o {0}`.
-- `--user-libs`: A space separated list of libraries to be appended to the
-  linker command line.  The libraries may be absolute file names or arguments
-  to the linker.  In the latter case corresponding arguments in `--ldflags`
-  may be needed.  For example with GCC or Clang/LLVM if `-l` flags are used in
-  `--user_libs`, then `-L` flags may be needed in `--ldflags`.  Default value
-  empty.
-- `--dummy-libs`: A space separated list of dummy libraries to be used (for
-  example if system libraries have been disabled through options in
-  `--ldflags`). Dummy libraries have their source in the
-  [`support`](../support) subdirectory. Thus if `crt0` is specified, there
-  should be a source file `dummy-crt0.c` in the [`support`](../support)
-  directory.  Default value empty.
-- `--cpu-mhz`: The clock rate of the target in MHz.  Default value 1.
-- `--warmup-heat`: How many times the benchmark code should be run to warm up
-  the caches.  Default value 1.
-- `--timeout`: The maximum time (in seconds) allowed for the compiler or the
-  linker to run for each invocation. Default value 5.
-- `--clean`: Delete all intermediaries and final files from any previous runs
+- `--config-dir`: The directory which contains your `boardsupport.c`
+  and `boardsupport.h`.
+- `-c`: Clean the build directory and delete all intermediaries and final files from any previous runs
   of the script.
 - `--help`: Provide help on the arguments.
 
+Within variables, `${CONFIG_DIR}` is substituted with the `--config_dir` value, and `${BUILD_DIR}` with
+the value of `--build_dir`.
+
 Example: The following command builds the benchmarks for generic RISC-V RV32IMC machine. The flags include:
-- -c (to compile the C code prior to linking)
-- -O2 to optimize for speed 
-- -ffunction-sections to generate a separate ELF section for each function, allowing the linker to delete unused functions
-- -march=rv32imc to target the RV32IMC variant
-- -mabi=ilp32 to use 32-bit integers, longs, and pointers
-- -Wl,-gc-sections pass an option to the linker to delete unused sections
-- -lm to link the math libraries needed for some benchmarks
+- `user_libs`: some benchmarks require the math library.
+- `cc`: use the riscv32 embedded compiler.
+- `cflags`: compile for the `ilp32d` architecture, put all functions and data items in their own
+  section for dead code elimination during linking.
+- `ldflags`: don't use the toolchain's startup code, use the linker script at
+  `${CONFIG_DIR}/link.ld`, and eliminate dead code using `-Wl,-gc-sections`.
 
-`./build_all.py --arch riscv32 --chip generic --board ri5cyverilator --cc riscv64-unknown-elf-gcc --cflags="-c -O2 -ffunction-sections -march=rv32imc -mabi=ilp32" --ldflags="-Wl,-gc-sections" --user-libs="-lm"`
-
-Depending on your GCC installation, your compiler might be called riscv32-unknown-elf-gcc instead.
-
+```sh
+scons --config-dir=examples/riscv32/rv32wallyverilog/ user_libs=-lm cc=riscv32-unknown-none-elf-gcc \
+    cflags='-fdata-sections -ffunction-sections -mabi=ilp32d' ldflags='-Wl,-gc-sections -mabi=ilp32d -nostartfiles -T${CONFIG_DIR}/link.ld'
+```
 
 ### Running the benchmark of code size
 
 Benchmarking code size uses the [`benchmark_size.py`](../benchmark_size.py)
 script, which takes the following arguments.
 
-- `--format`: Specifies the file format of executable executable and/or object
-  files. The option are `elf` and `macho`. Default value `elf`.
 - `--builddir`: The programs are build out of tree, this specifies the
   directory in which the programs were built.  It may be an absolute or
   relative directory name; if the latter, it will be relative to the top level
@@ -456,27 +360,9 @@ script, which takes the following arguments.
   benchmark results relative to the baseline architecture.  If `--absolute` is
   specified, present absolute benchmark results.  If neither is specified,
   present relative results, because this is the defined norm for Embench.
-- `--text`: A space separated list of sections containing code.  Default value
-  for elf format files `.text`; for macho format files `__text`.
-- `--data`: A space separated list of sections containing non-zero initialized
-  writable data. Default value for elf format files `.data`; for macho format
-  files `__data`.
-  The option `--metric` with the respective section type needs to be used in
-  order to have the sections added to the size calculation.
-- `--rodata`: A space separated list of sections containing read only data.
-  Default value for elf format files `.rodata`; for macho format files
-  `__cstring __const`.
-  The option `--metric` with the respective section type needs to be used in
-  order to have the sections added to the size calculation.
-- `--bss`: A space separated list of sections containing zero initialized
-  data. Default value for elf format files `.bss`, for macho format files
-  `__bss`.
-  The option `--metric` with the respective section type needs to be used in
-  order to have the sections added to the size calculation.
 - `--metric`. A space separated list of section types to include when
-  calculating the benchmark metric. Any section listed with the options `--text`,
-  `--data`, `--rodata` and `--bss` is included in the respective section type.
-   Permitted values ares `text`, `data`, `rodata`, `bss`.  Default value `text`.
+  calculating the benchmark metric.
+  Permitted values ares `text`, `data`, `rodata`.  Default value `text`.
 - `--text-output`: Output the text in a plain text format. This is the
   default.
 - `--json-output`: Output the results in json format, instead of the
@@ -484,7 +370,20 @@ script, which takes the following arguments.
 - `--baseline-output`: Output results in a format suitable for use as
   baseline data instead of the default text format. This can be used
   instead of the reference data in `baseline-data/size.json`.
+- `--dummy-benchmark`: The directory which contains an empty benchmark
+  used for library and startup routine size adjustments of other benchmarks.
 - `--help`: Provide help on the arguments.
+
+Before calculating relative or absolute benchmark sizes, the size of `dummy-benchmark`
+metrics is subtracted from each benchmark's size to account for toolchain specific size overhead
+in supporting code.
+
+The size of `text`, `data`, and `rodata` metrics are determined by the flags of
+elf sections in each benchmark:
+
+- `text`: allocated and executable
+- `data`: allocated and writable, optionally also executable 
+- `rodata`: allocated
 
 ### Running the benchmark of code speed
 
@@ -564,6 +463,10 @@ These computations are carried out by the benchmark scripts.
 
 ### Computing a benchmark value for speed
 
+__Compiling for speed__:
+The benchmarks should be compiled with `cflags` and `ldflags` that optimize
+for speed, such as `-O2`.
+
 Carry out the following steps.
 
 - For each benchmark record the time take to execute between `start_trigger`
@@ -590,10 +493,18 @@ efficiency of the platform in carrying out computation.
 
 ### Computing a benchmark value for code size
 
+__Compiling for size__:
+The benchmarks should be compiled with `cflags` and `ldflags` that optimize
+for size, such as `-Os`.
+In addition, for most accurate results, `ldflags` should include `-rdynamic`,
+which ensures that library overhead from support files is included in the
+`dummy-benchmark`, and thus correctly subtracted from all benchmarks.
+
 Benchmarks should be compiled with dummy versions of all standard libraries.
 Carry out the following steps:
 
-- For each benchmark record the size of all `.text` sections.
+- For each benchmark record the size of all `text` sections.
+- Subtract the sum of all `text` sections of the `dummy-benchmark` from each benchmark.
 - For each benchmark, compute its size relative to the reference platform -
   see [Reference platform](#reference-platform) - by dividing the size
   recorded in the previous step by the size of the corresponding reference
@@ -702,70 +613,29 @@ Any custom words for spell checking should be added to the file
 
 ## Adding a New Board to Embench
 
-### Where to add files
+### Creating a config directory
 
-If the board uses a completely new architecture, you will need to create a new
-subdirectory within the `config` directory.
-
-```bash
-cd config
-mkdir ARCH
-```
-
-The architecture name comes from the first part of the host triplet (the `--host` configuration argument).
-
-Within this _ARCH_ directory create two separate directories for
-board and chip configurations
+If new settings for `CPU_MHZ` or new board-specific C routines are required,
+you should create a new directory with a `boardsupport.c` and `boardsupport.h`.
 
 ```bash
-cd ARCH
-mkdir boards
-mkdir chips
+cp -r examples/native/speed NEW_BOARD
 ```
 
-If the architecture already has a board defined, these directories will
-already exist.
+You can customize the board specific files as needed, in particular the
+`initialise_board`, `start_trigger`, and `stop_trigger` routines.
 
-Then for your new board, create a directory in the `chips` directory for the
-chip it will use (if the directory does not already exist).
+### Configuration variables
+
+Custom variables for compiling the benchmarks for your target are
+specified as command line arguments to `scons`.
+
+### Board specific files
+
+There is a standard header files which should be defined:
 
 ```bash
-cd chips
-mkdir CHIPNAME
-```
-
-The _CHIPNAME_ corresponds to the argument given to `--with-chip` when
-configuring.
-
-Similarly create a directory in the `board` directory for the new board. Since
-this is a new board, this directory will not already exist.
-
-```bash
-cd boards
-mkdir BOARDNAME
-```
-
-The _BOARDNAME_ corresponds to the argument given to `--with-board` when
-configuring.
-
-### Configuration files
-
-Configuration data may be defined for the architecture, for the chip and for the board. These files are found respectively in
-```
-config/ARCH/arch.cfg
-config/ARCH/boards/BOARDNAME/board.cfg
-config/ARCH/chips/CHIPNAME/chip.cfg
-```
-
-The format and content of these files is described in [Configuring the benchmarks](#configuring-the-benchmarks).
-
-### Header files
-
-There are two standard header files which may be defined:
-
-```bash
-config/ARCH/boards/BOARDNAME/boardsupport.h
-config/ARCH/chips/CHIPNAME/chipsupport.h
+boardsupport.h
 ```
 
 These are combined into the general header `support.h` which is included by
