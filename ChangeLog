@@ -1,3 +1,22 @@
+2024-03-12 Konrad Moron
+
+	Update Embench-IoT for 2.0 release.
+
+	* remove nbody, cubic, primecount.
+	* update size calculation to use section flags instead of names.
+	* add dummy benchmark for library overhead subtraction.
+	* update benchmark_speed.py to have a more general interface
+	with user-provided target modules.
+	* update build script: migrate to scons.
+	* update board configuration architecture: all options are now
+	specified on the command line, use a flat directory structure
+	for board support files.
+	* remove dummy libraries as they are not needed with the dummy
+	benchmark approach.
+	* migrate config/ directory to examples/ with new structure.
+	* remove macho support as embedded devices use elf.
+	* update documentation.
+
 2020-02-17  Paolo Savini
 
 	Add support for the board stm32f4-discovery.
