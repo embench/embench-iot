@@ -6,6 +6,7 @@
 #
 # Contributor: Graham Markall <graham.markall@embecosm.com>
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
+# Contributor: Konrad Moreon <konrad.moron@tum.de>
 #
 # This file is part of Embench.
 
