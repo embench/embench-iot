@@ -1,25 +1,25 @@
 #define MAGIC 0xBE
-void
+void __attribute__ ((noinline))
 initialise_benchmark (void)
 {
 }
 
 
 
-void
+void __attribute__ ((noinline))
 warm_caches (int  heat)
 {
 }
 
 
-int
+int __attribute__ ((noinline))
 benchmark (void)
 {
   return MAGIC;
 }
 
 
-int
+int __attribute__ ((noinline))
 verify_benchmark (int r)
 {
   return r == MAGIC;
