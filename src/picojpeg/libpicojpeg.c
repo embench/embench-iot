@@ -1346,8 +1346,6 @@ initFrame (void)
 
 #define PJPG_DESCALE(x) PJPG_ARITH_SHIFT_RIGHT_N_16(((x) + (1U << (PJPG_DCT_SCALE_BITS - 1))), PJPG_DCT_SCALE_BITS)
 
-#define PJPG_WFIX(x) ((x) * PJPG_DCT_SCALE + 0.5f)
-
 #define PJPG_WINOGRAD_QUANT_SCALE_BITS 10
 
 const uint8 gWinogradQuant[] = {

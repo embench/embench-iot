@@ -163,12 +163,12 @@ benchmark_body (int rpt)
       /* Init loop */
       for(i = 0; i <= n; i++)
 	{
-	  w = 0.0;              /* data to fill in cells */
+	  w = 0;              /* data to fill in cells */
 	  for(j = 0; j <= n; j++)
 	    {
 	      a[i][j] = (i + 1) + (j + 1);
 	      if(i == j)            /* only once per loop pass */
-		a[i][j] *= 2.0;
+		a[i][j] *= 2;
 	      w += a[i][j];
 	    }
 	  b[i] = w;
