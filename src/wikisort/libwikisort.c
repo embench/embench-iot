@@ -901,13 +901,13 @@ TestingRandom (long index, long total)
 long
 TestingMostlyDescending (long index, long total)
 {
-  return total - index + rand_beebs () * 1.0 / RAND_MAX * 5 - 2.5;
+  return total - index + rand_beebs () * (RAND_MAX / 5) - 2;
 }
 
 long
 TestingMostlyAscending (long index, long total)
 {
-  return index + rand_beebs () * 1.0 / RAND_MAX * 5 - 2.5;
+  return index + rand_beebs () * (RAND_MAX / 5) - 2;
 }
 
 long
@@ -931,7 +931,7 @@ TestingEqual (long index, long total)
 long
 TestingJittered (long index, long total)
 {
-  return (rand_beebs () * 1.0 / RAND_MAX <= 0.9) ? index : (index - 2);
+  return (rand_beebs () / (RAND_MAX - RAND_MAX / 10) <= 1) ? index : (index - 2);
 }
 
 long
