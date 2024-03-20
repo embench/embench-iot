@@ -6,6 +6,8 @@ You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
+SPDX-License-Identifier: Apache-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +19,9 @@ Modified For Embench:
 ==============================================================================*/
 
 #include "stdint.h"
-#include "stdio.h"
+
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
 
 typedef enum __attribute__((__packed__))
 PaddingType
@@ -80,9 +84,6 @@ static inline int32_t DimensionsCount(const RuntimeShape *rsh)
     return rsh->size_;
 }
 
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
-
 static inline int MatchingDim(const RuntimeShape *shape1, int index1,
                               const RuntimeShape *shape2, int index2)
 {
@@ -100,54 +101,10 @@ static int32_t MultiplyByQuantizedMultiplier(int32_t x, int32_t quantized_multip
     return result;
 }
 
-/*
-stride_width: 1
-stride_height: 1
-dilation_width_factor: 1
-dilation_height_factor: 1
-pad_width: 0
-pad_height: 0
-depth_multiplier: 1
-input_offset: 128
-output_offset: 0
-output_activation_min: -128
-output_activation_max: 127
-output_multiplier: [ 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, 1152862902, ]
-output_shift: [ -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, ]
-input_shape:
-size_: 4
-dims_: [ 1, 4, 1, 32, 0, 0, ]
-
-filter_shape:
-size_: 4
-dims_: [ 1, 4, 1, 32, 0, 1, ]
-
-bias_shape:
-size_: 1
-dims_: [ 32, -1937676360, 32764, -1937677024, 32764, -485194362, ]
-
-output_shape:
-size_: 4
-dims_: [ 1, 1, 1, 32, 1, 4, ]
-
-input data: [ 60, 57, 62, 68, 56, 34, 34, 42, 63, 57, 28, 26, 36, 24, 7, 25, 31, 0, 29, 35, 1, 11, 1, 30, 27, 18, 12, 19, 9, 8, -2, -3, 59, 61, 60, 63, 52, 30, 30, 44, 63, 57, 24, 22, 29, 23, -9, 27, 35, 12, 28, 34, -2, 18, 10, 28, 25, 26, 24, 13, 6, 15, -4, -5, 49, 57, 61, 59, 42, 37, 38, 45, 62, 53, 19, 17, 34, 25, -9, 32, 39, 8, 29, 35, 0, 25, 17, 26, 24, 27, 24, 8, 9, 23, -8, -3, 65, 60, 54, 55, 41, 27, 27, 38, 54, 46, 18, 22, 38, 30, 0, 29, 37, 10, 30, 35, 4, 36, 27, 33, 31, 22, 17, 9, 19, 35, -2, ]
-filter data: [ -49, -59, 43, -70, -27, 47, 1, 92, -51, 41, 46, -51, -42, 44, 55, 52, -59, 63, 68, -60, -73, 56, 60, 48, 76, 54, -65, -46, 63, -87, 61, 75, -125, -17, -98, -18, -29, 61, -32, 42, -77, -49, 39, -55, -11, 43, -18, 71, -3, 127, 39, -70, -67, -16, -63, 55, -44, 37, 38, -32, -23, 37, 31, 45, 82, 52, -57, -54, 50, -83, 58, 63, -90, -78, -96, 6, -7, 73, -13, 20, -55, 60, 61, -42, -58, 52, 40, 43, 40, 41, -42, -52, 40, -50, 42, 25, -43, -31, 54, 14, 62, -66, -46, -47, 46, 101, 94, -62, -62, -29, -50, 37, 30, 41, -49, -45, 50, -55, 46, 38, -11, -38, 42, 13, 64, -86, -32, ]
-bias data: [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ]
-*/
-
 static inline int Offset4(const RuntimeShape *shape, int i0, int i1, int i2, int i3)
 {
     const int32_t *dims_data = shape->dims_;
     return ((i0 * dims_data[1] + i1) * dims_data[2] + i2) * dims_data[3] + i3;
-}
-
-static inline int Offset5(const RuntimeShape *shape, int i0, int i1, int i2, int i3,
-                          int i4)
-{
-    const int32_t *dims_data = shape->dims_;
-    return (((i0 * dims_data[1] + i1) * dims_data[2] + i2) * dims_data[3] + i3) *
-               dims_data[4] +
-           i4;
 }
 
 static void __attribute__((__noinline__)) DepthwiseConvPerChannel(
@@ -250,25 +207,6 @@ static void __attribute__((__noinline__)) DepthwiseConvPerChannel(
             }
         }
     }
-}
-
-#define LOCAL_SCALE_FACTOR 2500
-void initialise_benchmark(void)
-{
-}
-
-static int benchmark_body(int rpt);
-
-void warm_caches(int heat)
-{
-    int res = benchmark_body(heat);
-
-    return;
-}
-
-int benchmark(void)
-{
-    return benchmark_body(LOCAL_SCALE_FACTOR * CPU_MHZ);
 }
 
 static DepthwiseParams PARAMS = {
@@ -501,6 +439,7 @@ static int8_t INPUT_DATA[] = {
     19,
     35,
     -2,
+    1,
 };
 static int8_t FILTER_DATA[] = {
     -49,
@@ -630,8 +569,9 @@ static int8_t FILTER_DATA[] = {
     64,
     -86,
     -32,
+    -69,
 };
-static int32_t BIAS_DATA[] = {
+static int32_t BIAS_DATA[32] = {
     0,
     0,
     0,
@@ -668,16 +608,77 @@ static int32_t BIAS_DATA[] = {
 
 int8_t OUTPUT_DATA[32];
 
+int8_t EXPECTED_OUTPUT[32] =
+    {
+        -55,
+        -22,
+        -23,
+        -52,
+        18,
+        -14,
+        -5,
+        54,
+        -70,
+        4,
+        27,
+        -51,
+        -42,
+        41,
+        -6,
+        59,
+        -30,
+        83,
+        39,
+        -74,
+        -39,
+        9,
+        25,
+        61,
+        20,
+        30,
+        -8,
+        -35,
+        43,
+        -59,
+        26,
+        19,
+};
+
+#define LOCAL_SCALE_FACTOR 2500
+void initialise_benchmark(void)
+{
+}
+
+static int benchmark_body(int rpt);
+
+void warm_caches(int heat)
+{
+    int res = benchmark_body(heat);
+
+    return;
+}
+
+int benchmark(void)
+{
+    return benchmark_body(LOCAL_SCALE_FACTOR * CPU_MHZ);
+}
+
 static int __attribute__((noinline)) benchmark_body(int rpt)
 {
     for (int i = 0; i < rpt; ++i)
     {
         DepthwiseConvPerChannel(&PARAMS, OUTPUT_MULTIPLIER, OUTPUT_SHIFT, &INPUT_SHAPE, INPUT_DATA, &FILTER_SHAPE, FILTER_DATA, &BIAS_SHAPE, BIAS_DATA, &OUTPUT_SHAPE, OUTPUT_DATA);
     }
-    return OUTPUT_DATA[4];
+    return 0;
 }
-
 int verify_benchmark(int r)
 {
-    return 11433 == r;
+    for (int i = 0; i < sizeof(EXPECTED_OUTPUT) / (sizeof(EXPECTED_OUTPUT[0])); ++i)
+    {
+        if (EXPECTED_OUTPUT[i] != OUTPUT_DATA[i])
+        {
+            return 0;
+        }
+    }
+    return 1;
 }
