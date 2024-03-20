@@ -7,6 +7,7 @@
  * modified by Julian Kunkel for Embench-iot
  * Compile with: gcc -o md5 -O3 -lm md5.c
  */
+// SPDX-License-Identifier: MIT
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

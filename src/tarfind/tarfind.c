@@ -5,6 +5,7 @@
  * Created by Julian Kunkel for Embench-iot
  * Licensed under MIT
  */
+// SPDX-License-Identifier: MIT
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
