@@ -1,4 +1,10 @@
-/* Linker script to configure memory regions. */
+/* Copyright (C) 2024 Embecosm Limited and University of Bristol
+
+   This file is part of Embench and was formerly part of the Bristol/Embecosm
+   Embedded Benchmark Suite.
+
+   SPDX-License-Identifier: GPL-3.0-or-later
+   Linker script to configure memory regions. */
 
 STACK_SIZE = 0x1000;
 

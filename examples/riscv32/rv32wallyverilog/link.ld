@@ -4,6 +4,7 @@
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved. 
    Contributor: Daniel Torres <dtorres@hmc.edu>
+   SPDX-License-Identifier: GPL-3.0-or-later
     */
 OUTPUT_FORMAT("elf32-littleriscv", "elf32-littleriscv",
 	      "elf32-littleriscv")
