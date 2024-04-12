@@ -38,7 +38,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 1831
+#define LOCAL_SCALE_FACTOR 9000
 
 #ifdef DO_TRACING		// ON PC
 
@@ -58,7 +58,7 @@ trace (char *s)
 
 #endif
 
-#define BITS ((sizeof(long) * 8) - 11)
+#define BITS (32 - 12) // long is a minimum of 32 bits large
 
 //up to 2048 allowed
 int P1_is_marked = 3;
@@ -4540,11 +4540,11 @@ int
 verify_benchmark (int unused)
 {
   int expP1_is_marked = 3;
-  long expP1_marking_member_0[3] = { 0, 0, 0 };
+  long expP1_marking_member_0[3] = { 243269632, 589299712, 1334837248 };
   int expP2_is_marked = 5;
-  long expP2_marking_member_0[5] = { 0, 0, 0, 0, 0 };
+  long expP2_marking_member_0[5] = { 684720128, 1294991360, 1293942784, 2097152, 46137344 };
   int expP3_is_marked = 0;
-  long expP3_marking_member_0[6] = { 0, 0, 0, 0, 0, 0 };
+  long expP3_marking_member_0[6] = { -104857600, 0, 256901120, 349175808, -1861222400, 7340032 };
   int i;
   if (expP1_is_marked != P1_is_marked ||
       expP2_is_marked != P2_is_marked || expP3_is_marked != P3_is_marked)
