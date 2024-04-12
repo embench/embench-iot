@@ -47,7 +47,7 @@ def populate_build_env(env, vars):
     vars.Update(env)
     env.Append(CPPDEFINES={ 'WARMUP_HEAT' : '${warmup_heat}',
                             'CPU_MHZ' :     '${cpu_mhz}'})
-    env.Append(CPPPATH=['support', config_dir])
+    env.Append(CPPPATH=[bd / 'support', config_dir])
     env.Replace(CCFLAGS = "${cflags}")
     env.Replace(LINKFLAGS = "${ldflags}")
     env.Replace(CC = "${cc}")
@@ -78,13 +78,16 @@ populate_build_env(env, vars)
 # Setup Help Text
 env.Help("\nCustomizable Variables:", append=True)
 env.Help(vars.GenerateHelpText(env), append=True)
+Export('env')
 
 support_objects = build_support_objects(env)
 benchmark_paths = find_benchmarks(bd, env)
 
 benchmark_objects = {
-    (bd / bench / bench.name): env.Object(Glob(str(bd / bench / "*.c")))
-    
+    (bd / bench / bench.name): 
+        (env.Object(Glob(str(bd / bench / "*.c")))
+            if not (bd / bench / "sconscript.py").is_file()
+            else SConscript(bd / bench / "sconscript.py"))
     for bench in benchmark_paths
 }
 env.Default(benchmark_objects.values())
