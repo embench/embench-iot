@@ -38,7 +38,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 1231
+#define LOCAL_SCALE_FACTOR 1831
 
 #ifdef DO_TRACING		// ON PC
 
@@ -58,12 +58,15 @@ trace (char *s)
 
 #endif
 
-volatile int P1_is_marked = 3;
-volatile long P1_marking_member_0[3];
-volatile int P2_is_marked = 5;
-volatile long P2_marking_member_0[5];
-volatile int P3_is_marked = 0;
-volatile long P3_marking_member_0[6];
+#define BITS ((sizeof(long) * 8) - 11)
+
+//up to 2048 allowed
+int P1_is_marked = 3;
+long P1_marking_member_0[3] = {232 << BITS, 562 << BITS, 1273 << BITS};
+int P2_is_marked = 5;
+long P2_marking_member_0[5] = {653 << BITS, 1235 << BITS, 1234 << BITS, 2 << BITS, 44 << BITS};
+int P3_is_marked = 0;
+long P3_marking_member_0[6] = {-100 << BITS, 0 << BITS, 245 << BITS, 333 << BITS, 2321 << BITS, 7 << BITS};
 
 void
 initialise_benchmark (void)
