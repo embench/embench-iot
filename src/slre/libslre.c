@@ -590,7 +590,7 @@ benchmark (void)
 static int __attribute__ ((noinline))
 benchmark_body (int rpt)
 {
-  int ret;
+  volatile int ret;
   int j;
 
   for (j = 0; j < rpt; j++)
