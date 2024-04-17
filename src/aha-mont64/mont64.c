@@ -172,8 +172,8 @@ value.
    Parameter a is half what it "should" be. In other words, this function
 does not find u and v st. u*a - v*b = 1, but rather u*(2a) - v*b = 1. */
 
-void __attribute__((noipa))
-xbinGCD (uint64 a, uint64 b, uint64 * pu, uint64 * pv)
+void
+xbinGCD (uint64 a, uint64 b, volatile uint64 * pu, volatile uint64 * pv)
 {
   uint64 alpha, beta, u, v;
 
@@ -242,7 +242,7 @@ benchmark_body (int rpt)
     {
       uint64 a, b, m, hr, p1hi, p1lo, p1, p, abar, bbar;
       uint64 phi, plo;
-      uint64 rinv, mprime;
+      volatile uint64 rinv, mprime;
       errors = 0;
 
       m = in_m;			// Must be odd.

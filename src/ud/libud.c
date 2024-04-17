@@ -108,7 +108,7 @@ int ludcmp(int nmax, int n);
 /*  } */
 
 /* Write to CHKERR from BENCHMARK to ensure calls are not optimised away.  */
-int chkerr;
+volatile int chkerr;
 
 
 int
@@ -175,7 +175,7 @@ benchmark_body (int rpt)
 	}
 
       /*  chkerr = ludcmp(nmax, n, eps); */
-      chkerr += ludcmp(nmax,n);
+      chkerr = ludcmp(nmax,n);
     }
 
   return chkerr;
