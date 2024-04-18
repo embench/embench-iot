@@ -52,7 +52,8 @@ def populate_build_env(env, vars):
     env.Replace(LINKFLAGS = "${ldflags}")
     env.Replace(CC = "${cc}")
     env.Replace(LINK = "${ld}")
-    env.Prepend(LIBS = "${user_libs}")
+    print(f"{env['user_libs']}".split())
+    env.Prepend(LIBS = f"{env['user_libs']}".split())
 
 def build_support_objects(env):
     support_objects = []
