@@ -60,18 +60,18 @@ def build_benchmark_cmd(path, args):
     gdb_comms = [
         'set confirm off',
         'file {0}',
-        'target extended-remote :4242',
+        'target extended-remote :3333',
         'load',
         'delete breakpoints',
         'break start_trigger',
         'break stop_trigger',
-        'break _exit',
+        'break AtExit',
         'continue',
         'print /u *0xe0001004',
         'continue',
         'print /u *0xe0001004',
         'continue',
-        'print /x $a0',
+        'print /u $r0',
         'quit',
     ]
 
@@ -86,12 +86,15 @@ def decode_results(stdout_str, stderr_str):
        elapsed time in milliseconds or zero if the run failed."""
     # Return code is in standard output. We look for the string that means we
     # hit a breakpoint on _exit, then for the string returning the value.
+    print(stdout_str)
     rcstr = re.search(
-        'Breakpoint 3 at.*exit\.c.*\$1 = (\d+)', stdout_str, re.S
+        'Breakpoint 3,.*\$3 = (\d+)', stdout_str, re.S
     )
     if not rcstr:
         log.debug('Warning: Failed to find return code')
         return 0.0
+    if int(rcstr.group(1)) != 0:
+        log.debug('Warning: Error return code')
 
     # The start and end cycle counts are in the stderr string
     starttime = re.search('\$1 = (\d+)', stdout_str, re.S)
