@@ -22,7 +22,7 @@
 
 /* Seed for the random number generator */
 
-static long int seed = 0;
+static unsigned long int seed = 0;
 
 /* Heap records and sane initial values */
 
@@ -42,7 +42,7 @@ static size_t heap_requested = 0;
 int
 rand_beebs (void)
 {
-  seed = (seed * 1103515245L + 12345) & ((1UL << 31) - 1);
+  seed = (seed * 1103515245UL + 12345) & ((1UL << 31) - 1);
   return (int) (seed >> 16);
 }
 
