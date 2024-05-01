@@ -14,8 +14,6 @@
 
 #define LOCAL_SCALE_FACTOR 2
 
-volatile size_t temp; // Used to prevent dead code elimination
-
 static int benchmark_body(int rpt);
 
 void warm_caches(int heat)
