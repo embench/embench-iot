@@ -27,4 +27,5 @@ make
 cd -
 scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-Os -ffunction-sections -fdata-sections -mcpu=cortex-m4 -mthumb' \
   ldflags='-Os -Wl,--gc-sections,-export-dynamic -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -nostartfiles --specs=nosys.specs' user_libs='m startup'
+./benchmark_size.py
 ```

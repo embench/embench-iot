@@ -88,5 +88,10 @@
     "text" : 7464,
     "rodata" : 3236,
     "data" : 3832
+  },
+    "xgboost" : {
+    "text" : 444,
+    "rodata" : 39556,
+    "data" : 0
   }
 }
