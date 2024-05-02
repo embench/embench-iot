@@ -33,10 +33,10 @@ benchmark_body(int rpt)
 {
     // Run inference with all samples specified in xgboost.c
     {
-        volatile size_t correct = 0;
+        size_t correct = 0;
         for (int i = 0; i < rpt / 10; ++i)
         {
-            for (size_t i = 0; i < SAMPLES_IN_FILE; i++)
+            for (volatile size_t i = 0; i < SAMPLES_IN_FILE; i++)
             {
                 uint8_t predicted = predict(X_test[i]);
                 uint8_t label = Y_test[i];
