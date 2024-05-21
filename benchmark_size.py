@@ -9,6 +9,7 @@
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
 # Contributor: Roger Shepherd <roger.shepherd@rcjd.net>
 # Contributor: Konrad Moreon <konrad.moron@tum.de>
+# Contributor: Madhu Sudhanan <madhu2000u@gmail.com>
 #
 # This file is part of Embench.
 
