@@ -372,6 +372,10 @@ script, which takes the following arguments.
   instead of the reference data in `baseline-data/size.json`.
 - `--dummy-benchmark`: The directory which contains an empty benchmark
   used for library and startup routine size adjustments of other benchmarks.
+- `--file-extension`: An optional extension appended to benchmark names when
+  building file-system paths to benchmark binaries. For example, specifying
+  `.exe` would change paths of the form `bd/src/benchmark/benchmark` to
+  `bd/src/benchmark/benchmark.exe`. Might be required on non-unix systems.
 - `--help`: Provide help on the arguments.
 
 Before calculating relative or absolute benchmark sizes, the size of `dummy-benchmark`
@@ -422,6 +426,10 @@ script, which takes the following general arguments.
   (e.g. [`run_stm32f4-discovery.py`](../pylib/run_stm32f4-discovery.py)).
 - `--timeout`: The maximum time (in seconds) allowed for each benchmark program
   to run. Default value 30.
+- `--file-extension`: An optional extension appended to benchmark names when
+  building file-system paths to benchmark binaries. For example, specifying
+  `.exe` would change paths of the form `bd/src/benchmark/benchmark` to
+  `bd/src/benchmark/benchmark.exe`. Might be required on non-unix systems.
 - `--help`: Provide help on the arguments.
 
 There is so much variation in how a benchmark can be run that the detailed
