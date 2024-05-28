@@ -25,6 +25,7 @@ import os
 import sys
 import threading
 import queue
+import platform
 
 from json import loads
 
@@ -132,6 +133,12 @@ def get_common_args():
         action='store_false',
         help='Launch all benchmarks in series (the default)'
     )
+    parser.add_argument(
+        '--file-extension',
+        type=str,
+        default=None,
+        help='Optional file extension to append to bench mark names when searching for binaries.'
+    )
 
     return parser.parse_known_args()
 
@@ -168,6 +175,14 @@ def validate_args(args):
     gp['timeout'] = args.timeout
     gp['sim_parallel'] = args.sim_parallel
 
+    if args.file_extension is None:
+        if platform.system() == 'Windows':
+            gp['file_extension'] = '.exe'
+        else:
+            gp['file_extension'] = ''
+    else:
+        gp['file_extension'] = args.file_extension
+
     try:
         newmodule = importlib.import_module(args.target_module)
     except ImportError as error:
@@ -188,7 +203,7 @@ def benchmark_speed(bench, target_args):
        For the parallel option, this method must be thread-safe."""
     succeeded = True
     appdir = os.path.join(gp['bd_benchdir'], bench)
-    appexe = os.path.join(appdir, bench)
+    appexe = os.path.join(appdir,f"{bench}{gp['file_extension']}")
     
     if os.path.isfile(appexe):
         res = run_benchmark(bench, appexe, target_args)

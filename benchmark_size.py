@@ -22,6 +22,7 @@ import argparse
 import codecs
 import os
 import sys
+import platform
 
 from json import loads
 import lief
@@ -160,6 +161,12 @@ def build_parser():
         help='Section categories to include in metric: one or more of "text", "rodata", '
         + 'or "data". Default "text"',
     )
+    parser.add_argument(
+        '--file-extension',
+        type=str,
+        default=None,
+        help='Optional file extension to append to bench mark names when searching for binaries.'
+    )
 
     return parser
 
@@ -208,10 +215,18 @@ def validate_args(args):
     else:
         gp['dummy_benchmark'] = "dummy-benchmark"
 
+    if args.file_extension is None:
+        if platform.system() == 'Windows':
+            gp['file_extension'] = '.exe'
+        else:
+            gp['file_extension'] = ''
+    else:
+        gp['file_extension'] = args.file_extension
+
 def benchmark_size(bench, bd_path, metrics, dummy_sec_sizes):
     """Compute the total size of the desired sections in a benchmark.  Returns
        the size in bytes, which may be zero if the section wasn't found."""
-    appexe = os.path.join(bd_path, bench, bench)
+    appexe = os.path.join(bd_path, bench, f"{bench}{gp['file_extension']}")
     sec_sizes = {}
 
     # If the benchmark failed to build, then return a 0 size instead of
@@ -280,7 +295,7 @@ def collect_data(benchmarks):
     else:
         dummy_section_data = {}
     if dummy_section_data == {}:
-        dummy_benchmark_abs_path = os.path.join(gp['dummy_benchmark'], gp['bd_supportdir'])
+        dummy_benchmark_abs_path = os.path.join(gp['bd_supportdir'], gp['dummy_benchmark'])
         log.error(f'ERROR: could not find dummy benchmark at {dummy_benchmark_abs_path}')
         sys.exit(1)
     for bench in benchmarks:
