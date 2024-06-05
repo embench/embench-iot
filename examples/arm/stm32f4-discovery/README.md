@@ -8,8 +8,8 @@ Note: you will need to compile and include the startup code as a user library.
 cd examples/arm/stm32f4-discovery
 make
 cd -
-scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-O2 -flto -ffunction-sections -fdata-sections -mcpu=cortex-m4 -mthumb' \
-  ldflags='-O2 -Wl,--gc-sections -flto -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -nostartfiles' user_libs='m startup' cpu_mhz=16
+scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-O2 -mfloat-abi=soft -ffunction-sections -fdata-sections -mcpu=cortex-m4 -mthumb' \
+  ldflags='-O2 -Wl,--gc-sections --specs=nosys.specs -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -mfloat-abi=soft -nostartfiles' user_libs='m startup' cpu_mhz=16
 ```
 
 ## Measuring speed

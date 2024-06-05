@@ -42,7 +42,7 @@ static size_t heap_requested = 0;
 int
 rand_beebs (void)
 {
-  seed = (seed * 1103515245UL + 12345) & ((1UL << 31) - 1);
+  seed = (seed * 1103515245UL + 12345UL) & ((1UL << 31) - 1UL);
   return (int) (seed >> 16);
 }
 
