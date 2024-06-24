@@ -52,7 +52,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 11
+#define LOCAL_SCALE_FACTOR 13
 
 /* BEEBS heap is just an array */
 
@@ -463,12 +463,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int rpt);
+static int benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int heat)
 {
-  int res = benchmark_body (heat);
+  int res = benchmark_body (1, heat);
 
   return;
 }
@@ -477,24 +477,24 @@ warm_caches (int heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
-static int __attribute__ ((noinline)) benchmark_body (int rpt)
+static int __attribute__ ((noinline))
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
-  int j;
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	init_heap_beebs ((void *) heap, HEAP_SIZE);
 
-  for (j = 0; j < rpt; j++)
-    {
-      init_heap_beebs ((void *) heap, HEAP_SIZE);
+	// initialization
+	memcpy (test_data, orig_data, TEST_SIZE * sizeof (orig_data[0]));
 
-      // initialization
-      memcpy (test_data, orig_data, TEST_SIZE * sizeof (orig_data[0]));
-
-      // what we're timing
-      compdecomp (test_data, TEST_SIZE);
-    }
+	// what we're timing
+	compdecomp (test_data, TEST_SIZE);
+      }
 
   // done
   return 0;

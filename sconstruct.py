@@ -32,8 +32,9 @@ def parse_options():
     vars.Add('ld', default=env['LINK'])
     vars.Add('ldflags', default=env['LINKFLAGS'])
     vars.Add('user_libs', default=[])
-    vars.Add('warmup_heat', default=1)
-    vars.Add('cpu_mhz', default=1)
+    vars.Add('warmup_heat', default=1,
+             help='Number of iterations to warm up caches before measurements')
+    vars.Add('gsf', default=1, help='Global scale factor')
     vars.Add('dummy_benchmark', default=(bd / 'support/dummy-benchmark'))
     return vars
 
@@ -46,7 +47,7 @@ def setup_directories(bd, config_dir):
 def populate_build_env(env, vars):
     vars.Update(env)
     env.Append(CPPDEFINES={ 'WARMUP_HEAT' : '${warmup_heat}',
-                            'CPU_MHZ' :     '${cpu_mhz}'})
+                            'GLOBAL_SCALE_FACTOR' : '${gsf}'})
     env.Append(CPPPATH=['support', config_dir])
     env.Replace(CCFLAGS = "${cflags}")
     env.Replace(LINKFLAGS = "${ldflags}")
@@ -85,7 +86,7 @@ benchmark_paths = find_benchmarks(bd, env)
 
 benchmark_objects = {
     (bd / bench / bench.name): env.Object(Glob(str(bd / bench / "*.c")))
-    
+
     for bench in benchmark_paths
 }
 env.Default(benchmark_objects.values())

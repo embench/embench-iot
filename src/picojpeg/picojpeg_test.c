@@ -18,7 +18,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 6
+#define LOCAL_SCALE_FACTOR 5
 
 const unsigned char jpeg_data[] = {
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46,
@@ -162,12 +162,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -176,31 +176,32 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      unsigned char status;
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	unsigned char status;
 
-      jpeg_off = 0;
+	jpeg_off = 0;
 
-      status = pjpeg_decode_init (&pInfo, pjpeg_need_bytes_callback, 0, 0);
+	status = pjpeg_decode_init (&pInfo, pjpeg_need_bytes_callback, 0, 0);
 
-      for (;;)
-	{
-	  status = pjpeg_decode_mcu ();
+	for (;;)
+	  {
+	    status = pjpeg_decode_mcu ();
 
-	  if (status == PJPG_NO_MORE_BLOCKS)
-	    break;
-	}
-    }
+	    if (status == PJPG_NO_MORE_BLOCKS)
+	      break;
+	  }
+      }
 
   return 0;
 }

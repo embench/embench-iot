@@ -71,12 +71,12 @@ void Test (matrix A, matrix B, matrix Res);
 void Initialize (matrix Array);
 int RandomInteger (void);
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -85,24 +85,25 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      memcpy (ArrayA, ArrayA_ref,
-	      UPPERLIMIT * UPPERLIMIT * sizeof (ArrayA[0][0]));
-      memcpy (ArrayB, ArrayB_ref,
-	      UPPERLIMIT * UPPERLIMIT * sizeof (ArrayA[0][0]));
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	memcpy (ArrayA, ArrayA_ref,
+		UPPERLIMIT * UPPERLIMIT * sizeof (ArrayA[0][0]));
+	memcpy (ArrayB, ArrayB_ref,
+		UPPERLIMIT * UPPERLIMIT * sizeof (ArrayA[0][0]));
 
-      Test (ArrayA, ArrayB, ResultArray);
-    }
+	Test (ArrayA, ArrayB, ResultArray);
+      }
 
   return 0;
 }

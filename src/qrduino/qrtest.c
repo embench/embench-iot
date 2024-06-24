@@ -30,12 +30,12 @@ static char heap[HEAP_SIZE];
 static const char *encode;
 static int size;
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -44,31 +44,32 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   static const char *in_encode = "http://www.mageec.com";
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      encode = in_encode;
-      size = 22;
-      init_heap_beebs ((void *) heap, HEAP_SIZE);
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	encode = in_encode;
+	size = 22;
+	init_heap_beebs ((void *) heap, HEAP_SIZE);
 
-      initeccsize (1, size);
+	initeccsize (1, size);
 
-      memcpy (strinbuf, encode, size);
+	memcpy (strinbuf, encode, size);
 
-      initframe ();
-      qrencode ();
-      freeframe ();
-      freeecc ();
-    }
+	initframe ();
+	qrencode ();
+	freeframe ();
+	freeecc ();
+      }
 
   return 0;
 }
