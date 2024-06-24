@@ -20,7 +20,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 78
+#define LOCAL_SCALE_FACTOR 77
 
 // From nettle/macros.h
 
@@ -1137,12 +1137,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -1151,23 +1151,24 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      aes_set_encrypt_key (&encctx, 32, key);
-      aes_encrypt (&encctx, LEN, encrypted, plaintext);
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	aes_set_encrypt_key (&encctx, 32, key);
+	aes_encrypt (&encctx, LEN, encrypted, plaintext);
 
-      aes_set_decrypt_key (&decctx, 32, key);
-      aes_decrypt (&decctx, LEN, decrypted, encrypted);
-    }
+	aes_set_decrypt_key (&decctx, 32, key);
+	aes_decrypt (&decctx, LEN, decrypted, encrypted);
+      }
 
   return 0;
 }

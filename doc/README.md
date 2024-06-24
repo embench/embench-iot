@@ -282,7 +282,8 @@ The following variables can be specified on the command line when building the b
   calculate the code size overhead of startup routines and libraries.
   The dummy benchmark's size is subtracted from other benchmarks.
   Default value [`support/dummy-benchmark`](../support/dummy-benchmark/).
-- `cpu_mhz`: The clock rate of the target in MHz.  Default value 1.
+- `gsf`: The global scale factor used to ensure execution times of the
+  individual benchmarks are around 4 seconds.  As a guide, set this to the clock rate of the target in MHz.  Default value 16.
 - `warmup_heat`: How many times the benchmark code should be run to warm up
   the caches.  Default value 1.
 
@@ -291,11 +292,13 @@ parameter, and any configuration file may be empty or missing if no flags need
 to be set.
 
 The board specific files are used only to provide code essential to
-the functionality. The board support header (`boardsupport.h`) is 
-used to define the clock rate of the board, for example:
+the functionality. The board support header (`boardsupport.h`) can be
+used to define the global scale factor of the board, rather than specifying it on the command line, for example:
 ```C
-#define CPU_MHZ 1
+#define GLOBAL_SCALE_FACTOR 27
 ```
+The only other parameter to consider setting this way, rather than from the command line is `WARMUP_HEAT`.
+
 The board support code file (`boardsupport.c`) is used to define three
 functions.
 
@@ -308,7 +311,7 @@ any board specific timing mechanism.
 ### Building the benchmarks
 
 Embench is built with [`scons`](https://scons.org/).
-The build script is [`Sconstruct.py`](../Sconstruct.py).
+The build script is [`sconstruct.py`](../sconstruct.py).
 See the [`examples`](../examples/) directory for quick-start scons invocations.
 Next to the variables specified above, scons takes the following options:
 

@@ -17,7 +17,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 29
+#define LOCAL_SCALE_FACTOR 30
 
 /* BEEBS heap is just an array */
 
@@ -168,12 +168,12 @@ initialise_benchmark (void)
 
 
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -182,124 +182,125 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   volatile int cnt;
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      int i;
-      dllist *l;
-      struct ilist ii, *nn, *ll;
-      struct sglib_hashed_ilist_iterator it;
-      int ai, aj, n;
-      int a[MAX_PARAMS];
-      struct rbtree e, *t, *the_tree, *te;
-      struct sglib_rbtree_iterator it2;
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	int i;
+	dllist *l;
+	struct ilist ii, *nn, *ll;
+	struct sglib_hashed_ilist_iterator it;
+	int ai, aj, n;
+	int a[MAX_PARAMS];
+	struct rbtree e, *t, *the_tree, *te;
+	struct sglib_rbtree_iterator it2;
 
-      /* Array quicksort */
+	/* Array quicksort */
 
-      memcpy (array2, array, 100 * sizeof (array[0]));
-      SGLIB_ARRAY_SINGLE_QUICK_SORT (int, array2, 100,
-				     SGLIB_NUMERIC_COMPARATOR);
+	memcpy (array2, array, 100 * sizeof (array[0]));
+	SGLIB_ARRAY_SINGLE_QUICK_SORT (int, array2, 100,
+				       SGLIB_NUMERIC_COMPARATOR);
 
-      /* Doubly linked list */
+	/* Doubly linked list */
 
-      init_heap_beebs ((void *) heap, HEAP_SIZE);
-      the_list = NULL;
+	init_heap_beebs ((void *) heap, HEAP_SIZE);
+	the_list = NULL;
 
-      for (i = 0; i < 100; ++i)
-	{
-	  l = malloc_beebs (sizeof (dllist));
-	  l->i = array[i];
-	  sglib_dllist_add (&the_list, l);
-	}
+	for (i = 0; i < 100; ++i)
+	  {
+	    l = malloc_beebs (sizeof (dllist));
+	    l->i = array[i];
+	    sglib_dllist_add (&the_list, l);
+	  }
 
-      sglib_dllist_sort (&the_list);
+	sglib_dllist_sort (&the_list);
 
-      cnt = 0;
+	cnt = 0;
 
-      for (l = sglib_dllist_get_first (the_list); l != NULL;
-	   l = l->ptr_to_next)
-	cnt++;
-
-      /* Hash table */
-
-      sglib_hashed_ilist_init (htab);
-
-      for (i = 0; i < 100; i++)
-	{
-	  ii.i = array[i];
-	  if (sglib_hashed_ilist_find_member (htab, &ii) == NULL)
-	    {
-	      nn = malloc_beebs (sizeof (struct ilist));
-	      nn->i = array[i];
-	      sglib_hashed_ilist_add (htab, nn);
-	    }
-	}
-
-      for (ll = sglib_hashed_ilist_it_init (&it, htab);
-	   ll != NULL; ll = sglib_hashed_ilist_it_next (&it))
-	{
+	for (l = sglib_dllist_get_first (the_list); l != NULL;
+	     l = l->ptr_to_next)
 	  cnt++;
-	}
 
-      /* Queue */
+	/* Hash table */
 
-      // echo parameters using a queue
-      SGLIB_QUEUE_INIT (int, a, ai, aj);
-      for (i = 0; i < 100; i++)
-	{
-	  n = array[i];
-	  SGLIB_QUEUE_ADD (int, a, n, ai, aj, MAX_PARAMS);
-	}
-      while (!SGLIB_QUEUE_IS_EMPTY (int, a, ai, aj))
-	{
-	  cnt += SGLIB_QUEUE_FIRST_ELEMENT (int, a, ai, aj);
-	  SGLIB_QUEUE_DELETE (int, a, ai, aj, MAX_PARAMS);
-	}
+	sglib_hashed_ilist_init (htab);
 
-      // print parameters in descending order
-      SGLIB_HEAP_INIT (int, a, ai);
-      for (i = 0; i < 100; i++)
-	{
-	  n = array[i];
-	  SGLIB_HEAP_ADD (int, a, n, ai, MAX_PARAMS,
-			  SGLIB_NUMERIC_COMPARATOR);
-	}
-      while (!SGLIB_HEAP_IS_EMPTY (int, a, ai))
-	{
-	  cnt += SGLIB_HEAP_FIRST_ELEMENT (int, a, ai);
-	  SGLIB_HEAP_DELETE (int, a, ai, MAX_PARAMS,
-			     SGLIB_NUMERIC_COMPARATOR);
-	}
+	for (i = 0; i < 100; i++)
+	  {
+	    ii.i = array[i];
+	    if (sglib_hashed_ilist_find_member (htab, &ii) == NULL)
+	      {
+		nn = malloc_beebs (sizeof (struct ilist));
+		nn->i = array[i];
+		sglib_hashed_ilist_add (htab, nn);
+	      }
+	  }
 
-      /* RB Tree */
+	for (ll = sglib_hashed_ilist_it_init (&it, htab);
+	     ll != NULL; ll = sglib_hashed_ilist_it_next (&it))
+	  {
+	    cnt++;
+	  }
 
-      the_tree = NULL;
-      for (i = 0; i < 100; i++)
-	{
-	  e.n = array[i];
-	  if (sglib_rbtree_find_member (the_tree, &e) == NULL)
-	    {
-	      t = malloc_beebs (sizeof (struct rbtree));
-	      t->n = array[i];
-	      sglib_rbtree_add (&the_tree, t);
-	    }
-	}
+	/* Queue */
 
-      for (te = sglib_rbtree_it_init_inorder (&it2, the_tree);
-	   te != NULL; te = sglib_rbtree_it_next (&it2))
-	{
-	  cnt += te->n;
-	}
-    }
+	// echo parameters using a queue
+	SGLIB_QUEUE_INIT (int, a, ai, aj);
+	for (i = 0; i < 100; i++)
+	  {
+	    n = array[i];
+	    SGLIB_QUEUE_ADD (int, a, n, ai, aj, MAX_PARAMS);
+	  }
+	while (!SGLIB_QUEUE_IS_EMPTY (int, a, ai, aj))
+	  {
+	    cnt += SGLIB_QUEUE_FIRST_ELEMENT (int, a, ai, aj);
+	    SGLIB_QUEUE_DELETE (int, a, ai, aj, MAX_PARAMS);
+	  }
+
+	// print parameters in descending order
+	SGLIB_HEAP_INIT (int, a, ai);
+	for (i = 0; i < 100; i++)
+	  {
+	    n = array[i];
+	    SGLIB_HEAP_ADD (int, a, n, ai, MAX_PARAMS,
+			    SGLIB_NUMERIC_COMPARATOR);
+	  }
+	while (!SGLIB_HEAP_IS_EMPTY (int, a, ai))
+	  {
+	    cnt += SGLIB_HEAP_FIRST_ELEMENT (int, a, ai);
+	    SGLIB_HEAP_DELETE (int, a, ai, MAX_PARAMS,
+			       SGLIB_NUMERIC_COMPARATOR);
+	  }
+
+	/* RB Tree */
+
+	the_tree = NULL;
+	for (i = 0; i < 100; i++)
+	  {
+	    e.n = array[i];
+	    if (sglib_rbtree_find_member (the_tree, &e) == NULL)
+	      {
+		t = malloc_beebs (sizeof (struct rbtree));
+		t->n = array[i];
+		sglib_rbtree_add (&the_tree, t);
+	      }
+	  }
+
+	for (te = sglib_rbtree_it_init_inorder (&it2, the_tree);
+	     te != NULL; te = sglib_rbtree_it_next (&it2))
+	  {
+	    cnt += te->n;
+	  }
+      }
 
   return cnt;
 }

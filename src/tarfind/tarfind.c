@@ -13,7 +13,7 @@
 
 #include "support.h"
 
-#define LOCAL_SCALE_FACTOR 47
+#define LOCAL_SCALE_FACTOR 127
 
 // number of files in the archive
 #define ARCHIVE_FILES 35
@@ -39,19 +39,19 @@ typedef struct {
 
 #define HEAP_SIZE roundup((sizeof(tar_header_t) * ARCHIVE_FILES), sizeof(void *))
 static char _Alignas(_Alignof(tar_header_t)) heap[HEAP_SIZE]; 
-static int benchmark_body (int rpt);
+static int benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  benchmark_body (heat);
+  benchmark_body (1, heat);
   return;
 }
 
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 void
 initialise_benchmark (void)
@@ -59,54 +59,56 @@ initialise_benchmark (void)
 }
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
-  int i, j, p;
+  int i, p;
   tar_header_t * hdr;
   int found;
 
-  for (j = 0; j < rpt; j++) {
-    init_heap_beebs ((void *) heap, HEAP_SIZE);
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	init_heap_beebs ((void *) heap, HEAP_SIZE);
 
-    // always create ARCHIVE_FILES files in the archive
-    int files = ARCHIVE_FILES;
-    hdr = malloc_beebs(sizeof(tar_header_t) * files);
-    for (i = 0; i < files; i++){
-      // create record
-      tar_header_t * c = & hdr[i];
-      // initialize here for cache efficiency reasons
-      memset(c, 0, sizeof(tar_header_t));
-      int flen = 5 + i % 94; // vary file lengths
-      c->isLink = '0';
-      for(p = 0; p < flen; p++){
-        c->filename[p] = rand_beebs() % 26 + 65;
+	// always create ARCHIVE_FILES files in the archive
+	int files = ARCHIVE_FILES;
+	hdr = malloc_beebs(sizeof(tar_header_t) * files);
+	for (i = 0; i < files; i++){
+	  // create record
+	  tar_header_t * c = & hdr[i];
+	  // initialize here for cache efficiency reasons
+	  memset(c, 0, sizeof(tar_header_t));
+	  int flen = 5 + i % 94; // vary file lengths
+	  c->isLink = '0';
+	  for(p = 0; p < flen; p++){
+	    c->filename[p] = rand_beebs() % 26 + 65;
+	  }
+	  c->size[0] = '0';
+	}
+
+	found = 0; // number of times a file was found
+	// actual benchmark, strcmp with a set of N_SEARCHES files
+	// the memory access here is chosen inefficiently on purpose
+	for (p = 0; p < N_SEARCHES; p++){
+	  // chose the position of the file to search for from the mid of the list
+	  char * search = hdr[(p + ARCHIVE_FILES/2) % ARCHIVE_FILES].filename;
+
+	  // for each filename iterate through all files until found
+	  for (i = 0; i < files; i++){
+	    tar_header_t * cur = & hdr[i];
+	    // implementation of strcmp
+	    char *c1;
+	    char *c2;
+	    for (c1 = hdr[i].filename, c2 = search; (*c1 != '\0' && *c2 != '\0' && *c1 == *c2) ; c1++, c2++);
+	    // complete match?
+	    if(*c1 == '\0' && *c2 == '\0'){
+	      found++;
+	      break;
+	    }
+	  }
+	}
+	free_beebs(hdr);
       }
-      c->size[0] = '0';
-    }
-
-    found = 0; // number of times a file was found
-    // actual benchmark, strcmp with a set of N_SEARCHES files
-    // the memory access here is chosen inefficiently on purpose
-    for (p = 0; p < N_SEARCHES; p++){
-      // chose the position of the file to search for from the mid of the list
-      char * search = hdr[(p + ARCHIVE_FILES/2) % ARCHIVE_FILES].filename;
-
-      // for each filename iterate through all files until found
-      for (i = 0; i < files; i++){
-        tar_header_t * cur = & hdr[i];
-        // implementation of strcmp
-        char *c1;
-        char *c2;
-        for (c1 = hdr[i].filename, c2 = search; (*c1 != '\0' && *c2 != '\0' && *c1 == *c2) ; c1++, c2++);
-        // complete match?
-        if(*c1 == '\0' && *c2 == '\0'){
-          found++;
-          break;
-        }
-      }
-    }
-    free_beebs(hdr);
-  }
 
   return found == N_SEARCHES;
 }

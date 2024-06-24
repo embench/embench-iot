@@ -40,12 +40,6 @@ def get_target_args(remnant):
         default='gdbserver',
         help='Command to invoke the GDB server',
     )
-    parser.add_argument(
-        '--cpu-mhz',
-        type=int,
-        default=1,
-        help='Processor clock speed in MHz'
-    )
 
     return parser.parse_args(remnant)
 
@@ -53,9 +47,6 @@ def get_target_args(remnant):
 def build_benchmark_cmd(path, args):
     """Construct the command to run the benchmark.  "args" is a
        namespace with target specific arguments"""
-    global cpu_mhz
-    cpu_mhz = args.cpu_mhz
-
     cmd = [f'{args.gdb_command}']
     gdb_comms = [
         'set confirm off',
@@ -81,12 +72,11 @@ def build_benchmark_cmd(path, args):
     return cmd
 
 
-def decode_results(stdout_str, stderr_str):
+def decode_results(stdout_str, args):
     """Extract the results from the output string of the run. Return the
        elapsed time in milliseconds or zero if the run failed."""
     # Return code is in standard output. We look for the string that means we
     # hit a breakpoint on _exit, then for the string returning the value.
-    print(stdout_str)
     rcstr = re.search(
         'Breakpoint 3,.*\$3 = (\d+)', stdout_str, re.S
     )
@@ -96,7 +86,7 @@ def decode_results(stdout_str, stderr_str):
     if int(rcstr.group(1)) != 0:
         log.debug('Warning: Error return code')
 
-    # The start and end cycle counts are in the stderr string
+    # The start and end cycle counts are in the stdout string
     starttime = re.search('\$1 = (\d+)', stdout_str, re.S)
     endtime = re.search('\$2 = (\d+)', stdout_str, re.S)
     if not starttime or not endtime:
@@ -104,8 +94,8 @@ def decode_results(stdout_str, stderr_str):
         return 0.0
 
     # Time from cycles to milliseconds
-    global cpu_mhz
-    return (int(endtime.group(1)) - int(starttime.group(1))) / cpu_mhz / 1000.0
+    cycles = int(endtime.group(1)) - int(starttime.group(1))
+    return cycles / args.cpu_mhz / 1000.0
 
 def run_benchmark(bench, path, args):
     """Runs the benchmark "bench" at "path". "args" is a namespace
@@ -126,5 +116,6 @@ def run_benchmark(bench, path, args):
         log.warning(f'Warning: Run of {bench} timed out.')
         return None
     if res.returncode != 0:
+        print ('Non-zero return code')
         return None
-    return decode_results(res.stdout.decode('utf-8'), res.stderr.decode('utf-8'))
+    return decode_results(res.stdout.decode('utf-8'), args)

@@ -90,7 +90,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 1478
+#define LOCAL_SCALE_FACTOR 1826
 
 
 long int a[20][20], b[20], x[20];
@@ -129,12 +129,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -143,40 +143,39 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
-  int  k;
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	int      i, j, nmax = 20, n = 5;
+	long int /* eps, */ w;
 
-  for (k = 0; k < rpt; k++)
-    {
-      int      i, j, nmax = 20, n = 5;
-      long int /* eps, */ w;
+	/* eps = 1.0e-6; */
 
-      /* eps = 1.0e-6; */
+	/* Init loop */
+	for(i = 0; i <= n; i++)
+	  {
+	    w = 0;              /* data to fill in cells */
+	    for(j = 0; j <= n; j++)
+	      {
+		a[i][j] = (i + 1) + (j + 1);
+		if(i == j)            /* only once per loop pass */
+		  a[i][j] *= 2;
+		w += a[i][j];
+	      }
+	    b[i] = w;
+	  }
 
-      /* Init loop */
-      for(i = 0; i <= n; i++)
-	{
-	  w = 0;              /* data to fill in cells */
-	  for(j = 0; j <= n; j++)
-	    {
-	      a[i][j] = (i + 1) + (j + 1);
-	      if(i == j)            /* only once per loop pass */
-		a[i][j] *= 2;
-	      w += a[i][j];
-	    }
-	  b[i] = w;
-	}
-
-      /*  chkerr = ludcmp(nmax, n, eps); */
-      chkerr = ludcmp(nmax,n);
-    }
+	/*  chkerr = ludcmp(nmax, n, eps); */
+	chkerr = ludcmp(nmax,n);
+      }
 
   return chkerr;
 }
