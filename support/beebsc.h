@@ -34,9 +34,9 @@
 
    https://lists.librecores.org/pipermail/embench/2019-August/000007.html 
 
-   This function just*/
+   This function just sits in a loop (which is what embedded exit does). */
 
-#define assert_beebs(expr) { if (!(expr)) exit (1); }
+#define assert_beebs(expr) { if (!(expr)) while (1); }
 
 #define float_eq_beebs(exp, actual) (fabsf(exp - actual) < VERIFY_FLOAT_EPS)
 #define float_neq_beebs(exp, actual) !float_eq_beebs(exp, actual)
