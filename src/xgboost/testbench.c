@@ -12,38 +12,39 @@
 
 #include "xgboost.h"
 
-#define LOCAL_SCALE_FACTOR 2
+#define LOCAL_SCALE_FACTOR 1
 
-static int benchmark_body(int rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void warm_caches(int heat)
 {
-    int res = benchmark_body(heat);
+  int res = benchmark_body(1, heat);
 
     return;
 }
 
 int benchmark(void)
 {
-    return benchmark_body(LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body(LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 static int __attribute__((noinline))
-benchmark_body(int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
     // Run inference with all samples specified in xgboost.c
     {
         size_t correct = 0;
-        for (int i = 0; i < rpt / 10; ++i)
-        {
-            for (volatile size_t i = 0; i < SAMPLES_IN_FILE; i++)
-            {
-                uint8_t predicted = predict(X_test[i]);
-                uint8_t label = Y_test[i];
-                if (predicted == label)
+	for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+	  for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+	    {
+	      for (volatile size_t i = 0; i < SAMPLES_IN_FILE; i++)
+		{
+		  uint8_t predicted = predict(X_test[i]);
+		  uint8_t label = Y_test[i];
+		  if (predicted == label)
                     correct++;
-            }
-        }
+		}
+	    }
         return correct;
     }
 }
@@ -56,5 +57,5 @@ void initialise_benchmark(void)
 
 int verify_benchmark(int r)
 {
-    return r >= SAMPLES_IN_FILE * (LOCAL_SCALE_FACTOR * CPU_MHZ / 12);
+    return r >= SAMPLES_IN_FILE * (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR / 12);
 }

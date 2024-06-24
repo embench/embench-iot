@@ -644,41 +644,46 @@ int8_t EXPECTED_OUTPUT[32] =
         19,
 };
 
-#define LOCAL_SCALE_FACTOR 2500
+#define LOCAL_SCALE_FACTOR 1639
 void initialise_benchmark(void)
 {
 }
 
-static int benchmark_body(int rpt);
+static int benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void warm_caches(int heat)
 {
-    int res = benchmark_body(heat);
+  int res = benchmark_body(heat, 1);
 
     return;
 }
 
 int benchmark(void)
 {
-    return benchmark_body(LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body(LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
-static int __attribute__((noinline)) benchmark_body(int rpt)
+static int __attribute__((noinline))
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
-    for (int i = 0; i < rpt; ++i)
-    {
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
         DepthwiseConvPerChannel(&PARAMS, OUTPUT_MULTIPLIER, OUTPUT_SHIFT, &INPUT_SHAPE, INPUT_DATA, &FILTER_SHAPE, FILTER_DATA, &BIAS_SHAPE, BIAS_DATA, &OUTPUT_SHAPE, OUTPUT_DATA);
-    }
-    return 0;
+      }
+  return 0;
 }
+
 int verify_benchmark(int r)
 {
-    for (int i = 0; i < sizeof(EXPECTED_OUTPUT) / (sizeof(EXPECTED_OUTPUT[0])); ++i)
-    {
+    for (int i = 0;
+	 i < sizeof(EXPECTED_OUTPUT) / (sizeof(EXPECTED_OUTPUT[0]));
+	 ++i)
+      {
         if (EXPECTED_OUTPUT[i] != OUTPUT_DATA[i])
-        {
+	  {
             return 0;
-        }
-    }
+	  }
+      }
     return 1;
 }

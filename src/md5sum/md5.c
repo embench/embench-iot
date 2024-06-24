@@ -15,7 +15,7 @@
 
 #include "support.h"
 
-#define LOCAL_SCALE_FACTOR 51
+#define LOCAL_SCALE_FACTOR 86
 
 /* BEEBS heap is just an array */
 /* MSG_SIZE * 2 + ((((MSG_SIZE+8)/64 + 1) * 64) - 8) + 64 */
@@ -185,12 +185,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int rpt, int len);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf, int len);
 
 void
 warm_caches (int  heat)
 {
-  benchmark_body (heat, MSG_SIZE);
+  benchmark_body (1, heat, MSG_SIZE);
 
   return;
 }
@@ -199,38 +199,40 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ, MSG_SIZE);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR, MSG_SIZE);
 }
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt, int len)
+benchmark_body(unsigned int lsf, unsigned int gsf, int len)
 {
   int i, j;
 
-  for (j = 0; j < rpt; j++) {
-    init_heap_beebs ((void *) heap, HEAP_SIZE);
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	init_heap_beebs ((void *) heap, HEAP_SIZE);
 
-    uint8_t *msg = malloc_beebs(len);
-    for (i = 0; i < len; i++){
-      msg[i] = i;
-    }
-    md5(msg, len);
-    free_beebs(msg);
+	uint8_t *msg = malloc_beebs(len);
+	for (i = 0; i < len; i++){
+	  msg[i] = i;
+	}
+	md5(msg, len);
+	free_beebs(msg);
 
-    uint8_t *p;
-    // display result
+	uint8_t *p;
+	// display result
 #ifdef DEBUG
-    p=(uint8_t *)&h0;
-    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+	p=(uint8_t *)&h0;
+	printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
 
-    p=(uint8_t *)&h1;
-    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+	p=(uint8_t *)&h1;
+	printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
 
-    p=(uint8_t *)&h2;
-    printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
+	p=(uint8_t *)&h2;
+	printf("%2.2x%2.2x%2.2x%2.2x", p[0], p[1], p[2], p[3]);
 
-    p=(uint8_t *)&h3;
-    printf("%2.2x%2.2x%2.2x%2.2x\n", p[0], p[1], p[2], p[3]);
+	p=(uint8_t *)&h3;
+	printf("%2.2x%2.2x%2.2x%2.2x\n", p[0], p[1], p[2], p[3]);
 #endif
   }
 

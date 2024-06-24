@@ -19,7 +19,7 @@
 
 /* This scale factor will be changed to equalise the runtime of the
    benchmarks. */
-#define LOCAL_SCALE_FACTOR 1
+#define LOCAL_SCALE_FACTOR 3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1043,12 +1043,12 @@ initialise_benchmark (void)
 }
 
 
-static int benchmark_body (int  rpt);
+static int  benchmark_body(unsigned int lsf, unsigned int gsf);
 
 void
 warm_caches (int  heat)
 {
-  int  res = benchmark_body (heat);
+  int  res = benchmark_body (1, heat);
 
   return;
 }
@@ -1057,12 +1057,12 @@ warm_caches (int  heat)
 int
 benchmark (void)
 {
-  return benchmark_body (LOCAL_SCALE_FACTOR * CPU_MHZ);
+  return benchmark_body (LOCAL_SCALE_FACTOR, GLOBAL_SCALE_FACTOR);
 }
 
 
 static int __attribute__ ((noinline))
-benchmark_body (int rpt)
+benchmark_body(unsigned int lsf, unsigned int gsf)
 {
   long total, index, test_case;
   Comparison compare = TestCompare;
@@ -1079,31 +1079,32 @@ benchmark_body (int rpt)
 
   int i;
 
-  for (i = 0; i < rpt; i++)
-    {
-      /* initialize the random-number generator. */
-      /* The original code used srand here, we use a value that will fit in
-         a 16-bit unsigned int. */
-      srand_beebs (0);
-      /*srand(10141985); *//* in case you want the same random numbers */
+  for (unsigned int lsf_cnt = 0; lsf_cnt < lsf; lsf_cnt++)
+    for (unsigned int gsf_cnt = 0; gsf_cnt < gsf; gsf_cnt++)
+      {
+	/* initialize the random-number generator. */
+	/* The original code used srand here, we use a value that will fit in
+	   a 16-bit unsigned int. */
+	srand_beebs (0);
+	/*srand(10141985); *//* in case you want the same random numbers */
 
-      total = max_size;
-      for (test_case = 0; test_case < 9; test_case++)
-	{
+	total = max_size;
+	for (test_case = 0; test_case < 9; test_case++)
+	  {
 
-	  for (index = 0; index < total; index++)
-	    {
-	      Test item;
+	    for (index = 0; index < total; index++)
+	      {
+		Test item;
 
-	      item.value = test_cases[test_case] (index, total);
-	      item.index = index;
+		item.value = test_cases[test_case] (index, total);
+		item.index = index;
 
-	      array1[index] = item;
-	    }
+		array1[index] = item;
+	      }
 
-	  WikiSort (array1, total, compare);
-	}
-    }
+	    WikiSort (array1, total, compare);
+	  }
+      }
 
   return 0;
 }
