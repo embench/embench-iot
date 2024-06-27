@@ -28,9 +28,6 @@
 #ifndef _SGLIB__h_
 #define _SGLIB__h_
 
-/* the assert is used exclusively to write unexpected error messages */
-#define assert(a)
-
 
 /* ---------------------------------------------------------------------------- */
 /* ---------------------------------------------------------------------------- */
@@ -200,7 +197,7 @@
 #define SGLIB_QUEUE_IS_FULL(type, a, i, j, dim) ((i)==((j)+1)%(dim))
 #define SGLIB_QUEUE_FIRST_ELEMENT(type, a, i, j) (a[i])
 #define SGLIB_QUEUE_ADD_NEXT(type, a, i, j, dim) {\
-    if (SGLIB_QUEUE_IS_FULL(type, a, i, j, dim)) {assert(0 && "the queue is full");} \
+    if (SGLIB_QUEUE_IS_FULL(type, a, i, j, dim)) {assert_beebs(0 && "the queue is full");} \
   (j) = ((j)+1) % (dim);\
 }
 #define SGLIB_QUEUE_ADD(type, a, elem, i, j, dim) {\
@@ -208,7 +205,7 @@
   SGLIB_QUEUE_ADD_NEXT(type, a, i, j, dim);\
 }
 #define SGLIB_QUEUE_DELETE_FIRST(type, a, i, j, dim) {\
-  if (SGLIB_QUEUE_IS_EMPTY(type, a, i, j)) {assert(0 && "the queue is empty");} \
+  if (SGLIB_QUEUE_IS_EMPTY(type, a, i, j)) {assert_beebs(0 && "the queue is empty");} \
   (i) = ((i)+1) % (dim);\
 }
 #define SGLIB_QUEUE_DELETE(type, a, i, j, dim) {\
@@ -228,7 +225,7 @@
 #define SGLIB_HEAP_FIRST_ELEMENT(type, a, i) (a[0])
 #define SGLIB_HEAP_ADD_NEXT(type, a, i, dim, comparator, elem_exchanger) {\
   int _i_;\
-  if (SGLIB_HEAP_IS_FULL(type, a, i, dim)) {assert(0 && "the heap is full");}\
+  if (SGLIB_HEAP_IS_FULL(type, a, i, dim)) {assert_beebs(0 && "the heap is full");}\
   _i_ = (i)++;\
   while (_i_ > 0 && comparator(a[_i_/2], a[_i_]) < 0) {\
     elem_exchanger(type, a, (_i_/2), _i_);\
@@ -236,12 +233,12 @@
   }\
 }
 #define SGLIB_HEAP_ADD(type, a, elem, i, dim, comparator) {\
-  if (SGLIB_HEAP_IS_FULL(type, a, i, dim)) {assert(0 && "the heap is full");}\
+  if (SGLIB_HEAP_IS_FULL(type, a, i, dim)) {assert_beebs(0 && "the heap is full");}\
   a[i] = (elem);\
   SGLIB_HEAP_ADD_NEXT(type, a, i, dim, comparator, SGLIB_ARRAY_ELEMENTS_EXCHANGER);\
 }
 #define SGLIB_HEAP_DELETE_FIRST(type, a, i, dim, comparator, elem_exchanger) {\
-  if (SGLIB_HEAP_IS_EMPTY(type, a, i)) {assert(0 && "the heap is empty");}\
+  if (SGLIB_HEAP_IS_EMPTY(type, a, i)) {assert_beebs(0 && "the heap is empty");}\
   (i)--;\
   a[0] = a[i];\
   SGLIB___ARRAY_HEAP_DOWN(type, a, 0, i, comparator, elem_exchanger);\
@@ -285,7 +282,7 @@
   SGLIB_HASH_TAB_FIND_MEMBER(type, table, dim, elem, _pos_, _elem_);\
   (member) = (table)[_pos_];\
   if (_elem_ == NULL) {\
-    if ((table)[_pos_] != NULL) {assert(0 && "the hash table is full");}\
+    if ((table)[_pos_] != NULL) {assert_beebs(0 && "the hash table is full");}\
     (table)[_pos_] = (elem);\
   }\
 }
@@ -355,7 +352,7 @@
 #define SGLIB_LIST_DELETE(type, list, elem, next) {\
   type **_p_;\
   for(_p_ = &(list); *_p_!=NULL && *_p_!=(elem); _p_= &(*_p_)->next) ;\
-  assert(*_p_!=NULL && "element is not member of the container, use DELETE_IF_MEMBER instead"!=NULL);\
+  assert_beebs(*_p_!=NULL && "element is not member of the container, use DELETE_IF_MEMBER instead"!=NULL);\
   *_p_ = (*_p_)->next;\
 }
 
@@ -759,7 +756,7 @@
         {command;}\
       }\
       _pathi_ ++;\
-      if (_pathi_ >= SGLIB_MAX_TREE_DEEP) {assert(0 && "the binary_tree is too deep");}\
+      if (_pathi_ >= SGLIB_MAX_TREE_DEEP) {assert_beebs(0 && "the binary_tree is too deep");}\
     }\
     do {\
       _pathi_ --;\
@@ -1492,11 +1489,11 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
 #define SGLIB___RBTREE_FIX_DELETION_DISCREPANCY(type, tree, leftt, rightt, bits, RED, BLACK, res) {\
   type  *t, *a, *b, *c, *d, *ar, *bl, *br, *cl, *cr, *dl, *dr;\
   t = a = *tree;\
-  assert(t!=NULL);\
+  assert_beebs(t!=NULL);\
   ar = a->rightt;\
   b = t->leftt;\
   if (b==NULL) {\
-    assert(SGLIB___GET_VALUE(t->bits)==RED);\
+    assert_beebs(SGLIB___GET_VALUE(t->bits)==RED);\
     SGLIB___SET_VALUE(t->bits,BLACK);\
     res = 0;\
   } else {\
@@ -1511,7 +1508,7 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
         res = 0;\
       } else {\
         c = br;\
-        assert(c!=NULL && SGLIB___GET_VALUE(c->bits)==BLACK);\
+        assert_beebs(c!=NULL && SGLIB___GET_VALUE(c->bits)==BLACK);\
         cl = c->leftt;\
         cr = c->rightt;\
         if ((cl==NULL||SGLIB___GET_VALUE(cl->bits)==BLACK) && (cr==NULL||SGLIB___GET_VALUE(cr->bits)==BLACK)) {\
@@ -1544,7 +1541,7 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
             res = 0;\
           }\
         } else if (cr!=NULL && SGLIB___GET_VALUE(cr->bits)==RED) {\
-          assert(cl==NULL || SGLIB___GET_VALUE(cl->bits)==BLACK);\
+          assert_beebs(cl==NULL || SGLIB___GET_VALUE(cl->bits)==BLACK);\
           d = cr;\
           dl = d->leftt;\
           dr = d->rightt;\
@@ -1556,7 +1553,7 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
           a->leftt = dr;\
           res = 0;\
         } else {\
-          assert(0);\
+          assert_beebs(0);\
           res = 0;\
         }\
       }\
@@ -1575,10 +1572,10 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
           SGLIB___SET_VALUE(bl->bits,BLACK);\
           res = 0;\
         } else {\
-          assert(bl!=NULL);\
-          assert(br!=NULL);\
-          assert(SGLIB___GET_VALUE(bl->bits)==RED);\
-          assert(SGLIB___GET_VALUE(br->bits)==RED);\
+          assert_beebs(bl!=NULL);\
+          assert_beebs(br!=NULL);\
+          assert_beebs(SGLIB___GET_VALUE(bl->bits)==RED);\
+          assert_beebs(SGLIB___GET_VALUE(br->bits)==RED);\
           c = br;\
           cl = c->leftt;\
           cr = c->rightt;\
@@ -1592,7 +1589,7 @@ http://www.cis.ohio-state.edu/~gurari/course/cis680/cis680Ch11.html
           res = 0;\
         }\
       } else {\
-        assert(br!=NULL && SGLIB___GET_VALUE(br->bits)==RED);\
+        assert_beebs(br!=NULL && SGLIB___GET_VALUE(br->bits)==RED);\
         c = br;\
         cl = c->leftt;\
         cr = c->rightt;\
@@ -1655,7 +1652,7 @@ static int sglib___##type##_delete_rightmost_leaf(type **tree, type **theLeaf) {
   int       res, deepDecreased;\
   t = *tree;\
   res = 0;\
-  assert(t!=NULL);\
+  assert_beebs(t!=NULL);\
   if (t->right == NULL) {\
     *theLeaf = t;\
     if (t->left!=NULL) {\
@@ -1679,7 +1676,7 @@ int sglib___##type##_delete_recursive(type **tree, type *elem) {\
   t = *tree;\
   res = 0;\
   if (t==NULL) {\
-    assert(0 && "The element to delete not found in the tree,  use 'delete_if_member'"!=NULL);\
+    assert_beebs(0 && "The element to delete not found in the tree,  use 'delete_if_member'"!=NULL);\
   } else {\
     cmp = comparator(elem, t);\
     if (cmp < 0 || (cmp==0 && elem<t)) {\
@@ -1693,7 +1690,7 @@ int sglib___##type##_delete_recursive(type **tree, type *elem) {\
         res = sglib___##type##_fix_right_deletion_discrepancy(tree);\
       }\
     } else {\
-      assert(elem==t && "Deleting an element which is non member of the tree, use 'delete_if_member'"!=NULL);\
+      assert_beebs(elem==t && "Deleting an element which is non member of the tree, use 'delete_if_member'"!=NULL);\
       if (t->left == NULL) {\
         if (t->right == NULL) {\
           /* a leaf, delete, it; */\
@@ -1744,7 +1741,7 @@ int sglib_##type##_is_member(type *t, type *elem) {\
     } else if (cmp > 0 || (cmp==0 && elem>t)) {\
       t = t->right;\
     } else {\
-      assert(t == elem);\
+      assert_beebs(t == elem);\
       return(1);\
     }\
   }\
@@ -1819,7 +1816,7 @@ void sglib__##type##_it_compute_current_elem(struct sglib_##type##_iterator *it)
 }\
 type *sglib__##type##_it_init(struct sglib_##type##_iterator *it, type *tree, int order, int (*subcomparator)(type *, type *), type *equalto) {\
     type *t;\
-    assert(it!=NULL);\
+    assert_beebs(it!=NULL);\
     it->order = order;\
     it->equalto = equalto;\
     it->subcomparator = subcomparator;\
@@ -1873,13 +1870,13 @@ type *sglib_##type##_it_next(struct sglib_##type##_iterator *it) {\
 static void sglib___##type##_consistency_check_recursive(type *t, int *pathdeep, int cdeep) {\
   if (t==NULL) {\
     if (*pathdeep < 0) *pathdeep = cdeep;\
-    else {assert(*pathdeep == cdeep);}\
+    else {assert_beebs(*pathdeep == cdeep);}\
   } else {\
-    if (t->left!=NULL) {assert(comparator(t->left, t) <= 0);}\
-    if (t->right!=NULL) {assert(comparator(t, t->right) <= 0);}\
+    if (t->left!=NULL) {assert_beebs(comparator(t->left, t) <= 0);}\
+    if (t->right!=NULL) {assert_beebs(comparator(t, t->right) <= 0);}\
     if (SGLIB___GET_VALUE(t->bits) == RED) {\
-      assert(t->left == NULL || SGLIB___GET_VALUE(t->left->bits)==BLACK);\
-      assert(t->right == NULL || SGLIB___GET_VALUE(t->right->bits)==BLACK);\
+      assert_beebs(t->left == NULL || SGLIB___GET_VALUE(t->left->bits)==BLACK);\
+      assert_beebs(t->right == NULL || SGLIB___GET_VALUE(t->right->bits)==BLACK);\
       sglib___##type##_consistency_check_recursive(t->left, pathdeep, cdeep);\
       sglib___##type##_consistency_check_recursive(t->right, pathdeep, cdeep);\
     } else {\
@@ -1891,7 +1888,7 @@ static void sglib___##type##_consistency_check_recursive(type *t, int *pathdeep,
 \
 void sglib___##type##_consistency_check(type *t) {\
   int pathDeep;\
-  assert(t==NULL || SGLIB___GET_VALUE(t->bits) == BLACK);\
+  assert_beebs(t==NULL || SGLIB___GET_VALUE(t->bits) == BLACK);\
   pathDeep = -1;\
   sglib___##type##_consistency_check_recursive(t, &pathDeep, 0);\
 }
