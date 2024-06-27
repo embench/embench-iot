@@ -66,7 +66,8 @@ def build_support_objects(env):
 
 
 # MAIN BUILD SCRIPT
-env = DefaultEnvironment()
+#env = DefaultEnvironment()
+env = Environment(ENV=os.environ.copy())
 vars = parse_options()
 
 bd = Path(GetOption('build_dir')).absolute()
