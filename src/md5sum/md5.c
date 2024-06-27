@@ -15,7 +15,7 @@
 
 #include "support.h"
 
-#define LOCAL_SCALE_FACTOR 86
+#define LOCAL_SCALE_FACTOR 66
 
 /* BEEBS heap is just an array */
 /* MSG_SIZE * 2 + ((((MSG_SIZE+8)/64 + 1) * 64) - 8) + 64 */
