@@ -9,6 +9,7 @@
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
 # Contributor: Roger Shepherd <roger.shepherd@rcjd.net>
 # Contributor: Konrad Moreon <konrad.moron@tum.de>
+# Contributor: Madhu Sudhanan <madhu2000u@gmail.com>
 #
 # This file is part of Embench.
 
@@ -312,9 +313,13 @@ def collect_data(benchmarks):
             # Want relative results (the default). If baseline is zero, just
             # use 0.0 as the value.  Note this is inverted compared to the
             # speed benchmark, so SMALL is good.
-            if baseline[bench] > 0:
-                rel_data[bench] = raw_totals[bench] / baseline[bench]
-            else:
+            try:
+                if baseline[bench] > 0:
+                    rel_data[bench] = raw_totals[bench] / baseline[bench]
+                else:
+                    rel_data[bench] = 0.0
+            except KeyError:
+                log.error(f'Baseline data for {bench} not found. Assuming 0.')
                 rel_data[bench] = 0.0
 
     # Output it
