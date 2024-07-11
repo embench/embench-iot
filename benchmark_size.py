@@ -25,8 +25,8 @@ import sys
 import platform
 
 from json import loads
-import lief
-from lief.ELF import SECTION_FLAGS as FLAGS
+from elftools.elf import elffile as elf
+from elftools.elf.constants import SH_FLAGS as FLAGS
 
 sys.path.append(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), 'pylib')
@@ -60,9 +60,9 @@ associations are:
 """
 
 # the default sections names are used both in validate_args and in collect_data
-DEFAULT_FLAGS_ELF =   { 'text'  : {int(FLAGS.ALLOC | FLAGS.EXECINSTR)},
-                        'rodata': {int(FLAGS.ALLOC)},
-                        'data'  : {int(FLAGS.ALLOC | FLAGS.WRITE), int(FLAGS.ALLOC | FLAGS.WRITE | FLAGS.EXECINSTR)},
+DEFAULT_FLAGS_ELF =   { 'text'  : {int(FLAGS.SHF_ALLOC | FLAGS.SHF_EXECINSTR)},
+                        'rodata': {int(FLAGS.SHF_ALLOC)},
+                        'data'  : {int(FLAGS.SHF_ALLOC | FLAGS.SHF_WRITE), int(FLAGS.SHF_ALLOC | FLAGS.SHF_WRITE | FLAGS.SHF_EXECINSTR)},
                       }
 
 DEFAULT_SECNAMELIST_DICT =  {'elf': DEFAULT_FLAGS_ELF,
@@ -237,22 +237,20 @@ def benchmark_size(bench, bd_path, metrics, dummy_sec_sizes):
     # read format from file and check it is as expected
     with open(appexe, 'rb') as fileh:
         magic = fileh.read(4)
-        # lief does not appear to have ability to work from an already opened file
         fileh.close()
     if ((magic != b'\x7fELF')):
         log.info(f'ERROR: Only ELF is supported, {appexe} does not contain magic identifier')
         sys.exit(1)
 
-    binary = lief.parse(appexe)
-    if not isinstance(binary, lief.ELF.Binary):
-        log.info(f'ERROR: Only ELF is supported, {appexe} is {type(binary)}')
-        sys.exit(1)
-    sections = binary.sections
+    #binary = lief.parse(appexe)
+    
+    binary = elf.ELFFile(open(appexe, 'rb'))
+    sections = binary.iter_sections()
     for metric in metrics:
         sec_sizes[metric] = 0
         for section in sections:
-            if (section.flags in DEFAULT_FLAGS_ELF[metric]):
-                sec_sizes[metric] += section.size
+            if (section['sh_flags'] in DEFAULT_FLAGS_ELF[metric]):
+                sec_sizes[metric] += section['sh_size']
     for metric, size in dummy_sec_sizes.items():
         if metric in metrics:
             sec_sizes[metric] -= size
@@ -403,7 +401,7 @@ def main():
     if raw_data:
         if gp['output_format'] != output_format.BASELINE:
             opt_comma = ',' if args.json_comma else ''
-            embench_stats(benchmarks, raw_data, rel_data, 'size', opt_comma)
+            embench_stats(benchmarks, raw_data, rel_data)
             if gp['output_format'] == output_format.JSON: log.info('}')
             else: log.info('All benchmarks sized successfully')
     else:
