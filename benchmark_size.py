@@ -8,7 +8,7 @@
 # Contributor: Graham Markall <graham.markall@embecosm.com>
 # Contributor: Jeremy Bennett <jeremy.bennett@embecosm.com>
 # Contributor: Roger Shepherd <roger.shepherd@rcjd.net>
-# Contributor: Konrad Moreon <konrad.moron@tum.de>
+# Contributor: Konrad Moron <konrad.moron@tum.de>
 #
 # This file is part of Embench.
 
@@ -176,6 +176,7 @@ def build_parser():
         default=[],
         nargs='+',
         choices=ALL_METRICS,
+        action='extend',
         help=
         'Section categories to include in metric: one or more of "text", "rodata", '
         + 'or "data". Default "text"',
