@@ -204,6 +204,7 @@ def benchmark_speed(bench, args):
     appdir = os.path.join(gp['bd_benchdir'], bench)
     appexe = os.path.join(appdir,f"{bench}{gp['file_extension']}")
 
+    res = None
     if os.path.isfile(appexe):
         res = run_benchmark(bench, appexe, args)
         if res is None:
