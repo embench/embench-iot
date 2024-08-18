@@ -16,6 +16,11 @@ Embench module to run benchmark programs.
 This version is suitable for a gdbserver with simulator.
 """
 
+__all__ = [
+    'get_target_args',
+    'run_benchmark',
+]
+
 import argparse
 import subprocess
 import re
