@@ -1,114 +1,114 @@
 {
   "aha-mont64" : {
-    "text" : 880,
+    "text" : 908,
     "rodata" : 0,
     "data" : 0,
     "bss" : 20
   },
   "crc32" : {
-    "text" : 320,
+    "text" : 140,
     "rodata" : 1024,
     "data" : 0,
-    "bss" : 16
+    "bss" : 0
   },
   "depthconv" : {
-    "text" : 468,
+    "text" : 464,
     "rodata" : 0,
     "data" : 628,
     "bss" : 156
   },
   "edn" : {
-    "text" : 1216,
+    "text" : 1220,
     "rodata" : 1600,
     "data" : 0,
     "bss" : 1608
   },
   "huffbench" : {
-    "text" : 1288,
+    "text" : 1184,
     "rodata" : 1004,
     "data" : 0,
     "bss" : 8708
   },
   "matmult-int" : {
-    "text" : 404,
+    "text" : 384,
     "rodata" : 1600,
     "data" : 0,
     "bss" : 8000
   },
   "md5sum" : {
-    "text" : 696,
+    "text" : 684,
     "rodata" : 512,
     "data" : 0,
-    "bss" : 3112
+    "bss" : 3104
   },
   "nettle-aes" : {
-    "text" : 2064,
+    "text" : 1952,
     "rodata" : 9740,
     "data" : 544,
     "bss" : 1000
   },
   "nettle-sha256" : {
-    "text" : 3372,
-    "rodata" : 324,
+    "text" : 3376,
+    "rodata" : 288,
     "data" : 88,
     "bss" : 32
   },
   "nsichneu" : {
-    "text" : 12256,
+    "text" : 16004,
     "rodata" : 0,
     "data" : 8,
     "bss" : 56
   },
   "picojpeg" : {
-    "text" : 6684,
+    "text" : 6932,
     "rodata" : 984,
     "data" : 0,
     "bss" : 2400
   },
   "qrduino" : {
-    "text" : 5556,
-    "rodata" : 1508,
+    "text" : 5796,
+    "rodata" : 1504,
     "data" : 0,
-    "bss" : 8248
+    "bss" : 8240
   },
   "sglib-combined" : {
-    "text" : 4740,
+    "text" : 2228,
     "rodata" : 800,
     "data" : 0,
     "bss" : 8692
   },
   "slre" : {
-    "text" : 2056,
+    "text" : 2064,
     "rodata" : 316,
     "data" : 64,
     "bss" : 0
   },
   "statemate" : {
-    "text" : 3384,
+    "text" : 4308,
     "rodata" : 64,
     "data" : 0,
-    "bss" : 256
+    "bss" : 232
   },
   "tarfind" : {
-    "text" : 456,
+    "text" : 384,
     "rodata" : 0,
     "data" : 0,
     "bss" : 9008
   },
   "ud" : {
-    "text" : 584,
+    "text" : 588,
     "rodata" : 0,
     "data" : 0,
     "bss" : 1760
   },
   "wikisort" : {
-    "text" : 7008,
+    "text" : 6788,
     "rodata" : 3256,
     "data" : 80,
-    "bss" : 3216
+    "bss" : 3200
   },
   "xgboost" : {
-    "text" : 288,
+    "text" : 292,
     "rodata" : 39556,
     "data" : 0,
     "bss" : 0
