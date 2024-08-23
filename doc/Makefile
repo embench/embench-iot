@@ -21,7 +21,7 @@ spell: README.md custom.wordlist
 	@sed < README.md -e 's/`[^`]\+`//g' -e '/^```/,/^```$$/d' \
 	    -e 's/&#[^;]\+;//g' \
 	    -e 's/<!-- .\+ -->//g' -e 's/\[.\+\]([^)]*)//g' | \
-	    hunspell -p custom.wordlist -l -d en-US | sort -u
+	    hunspell -p custom.wordlist -l -d en_US | sort -u
 
 # PDF version of the documentation
 

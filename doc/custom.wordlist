@@ -1,6 +1,7 @@
 16MHz
 64kB
 aachen
+ABI
 acknowledgements
 Acknowledgements
 aes
@@ -23,6 +24,7 @@ copyleft
 CoreMark
 crc
 cryptographic
+CSV
 CY
 de
 Dhrystone
@@ -36,6 +38,7 @@ Embecosm
 embench
 Embench
 eu
+executables
 Farnell
 formatters
 FOSSi
@@ -63,6 +66,7 @@ lysator
 M4
 Makefile
 mailto
+MarkDown
 matmult
 mdh
 mibench
@@ -78,6 +82,7 @@ nisse
 noncommercially
 nsichneu
 nz
+OpenOCD
 pagewidth
 Pallister
 pandoc
@@ -86,14 +91,19 @@ pdf
 picojpeg
 PNG
 PostScript
+pyelftools
 qrduino
 rc1
 rc2
+README
 retitle
 RI5CY
 riscv
+riscv32
+rv32imc
 rwth
 toc
+scons
 sglib
 se
 SGML
@@ -108,9 +118,10 @@ subdirectories
 sublicense
 subunit
 Texinfo
-toolchain
+ToC
 ud
 umich
+Unix
 Verilator
 vhosts
 wcet

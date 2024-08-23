@@ -23,7 +23,11 @@ a stable release.
 
 - `embench-0.5`
 - `embench-1.0`
-- `embench-2.0`
+
+The following is are development releases
+
+- `embench-2.0rc1`
+- `embench-2.0rc2`
 
 ## Using the benchmarks
 
@@ -33,19 +37,16 @@ is described in the [user manual](./doc/README.md).
 
 - The benchmarks should all compile to fit in 64kB of program space and use no
   more than 64kB of RAM
-  - **Note.** An earlier version tried to limit RAM to 16kB, but this proved
-    too restrictive.
 
 - The measurement of execution performance is designed to use "hot" caches.
   Thus each benchmark executes its entire code several times, before starting
   a timing run.
 
-- Execution runs are scaled to take approximately 4 second of CPU time. This
+- Execution runs are scaled to take approximately 4 second of CPU time.  This
   is large enough to be accurately measured, yet means all 19 benchmarks,
-  including cache warm up can be run in a few minutes.
-
-- To facilitate execution on machines of different performance, the tests are
-  scaled by the clock speed of the processor.
+  including cache warm up can be run in a few minutes.  The scaling factor is
+  configurable to make Embench suitable for machines of a wide range of
+  performance.
 
 - The benchmarks are designed to be run on either real or simulated
   hardware. However for meaningful execution performance results any simulated

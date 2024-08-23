@@ -19,7 +19,8 @@ Document conventions:
 Authors: Embench&#x2122; Task Group
 Issue:   1.0
 
-Copyright (C) 2009, 2013, 2019 Embecosm Limited
+Copyright (C) 2009, 2013, 2019, Embecosm Limited
+Copyright (C) 2019, 2024 Free and Open Source Silicon Foundation
 
 This document is part of Embench and was formerly part of the
 Bristol/Embecosm Embedded Benchmark Suite.  It is made freely available under
@@ -53,10 +54,9 @@ Silicon Foundation.
 - [Reference platform](#reference-platform)
 - [Documentation](#documentation)
     - [Building the documentation](#building-the-documentation)
-- [Adding a New Board to Embench](#adding-a-new-board-to-embench)
-    - [Creating a config directory](#creating-a-config-directory)
+- [Adding a new board to Embench](#adding-a-new-board-to-embench)
+    - [Creating a configuration for the new board](#creating-a-configuration-for-the-new-board)
     - [Configuration variables](#configuration-variables)
-    - [Board specific files](#board-specific-files)
 - [The GNU Free Documentation License version 1.2, November 2002](#the-gnu-free-documentation-license-version-1.2-november-2002)
     - [Preamble](#preamble)
     - [Applicability and definitions](#applicability-and-definitions)
@@ -155,11 +155,11 @@ Bennett.
 ### Future work
 
 This is a work in progress.  This first stable release 0.5 was published at the
-Embedded World Conference in February 2020.  It is intended to allow the wider
-community to explore a stable version of the platform.
+Embedded World Conference in February 2020, with first full release 1.0 later
+that year.
 
-Based on feedback from this exercise, it is anticipated that the first full
-release will be produced by the end of 2020.
+At present release 2.0 is in preparation, with a changed set of benchmarks.
+It is hoped this will be released in the autumn of 2024.
 
 ### Feedback and how to contribute
 
@@ -179,35 +179,44 @@ This document has been created by the following people (in alphabetical order
 of surname).
 
 - Jeremy Bennett.
+- Konrad Moron
+- David Patterson
+- Lyell Read
+- Roger Shepherd
+- John Taylor
 
 ### Document history
-| _Revision_  | _Date_     | _Author(s)_      | _Modification_                     |
-| ----------- | ---------- | ---------------- | ---------------------------------- |
-| 2.0 rc1     | 12 Mar 24  | Konrad Moron     | Update README to account for       |
-|             |            |                  | changes to new toolchain.          |
-| WIP         | 9 Aug 20   | Roger Shepherd   | Note re python module names        |
-| WIP         | 19 Jul 20  | Jeremy Bennett   | Add pyelftools to prerequisites.   |
-|             |            |                  |                                    |
-| 0.5         | 27 Feb 20  | David Patterson  | Incorporate latest review comments |
-|             |            | Jon Taylor       | to accompany release 0.5. Update   |
-|             |            | Jeremy Bennett   | document versioning for            |
-|             |            |                  | consistency with release           |
-|             |            |                  | numbering.                         |
-|             |            |                  |                                    |
-|             | 21 Jan 20  | Lyell Read       | Correcting partial sentence and    |
-|             |            |                  | removing duplicate log file flag   |
-|             |            |                  | definition.                        |
-|             |            |                  |                                    |
-| 0.5 rc2     | 13 Nov 19  | Jeremy Bennett   | Migrated to markdown and updated   |
-|             |            |                  | to refer to Python scripts.        |
-|             |            |                  | Version previously known as draft  |
-|             |            |                  | 0.6.                               |
-|             |            |                  |                                    |
-| 0.5 rc1     | 6 Jun 19   | Jeremy Bennett   | First draft of this document,      |
-|             |            |                  | drawing heavily on the BEEBS       |
-|             |            |                  | documentation. Version previously  |
-|             |            |                  | known as draft 0.5.                |
 
+| _Revision_ | _Date_    | _Author(s)_     | _Modification_                    |
+|------------|-----------|-----------------|-----------------------------------|
+| 2.0 rc2    | 20 Aug 24 | Jeremy Bennet   | Full review of documentation      |
+|            |           |                 |                                   |
+| 2.0 rc1    | 12 Mar 24 | Konrad Moron    | Update README to account for      |
+|            |           |                 | changes to new tool chain.        |
+|            |           |                 |                                   |
+|            | 9 Aug 20  | Roger Shepherd  | Note re python module names       |
+|            |           |                 |                                   |
+|            | 19 Jul 20 | Jeremy Bennett  | Add pyelftools to prerequisites.  |
+|            |           |                 |                                   |
+| 0.5        | 27 Feb 20 | David Patterson | Incorporate latest review         |
+|            |           | Jon Taylor      | comments to accompany release     |
+|            |           | Jeremy Bennett  | 0.5. Update document versioning   |
+|            |           |                 | for consistency with release      |
+|            |           |                 | numbering.                        |
+|            |           |                 |                                   |
+|            | 21 Jan 20 | Lyell Read      | Correcting partial sentence and   |
+|            |           |                 | removing duplicate log file flag  |
+|            |           |                 | definition.                       |
+|            |           |                 |                                   |
+| 0.5 rc2    | 13 Nov 19 | Jeremy Bennett  | Migrated to markdown and updated  |
+|            |           |                 | to refer to Python scripts.       |
+|            |           |                 | Version previously known as draft |
+|            |           |                 | 0.6.                              |
+|            |           |                 |                                   |
+| 0.5 rc1    | 6 Jun 19  | Jeremy Bennett  | First draft of this document,     |
+|            |           |                 | drawing heavily on the BEEBS      |
+|            |           |                 | documentation. Version previously |
+|            |           |                 | known as draft 0.5.               |
 
 ## Building and running Embench
 
@@ -225,9 +234,9 @@ Embench expects the following version of tools. Update your system accordingly.
 
 The following non-standard Python packages are needed.
 
-| _Package_  | _Comments_ |
-| -----------| -----------|
-| lief       |            |
+| _Package_ | _Comments_                      |
+|-----------|---------------------------------|
+| lief      | Only needed to run on Apple Mac |
 
 
 ### Preparation
@@ -243,61 +252,27 @@ git clone https://github.com/embench/embench-iot.git
 
 ### Configuring the benchmarks
 
-The benchmarks are configured in several ways:
+The benchmarks are configured using _scons_ in several ways:
 
-- default values in the scons build script
+- default values in the scons build script; and
 - on the command line to the scons build script.
 
-Command line variables overwrite default values.
+Command line variables take precedence over default values.
 
-In addition, there must be board specific code in a
-directory specified with `--config-dir`:
+In addition, there must be board specific code in a directory specified with
+the `--config-dir` option to _scons_.  It should contain the following files.
 
-- a board specific header 
-  `boardsupport.h`.
-    - for example
-    [`examples/native/speed/boardsupport.h`](../examples/native/speed/boardsupport.h); and
-- board specific code in
-  `boardsupport.c`.
-    - for example
+- a board specific header, `boardsupport.h`:
+    - for example for the reference Arm platform
+    [`examples/arm/stm32f4-discovery/boardsupport.h`](../examples/arm/stm32f4-discovery/boardsupport.h).
+- board specific code in `boardsupport.c`.
+    - for example for the reference Arm platform
     [`examples/natvie/speed/boardsupport.c`](../examples/native/speed/boardsupport.c).
 
-
-`scons --help` prints the available configuration variables.
-The following variables can be specified on the command line when building the benchmarks:
-
-- `cc`: The C compiler to use. Default value `cc`.
-- `ld`: The linker to use. Default value is determined by scons.
-- `cflags`: A list of compiler flags, which are passed
-  to `cc` for the compilation of object files.
-  Default value `[]`.
-- `ldflags`: A list of linker flags, which are passed to
-  `ld`. Default value `[]`.
-- `user_libs`: A list of libraries to be linked with all executables. 
-  The libraries may be absolute file names or arguments to the linker.  In the
-  latter case corresponding arguments in `ldflags` may be needed.  For example
-  with GCC or Clang/LLVM if `-l` or `-l:` flags are used in `user_libs`, then `-L`
-  flags may be needed in `ldflags`.  Default value is the empty list.
-- `dummy_benchmark`: The directory of an empty benchmark used to
-  calculate the code size overhead of startup routines and libraries.
-  The dummy benchmark's size is subtracted from other benchmarks.
-  Default value [`support/dummy-benchmark`](../support/dummy-benchmark/).
-- `gsf`: The global scale factor used to ensure execution times of the
-  individual benchmarks are around 4 seconds.  As a guide, set this to the clock rate of the target in MHz.  Default value 16.
-- `warmup_heat`: How many times the benchmark code should be run to warm up
-  the caches.  Default value 1.
-
-Any other variables are silently ignored.  There is no need to set an unused
-parameter, and any configuration file may be empty or missing if no flags need
-to be set.
-
 The board specific files are used only to provide code essential to
-the functionality. The board support header (`boardsupport.h`) can be
-used to define the global scale factor of the board, rather than specifying it on the command line, for example:
-```C
-#define GLOBAL_SCALE_FACTOR 27
-```
-The only other parameter to consider setting this way, rather than from the command line is `WARMUP_HEAT`.
+the functionality. The board support header (`boardsupport.h`) is often
+empty. It can be used to set some of the configuration variables, however the
+preferred approach is to specify these on the _scons_ command line.
 
 The board support code file (`boardsupport.c`) is used to define three
 functions.
@@ -308,37 +283,69 @@ any board specific timing mechanism.
 - `void stop_trigger ()`: Called when we stop timing the benchmark, to stop
 any board specific timing mechanism.
 
+`scons --help` prints the available configuration variables.
+
+The following variables are the most useful to be specified on the command line when building the benchmarks.
+
+- `cc`: The C compiler to use. Default value `cc`.
+- `ld`: The linker to use. Default value is the same as `cc`.
+- `cflags`: A list of compiler flags, which are passed to `cc` for the
+  compilation of object files. Default value `[]`.
+- `ldflags`: A list of linker flags, which are passed to `ld`. Default value
+  `[]`.
+- `user_libs`: A list of libraries to be linked with all executables.  The
+  libraries may be absolute file names or arguments to the linker.  In the
+  latter case corresponding arguments in `ldflags` may be needed.  For example
+  with GCC or Clang/LLVM if `-l` or `-l:` flags are used in `user_libs`, then
+  `-L` flags may be needed in `ldflags`.  Default value is the empty list, `[]`.
+- `gsf`: The global scale factor used to ensure execution times of the
+  individual benchmarks are around 4 seconds.  As a guide, set this to the
+  clock rate of the target in MHz when measuring chip execution performance
+  and 1 when measuring code size performance.  Default value 16.
+- `warmup_heat`: How many times the benchmark code should be run to warm up
+  the caches.  Default value 1.
+
+Unknown variables are silently ignored.  There is no need to set an unused
+parameter, and any configuration file may be empty or missing if no flags need
+to be set.
+
 ### Building the benchmarks
 
-Embench is built with [`scons`](https://scons.org/).
-The build script is [`sconstruct.py`](../sconstruct.py).
-See the [`examples`](../examples/) directory for quick-start scons invocations.
-Next to the variables specified above, scons takes the following options:
+Embench is built with _scons_ (see [scons.org](https://scons.org/).  The build
+script is [`sconstruct.py`](../sconstruct.py). 
+
+See the README files in the [`examples`](../examples/) directory for typical
+scons invocations.  As well as the variables described above (section
+([Configuring the benchmarks](#configuring-the-benchmarks)), _scons_ takes the
+following options.
 
 - `--build-dir`: The programs are built out of tree, this specifies the
   directory in which to build.  It may be an absolute or relative directory
   name; if the latter, it will be relative to the top level directory of the
   repository. Default value `bd`.
 - `--config-dir`: The directory which contains your `boardsupport.c`
-  and `boardsupport.h`.
-- `-c`: Clean the build directory and delete all intermediaries and final files from any previous runs
-  of the script.
+  and `boardsupport.h`.  Must be specified.
+- `-c`: Clean the build directory and delete all intermediaries and final
+  files from any previous runs of the script. Remember to specify
+  `--build-dir` if you are not using the default build directory.
 - `--help`: Provide help on the arguments.
 
-Within variables, `${CONFIG_DIR}` is substituted with the `--config_dir` value, and `${BUILD_DIR}` with
-the value of `--build_dir`.
+Within variables, `${CONFIG_DIR}` is substituted with the `--config_dir`
+value, and `${BUILD_DIR}` with the value of `--build_dir`.
 
-Example: The following command builds the benchmarks for generic RISC-V RV32IMC machine. The flags include:
+Example: The following command builds the benchmarks for the Wally RISC-V RV32IMC machine. The flags include:
 - `user_libs`: some benchmarks require the math library.
 - `cc`: use the riscv32 embedded compiler.
-- `cflags`: compile for the `ilp32d` architecture, put all functions and data items in their own
-  section for dead code elimination during linking.
-- `ldflags`: don't use the toolchain's startup code, use the linker script at
+- `cflags`: compile for the `ilp32d` ABI, put all functions and data items in
+  their own section for dead code elimination during linking.
+- `ldflags`: don't use the tool chain's startup code, use the linker script at
   `${CONFIG_DIR}/link.ld`, and eliminate dead code using `-Wl,-gc-sections`.
 
 ```sh
-scons --config-dir=examples/riscv32/rv32wallyverilog/ user_libs=-lm cc=riscv32-unknown-none-elf-gcc \
-    cflags='-fdata-sections -ffunction-sections -mabi=ilp32d' ldflags='-Wl,-gc-sections -mabi=ilp32d -nostartfiles -T${CONFIG_DIR}/link.ld'
+scons --config-dir=examples/riscv32/rv32wallyverilog/ user_libs=-lm \
+  cc=riscv32-unknown-none-elf-gcc \
+  cflags='-fdata-sections -ffunction-sections -mabi=ilp32d' \
+  ldflags='-Wl,-gc-sections -mabi=ilp32d -nostartfiles -T${CONFIG_DIR}/link.ld'
 ```
 
 ### Running the benchmark of code size
@@ -364,33 +371,45 @@ script, which takes the following arguments.
   specified, present absolute benchmark results.  If neither is specified,
   present relative results, because this is the defined norm for Embench.
 - `--metric`. A space separated list of section types to include when
-  calculating the benchmark metric.
-  Permitted values ares `text`, `data`, `rodata`.  Default value `text`.
+  calculating the benchmark metric.  Permitted values ares `text`, `data`,
+  `rodata`, `bss`.  Default value `text`.
 - `--text-output`: Output the text in a plain text format. This is the
   default.
 - `--json-output`: Output the results in json format, instead of the
   default plain text format.
+- `--csv-output`: Output the results as a CSV file (suitable for use in
+  spreadsheets).
+- `--md-output`: Output the results as a table in MarkDown format.
 - `--baseline-output`: Output results in a format suitable for use as
   baseline data instead of the default text format. This can be used
-  instead of the reference data in `baseline-data/size.json`.
+  instead of the reference data in `baseline-data/size.json`.  This
+  automatically applies `--absolute`.
 - `--dummy-benchmark`: The directory which contains an empty benchmark
   used for library and startup routine size adjustments of other benchmarks.
+  **Note.** Primarily intended for use by developers.
 - `--file-extension`: An optional extension appended to benchmark names when
   building file-system paths to benchmark binaries. For example, specifying
   `.exe` would change paths of the form `bd/src/benchmark/benchmark` to
-  `bd/src/benchmark/benchmark.exe`. Might be required on non-unix systems.
+  `bd/src/benchmark/benchmark.exe`. Might be required on non-Unix systems.
 - `--help`: Provide help on the arguments.
 
-Before calculating relative or absolute benchmark sizes, the size of `dummy-benchmark`
-metrics is subtracted from each benchmark's size to account for toolchain specific size overhead
-in supporting code.
+Before calculating relative or absolute benchmark sizes, the size of
+`dummy-benchmark` metrics is subtracted from each benchmark's size to account
+for tool chain specific size overhead in supporting code.
 
 The size of `text`, `data`, and `rodata` metrics are determined by the flags of
-elf sections in each benchmark:
+elf sections in each benchmark.
 
-- `text`: allocated and executable
-- `data`: allocated and writable, optionally also executable 
-- `rodata`: allocated
+- `text`: allocated and executable.
+- `data`: allocated and writable, optionally also executable.
+- `rodata`: allocated.
+- `bss`: all unallocated writable data.
+
+The official Embench scores use just `text`, however it is also make sense to
+use `text` + `data` + `rodata`, which is the size of an image in the ROM of an
+embedded system (including the initializing values for the `data` sections).
+Note that some linker scripts will allocate explicit sections for stack and/or
+heap, and these will be included in `bss`.
 
 ### Running the benchmark of code speed
 
@@ -432,7 +451,7 @@ script, which takes the following general arguments.
 - `--file-extension`: An optional extension appended to benchmark names when
   building file-system paths to benchmark binaries. For example, specifying
   `.exe` would change paths of the form `bd/src/benchmark/benchmark` to
-  `bd/src/benchmark/benchmark.exe`. Might be required on non-unix systems.
+  `bd/src/benchmark/benchmark.exe`. Might be required on non-Unix systems.
 - `--help`: Provide help on the arguments.
 
 There is so much variation in how a benchmark can be run that the detailed
@@ -466,7 +485,7 @@ techniques to match source code styles with the a choice of optimization
 passes.
 
 The philosophy of recorded data should be such that anyone else can take the
-same platform and toolchain and duplicate the results.
+same platform and tool chain and duplicate the results.
 
 ## Statistics of computing benchmarks
 
@@ -474,7 +493,6 @@ These computations are carried out by the benchmark scripts.
 
 ### Computing a benchmark value for speed
 
-__Compiling for speed__:
 The benchmarks should be compiled with `cflags` and `ldflags` that optimize
 for speed, such as `-O2`.
 
@@ -504,23 +522,23 @@ efficiency of the platform in carrying out computation.
 
 ### Computing a benchmark value for code size
 
-__Compiling for size__:
 The benchmarks should be compiled with `cflags` and `ldflags` that optimize
-for size, such as `-Os`.
-In addition, for most accurate results, `ldflags` should include `-rdynamic`,
-which ensures that library overhead from support files is included in the
-`dummy-benchmark`, and thus correctly subtracted from all benchmarks.
+for size, such as `-Os`.  The sections that count towards code size are
+specified in the `--metric` option when building.  By default just text
+sections are counted.
 
-Benchmarks should be compiled with dummy versions of all standard libraries.
-Carry out the following steps:
+There is a fixed overhead to all benchmarks, which we wish to exclude when
+benchmarking.  This is done by compiling a dummy benchmark, which has no body,
+and subtracting its size from the size of sections when measured.
 
-- For each benchmark record the size of all `text` sections.
-- Subtract the sum of all `text` sections of the `dummy-benchmark` from each benchmark.
+- For each benchmark record the size of all sections of the chosen metric.
+- Subtract the sum of all chosen metric sections of the `dummy-benchmark` from
 - For each benchmark, compute its size relative to the reference platform -
   see [Reference platform](#reference-platform) - by dividing the size
   recorded in the previous step by the size of the corresponding reference
   benchmark.
-- Calculate the geometric mean, geometric standard deviation and range of one
+- Take the set of relative scores for all benchmarks and calculate the
+  geometric mean, geometric standard deviation and range of one
   geometric standard deviation of the relative size.
 
 The benchmark value is the geometric mean of the relative size. A larger value
@@ -528,12 +546,12 @@ means code is larger.  The range gives an indication of how much variability
 there is in this measurement.
 
 **NOTE** The computation of the relative value is inverted compared to the
-  computation for speed.  This means that for size, small is good.
+  computation for speed.  This means that for size, **small** is good.
 
 **NOTE** Older versions of the GNU _size_ program report the size of `.text` +
-`.rodata` section.  In measuring the size, ensure you use a modern version of
-_size_ which supports the `-G` flag, which will yield the size of just `.text`
-sections.
+`.rodata` section.  In measuring the size, the script requires a version of
+GNU _size_ which supports the `-G` flag, which will yield the size of just
+`.text` sections.
 
 ## Reference platform
 
@@ -543,62 +561,84 @@ Board - see
 [www.st.com/en/evaluation-tools/stm32f4discovery.html](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
 using its default clock speed of 16MHz.  The processor on this board does
 contain a FPU, but this is disabled by use of appropriate compiler options (see
-below).  The code is compiled using GCC 9.2.0, GNU binutils 2.33.1 and newlib
-3.3.0.  Newlib is configured for small code size - known as the "nanolib"
-configuration.
+below).
 
 The board can be obtained directly from ST Microelectronics, using the above
 link, but is also widely available from other suppliers, including Farnell, RS
-Electronics, Mouser and several suppliers on Amazon.
+Electronics, Mouser and several suppliers on Amazon.  It was specifically
+chosen because of its widespread availability at modest cost.
+
+The benchmarks are compiled using GCC 14.1.0, GNU binutils 2.39 and newlib
+4.3.0. The standard newlib configuration is used in the reference run, rather
+than the _nanolib_ configuration.
+
+The full compiler configuration is as follows:
+```
+Using built-in specs.
+COLLECT_GCC=../install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/bin/arm-none-eabi-gcc
+COLLECT_LTO_WRAPPER=/home/jeremy/gittrees/embench/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.1.0/lto-wrapper
+Target: arm-none-eabi
+Configured with: /home/paolo/EMBENCH/patterson/gnu/gcc/configure --with-build-time-tools=/home/paolo/EMBENCH/patterson/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/arm-none-eabi/bin --target=arm-none-eabi --prefix=/home/paolo/EMBENCH/patterson/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi --sysconfdir=/home/paolo/EMBENCH/patterson/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/etc --localstatedir=/home/paolo/EMBENCH/patterson/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/var --with-sysroot=/home/paolo/EMBENCH/patterson/install-turbo/gcc-14.1.0-binutils-2_39-newlib-4.3.0-arm-none-eabi/arm-none-eabi/sysroot --disable-shared --enable-static --disable-gtk-doc --disable-gtk-doc-html --disable-doc --disable-docs --disable-documentation --with-xmlto=no --with-fop=no --disable-__cxa_atexit --with-gnu-ld --disable-libssp --disable-multilib --enable-target-optspace --disable-libsanitizer --disable-tls --disable-libmudflap --disable-threads --disable-libquadmath --disable-libgomp --without-isl --without-cloog --disable-decimal-float --enable-languages=c --with-newlib --disable-largefile --enable-plugins --disable-nls --enable-checking=yes --with-cpu=cortex-m4 --with-mode=thumb --with-float=soft
+Thread model: single
+Supported LTO compression algorithms: zlib
+gcc version 14.1.0 (GCC) 
+```
 
 For the speed benchmarks, the compiler flags used are:
 ```
--O2 -ffunction-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
+-O2 -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
+  mfloat-abi=soft -mthumb
+```
+For the speed benchmarks, the linker flags are:
+```
+-O2 -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
+  -mthumb \
+  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -static -nostartfiles
+```
+For the speed benchmarks, the build command is:
+```
+scons --config-dir=examples/arm/stm32f4-discovery/ \
+  --build-dir=bd-arm-gcc-14.1.0-speed \
+  cc=arm32-none-eabi-gcc cflags="${speed_cflags}" \
+  ldflags="${speed_ldflags}" user_libs='m startup' gsf=16
+```
+For the speed benchmarks, the benchmark results are obtained with:
+```
+./benchmark_speed.py --builddir bd-arm-gcc-14.1.0-speed \
+  --target-module=run_stm32f4-discovery \
+  --gdb-command=gdb-multiarch --gsf=16 --cpu-mhz=16
 ```
 
 For the size benchmarks, the compiler flags used are:
 ```
--Os -ffunction-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
+-Os -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
+  mfloat-abi=soft -mthumb
 ```
-
-In both cases the linker flags are:
+For the size benchmarks, the linker flags are:
 ```
--T<embench-iot-root>/config/arm/boards/stm32f4-discovery/STM32F407XG.ld
--O2 -Wl,-gc-sections -march=armv7-m -mcpu=cortex-m4 -mfloat-abi=soft -mthumb
--specs=nosys.specs
+-Os -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
+  -mthumb \
+  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -static -nostartfiles
 ```
-
-The directory `<embench-iot-root>` is the root directory of the `embench-iot`
-repository.
+For the size benchmarks, the build command is:
+```
+scons --config-dir=examples/arm/stm32f4-discovery/ \
+  --build-dir=bd-arm-gcc-14.1.0-size \
+  cc=arm32-none-eabi-gcc cflags="${size_cflags}" \
+  ldflags="${size_ldflags}" user_libs='m startup' gsf=1
+```
+For the size benchmarks, the benchmark results are obtained with:
+```
+./benchmark_size.py --builddir bd-arm-gcc-14.1.0-size
+```
 
 Speed is measured using the platform's internal cycle counter registers, which
 can be converted to time from knowledge of the platform's clock speed.
 
 The reference results can be found in the files `baseline-data/speed.json` and
-`baseline-data/size.json` in the repository.  For convenience the key values
-are recorded here:
-
-| _Benchmark_      | _Speed_  | _Size_ |
-| ---------------- | --------:| ------:|
-| `aha-mont64`     |    4,004 |  1,072 |
-| `crc32`          |    4,010 |    284 |
-| `edn`            |    4,010 |  1,324 |
-| `huffbench`      |    4,120 |  1,242 |
-| `matmult-int`    |    3,985 |    492 |
-| `nettle-aes`     |    4,026 |  2,148 |
-| `nettle-sha256`  |    3,997 |  3,396 |
-| `nsichneu`       |    4,001 | 11,968 |
-| `picojpeg`       |    4,030 |  6,964 |
-| `qrduino`        |    4,253 |  5,814 |
-| `sglib-combined` |    3,981 |  2,272 |
-| `slre`           |    4,010 |  2,200 |
-| `depthconv`      |    TODO  |  TODO  |
-| `statemate`      |    4,001 |  4,484 |
-| `ud`             |    3,999 |    720 |
-| `wikisort`       |    2,779 |  4,296 |
-
-**NOTE** Speed is measured in milliseconds, size is total size of all `.text`
-  sections in bytes.
+`baseline-data/size.json` in the repository.
 
 ## Documentation
 
@@ -621,39 +661,26 @@ the following on Linux like systems:
 Any custom words for spell checking should be added to the file
 [`custom.wordlist`](../doc/custom.wordlist).
 
-## Adding a New Board to Embench
+## Adding a new board to Embench
 
-### Creating a config directory
+### Creating a configuration for the new board
 
-If new settings for `CPU_MHZ` or new board-specific C routines are required,
-you should create a new directory with a `boardsupport.c` and `boardsupport.h`.
+The configurations are in the `examples` directory and grouped by processor
+type.
 
-```bash
-cp -r examples/native/speed NEW_BOARD
+Thus if we wanted to create a new configuration for the `mynewboard` board
+which has a 32-bit RISC-V processor, we would create a new directory:
 ```
-
-You can customize the board specific files as needed, in particular the
-`initialise_board`, `start_trigger`, and `stop_trigger` routines.
-
-### Configuration variables
-
-Custom variables for compiling the benchmarks for your target are
-specified as command line arguments to `scons`.
-
-### Board specific files
-
-There is a standard header files which should be defined:
-
-```bash
-boardsupport.h
+mkdir examples/riscv32/mynewboard
 ```
+In here, we create two files, `boardsupport.c` and `boardsupport.h`.
 
-These are combined into the general header `support.h` which is included by
-all benchmarks, and defines values which may be used by the benchmarks.
+`boardsupport.h` can be empty, but is available if desired to specify default
+values of some of the _scons_ variables (e.g. `CPU_MHZ`, `GLOBAL_SCALE_FACTOR`
+or `WARMUP_HEAT`.  Remember you can always override these values from the
+command line.
 
-Board specific code that is to be linked in to the benchmarks should be
-defined in `config/ARCH/boards/BOARDNAME/boardsupport.c`.  This file should
-define the following functions:
+`boardsupport.c` must define three `void` functions:
 
 - `initialize_board` which is called to initialize the board;
 - `start_trigger` which is called at the start of the test run; and
@@ -683,6 +710,19 @@ stop_trigger ()
 
 By marking the inline assembly volatile and clobbering memory, we guarantee a
 function which will just contain a return statement.
+
+However alternative implementations may invoke an on-chip timer, writing values
+into global variables which can be read from the debugger.  This is the case
+for the Arm reference board.
+
+Other files specific to the board may also be in this directory.  For example
+OpenOCD configuration files and linker scripts for use when building the
+programs.
+
+### Configuration variables
+
+Custom variables for compiling the benchmarks for your target are
+specified as command line arguments to `scons`.
 
 ## The GNU Free Documentation License version 1.2, November 2002
 
