@@ -24,7 +24,16 @@ If you haven't already done it, build the Arm support library (see above)
 
 Then you can build the benchmarks.  The compilation options here are those used for the baseline Embench 2.0 results.
 ```sh
-scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-O2 -mcpu=cortex-m4 -mthumb'   ldflags='-O2 -Wl,--gc-sections -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -nostartfiles' user_libs='m startup' gsf=16
+cflags="-O2 -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
+  mfloat-abi=soft -mthumb"
+ldflags="-O2 -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
+  -mthumb \
+  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -static -nostartfiles"
+scons --config-dir=examples/arm/stm32f4-discovery/ \
+  --build-dir=bd-arm-gcc-14.0.1-speed \
+  cc=arm32-none-eabi-gcc cflags="${cflags}" \
+  ldflags="${ldflags}" user_libs='m startup' gsf=16
 ```
 
 ## Building for size
@@ -33,7 +42,16 @@ If you haven't already done it, build the Arm support library (see above)
 
 Then you can build the benchmarks.  The compilation options here are those used for the baseline Embench 2.0 results.
 ```sh
-scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-Os -mcpu=cortex-m4 -mthumb'   ldflags='-Os -Wl,--gc-sections -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -nostartfiles' user_libs='m startup' gsf=1
+cflags="-Os -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
+  mfloat-abi=soft -mthumb"
+ldflags="-Os -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
+  -mthumb \
+  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -static -nostartfiles"
+scons --config-dir=examples/arm/stm32f4-discovery/ \
+  --build-dir=bd-arm-gcc-14.0.1-size \
+  cc=arm32-none-eabi-gcc cflags="${cflags}" \
+  ldflags="${ldflags}" user_libs='m startup' gsf=1
 ```
 
 Note that a global scale factor of 1 is always used for code size runs.
@@ -41,17 +59,13 @@ Note that a global scale factor of 1 is always used for code size runs.
 ## Measuring speed
 
 ```sh
-./benchmark_speed.py --target-module=run_stm32f4-discovery --gdb-command=arm-none-eabi-gdb --cpu-mhz=16
+./benchmark_speed.py --builddir bd-arm-gcc-14.0.1-speed \
+  --target-module=run_stm32f4-discovery \
+  --gdb-command=gdb-multiarch --gsf=16 --cpu-mhz=16
 ```
-
 
 ## Measuring size
 
 ```sh
-cd examples/arm/stm32f4-discovery
-make
-cd -
-scons --config-dir=examples/arm/stm32f4-discovery/ cc=arm-none-eabi-gcc cflags='-Os -ffunction-sections -fdata-sections -mcpu=cortex-m4 -mthumb' \
-  ldflags='-Os -Wl,--gc-sections,-export-dynamic -mthumb -mcpu=cortex-m4 -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} -static -nostartfiles --specs=nosys.specs' user_libs='m startup'
-./benchmark_size.py
+./benchmark_size.py --builddir bd-arm-gcc-14.0.1-size
 ```
