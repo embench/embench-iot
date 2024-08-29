@@ -6,6 +6,3 @@
    This file is part of Embench.
 
    SPDX-License-Identifier: GPL-3.0-or-later */
-
-// This value of CPU_MHZ is wrong for all known Macs!
-#define CPU_MHZ 1
