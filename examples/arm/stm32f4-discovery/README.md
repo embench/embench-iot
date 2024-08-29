@@ -28,7 +28,7 @@ cflags="-O2 -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
   mfloat-abi=soft -mthumb"
 ldflags="-O2 -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
   -mthumb \
-  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -T\${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L\${CONFIG_DIR} \
   -static -nostartfiles"
 scons --config-dir=examples/arm/stm32f4-discovery/ \
   --build-dir=bd-arm-gcc-14.0.1-speed \
@@ -46,7 +46,7 @@ cflags="-Os -ffunction-sections -fdata-sections -mcpu=cortex-m4 \
   mfloat-abi=soft -mthumb"
 ldflags="-Os -Wl,--gc-sections -mcpu=cortex-m4 -mfloat-abi=soft \
   -mthumb \
-  -T${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L${CONFIG_DIR} \
+  -T\${CONFIG_DIR}/STM32F407IGHX_FLASH.ld -L\${CONFIG_DIR} \
   -static -nostartfiles"
 scons --config-dir=examples/arm/stm32f4-discovery/ \
   --build-dir=bd-arm-gcc-14.0.1-size \

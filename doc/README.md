@@ -234,9 +234,9 @@ Embench expects the following version of tools. Update your system accordingly.
 
 The following non-standard Python packages are needed.
 
-| _Package_ | _Comments_                      |
-|-----------|---------------------------------|
-| lief      | Only needed to run on Apple Mac |
+|  _Package_  | _Comments_                      |
+|-------------|---------------------------------|
+| pyelftools  |                                 |
 
 
 ### Preparation
@@ -340,12 +340,14 @@ Example: The following command builds the benchmarks for the Wally RISC-V RV32IM
   their own section for dead code elimination during linking.
 - `ldflags`: don't use the tool chain's startup code, use the linker script at
   `${CONFIG_DIR}/link.ld`, and eliminate dead code using `-Wl,-gc-sections`.
+- `gsf`: adjusted to make each benchmark run for ca. 4 seconds.
 
 ```sh
 scons --config-dir=examples/riscv32/rv32wallyverilog/ user_libs=-lm \
   cc=riscv32-unknown-none-elf-gcc \
   cflags='-fdata-sections -ffunction-sections -mabi=ilp32d' \
-  ldflags='-Wl,-gc-sections -mabi=ilp32d -nostartfiles -T${CONFIG_DIR}/link.ld'
+  ldflags='-Wl,-gc-sections -mabi=ilp32d -nostartfiles -T${CONFIG_DIR}/link.ld' \
+  gsf=16
 ```
 
 ### Running the benchmark of code size
@@ -453,6 +455,8 @@ script, which takes the following general arguments.
   `.exe` would change paths of the form `bd/src/benchmark/benchmark` to
   `bd/src/benchmark/benchmark.exe`. Might be required on non-Unix systems.
 - `--help`: Provide help on the arguments.
+- `--gsf`: Provides the gsf used to build the benchmarks.
+- `--cpu-mhz`: Provides the mhz the cpu runs at, to get a cpu-normalized result.
 
 There is so much variation in how a benchmark can be run that the detailed
 implementation is left to a python module specified by `--target-module`. This
@@ -503,12 +507,11 @@ Carry out the following steps.
 - This time should be recorded using hardware internal to the device being
   benchmarked - e.g., CPU cycle counter or other fast timer (i.e., running at
   a significantly higher rate than the benchmark takes to run).
-- For each benchmark divide the time taken by the value used for `CPU_MHZ` in
-  the configuration to give a normalized time value.
 - For each benchmark, compute its speed relative to the reference platform -
   see [Reference platform](#reference-platform) - by dividing the normalized
-  time value of the reference benchmark by the normalized time calculated in
-  the previous step.
+  time value of the reference benchmark by the time calculated in
+  the previous step and multiplying the result by `gsf`.
+- Divide the relative score by `cpy_mhz`.
 - Calculate the geometric mean, geometric standard deviation and range of one
   geometric standard deviation of the relative speeds.
 
