@@ -12,3 +12,14 @@ void
 initialise_board ()
 {
 }
+int main(int, char**);
+int _run(void) {
+   return main(0, 0);
+}
+void start_trigger ()
+{
+}
+
+void stop_trigger ()
+{
+}

@@ -20,6 +20,7 @@ def find_benchmarks(bd, env):
 def parse_options():
     num_cpu = int(os.environ.get('NUM_CPU', 2))
     SetOption('num_jobs', num_cpu)
+    AddOption('--binary-extension', nargs=1, type='string', default='')
     AddOption('--build-dir', nargs=1, type='string', default='bd')
     AddOption('--config-dir', nargs=1, type='string', default='config2')
     config_dir = Path(GetOption('config_dir')).absolute()
@@ -72,6 +73,7 @@ vars = parse_options()
 
 bd = Path(GetOption('build_dir')).absolute()
 config_dir = Path(GetOption('config_dir')).absolute()
+binary_extension = GetOption('binary_extension')
 
 setup_directories(bd, config_dir)
 env.Replace(BUILD_DIR=bd)
@@ -93,5 +95,5 @@ benchmark_objects = {
 env.Default(benchmark_objects.values())
 
 for benchname, objects in benchmark_objects.items():
-    bench_exe = env.Program(str(benchname), objects + support_objects)
+    bench_exe = env.Program(f"{str(benchname)}{binary_extension}", objects + support_objects)
     env.Default(bench_exe)

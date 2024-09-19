@@ -6,5 +6,6 @@
 
    SPDX-License-Identifier: GPL-3.0-or-later */
 
-void __attribute__((import_name("start_trigger"))) start_trigger (void);
-void __attribute__((import_name("stop_trigger"))) stop_trigger (void);
+void start_trigger (void);
+void stop_trigger (void);
+int _run(void);
