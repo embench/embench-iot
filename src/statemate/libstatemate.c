@@ -244,7 +244,7 @@ interface (void)
 }/** interface **/
 
 
-void
+static void
 init (void)
 {
   tm_entered_EINSCHALTSTROM_MESSEN_BLOCK_ERKENNUNG_CTRLch_BLOCK_ERKENNUNG_CTRL__N_copy

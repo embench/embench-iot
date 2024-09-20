@@ -23,11 +23,11 @@ def parse_options():
     AddOption('--binary-extension', nargs=1, type='string', default='')
     AddOption('--build-dir', nargs=1, type='string', default='bd')
     AddOption('--config-dir', nargs=1, type='string', default='config2')
+    AddOption('--static', action="store_true", dest="is_static", default=False)
     config_dir = Path(GetOption('config_dir')).absolute()
     bd = Path(GetOption('build_dir')).absolute()
 
     vars = Variables(None, ARGUMENTS)
-    print(ARGUMENTS)
     vars.Add('cc', default=env['CC'])
     vars.Add('cflags', default=env['CCFLAGS'])
     vars.Add('ld', default=env['LINK'])
@@ -54,7 +54,6 @@ def populate_build_env(env, vars):
     env.Replace(LINKFLAGS = "${ldflags}")
     env.Replace(CC = "${cc}")
     env.Replace(LINK = "${ld}")
-    print(f"{env['user_libs']}".split())
     env.Prepend(LIBS = f"{env['user_libs']}".split())
 
 def build_support_objects(env):
@@ -74,6 +73,7 @@ vars = parse_options()
 bd = Path(GetOption('build_dir')).absolute()
 config_dir = Path(GetOption('config_dir')).absolute()
 binary_extension = GetOption('binary_extension')
+is_static = GetOption('is_static')
 
 setup_directories(bd, config_dir)
 env.Replace(BUILD_DIR=bd)
@@ -95,5 +95,8 @@ benchmark_objects = {
 env.Default(benchmark_objects.values())
 
 for benchname, objects in benchmark_objects.items():
-    bench_exe = env.Program(f"{str(benchname)}{binary_extension}", objects + support_objects)
+    if is_static:
+        bench_exe = env.Library(f"{str(benchname)}{binary_extension}", objects + support_objects)
+    else:
+        bench_exe = env.Program(f"{str(benchname)}{binary_extension}", objects + support_objects)
     env.Default(bench_exe)

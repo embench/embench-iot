@@ -15,8 +15,7 @@
 
 
 int __attribute__ ((used))
-main (int argc __attribute__ ((unused)),
-      char *argv[] __attribute__ ((unused)))
+_run(void)
 {
   int i;
   volatile int result;
