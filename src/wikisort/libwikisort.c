@@ -30,10 +30,12 @@
 #include <limits.h>
 
 /* various #defines for the C code */
+#if __STDC_VERSION__ <= 201710L
 #ifndef true
 #define true 1
 #define false 0
 typedef uint8_t bool;
+#endif
 #endif
 
 #define Var(name, value, type) type name = value
