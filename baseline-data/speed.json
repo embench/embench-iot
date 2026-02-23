@@ -14,6 +14,7 @@
   "sglib-combined" : 4131,
   "slre" : 3995,
   "statemate" : 6421,
+  "sudoku_search": 4000,
   "tarfind" : 4005,
   "ud" : 3934,
   "wikisort" : 3622,

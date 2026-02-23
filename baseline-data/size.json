@@ -89,6 +89,12 @@
     "data" : 0,
     "bss" : 232
   },
+  "sudoku_search" : {
+    "text" : 592,
+    "rodata" : 625,
+    "data" : 0,
+    "bss" : 625
+  },
   "tarfind" : {
     "text" : 384,
     "rodata" : 0,
