@@ -44,7 +44,7 @@ def decode_results(stdout_str, stderr_str):
         return None
 
     # Match "real s.mm?m?"
-    time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S)
+    time = re.search('^real (\d+)[.](\d+)', stderr_str, re.S | re.M)
     if time:
         ms_elapsed = int(time.group(1)) * 1000 + \
                      int(time.group(2).ljust(3,'0')) # 0-pad
