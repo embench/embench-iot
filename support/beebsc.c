@@ -17,7 +17,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
 #include "beebsc.h"
 
 /* Seed for the random number generator */
