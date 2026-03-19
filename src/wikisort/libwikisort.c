@@ -28,13 +28,9 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <stdbool.h>
 
-/* various #defines for the C code */
-#ifndef true
-#define true 1
-#define false 0
-typedef uint8_t bool;
-#endif
+/* bool/true/false come from <stdbool.h> */
 
 #define Var(name, value, type) type name = value
 

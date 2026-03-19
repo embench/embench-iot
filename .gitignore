@@ -15,4 +15,8 @@ __pycache__/
 
 # Default build and log directories
 bd*/
-logs/
+logs*/
+build/
+
+# generated fusesoc libraries
+fusesoc_libraries/

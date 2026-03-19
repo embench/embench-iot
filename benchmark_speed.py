@@ -359,7 +359,7 @@ def collect_data(benchmarks, args):
     # Baseline data is held external to the script. Import it here if we are
     # doing relative output and then generate the relative data
     if not gp['absolute']:
-        rel_data = compute_rel(benchmarks, raw_data, args)
+        rel_data = compute_rel(benchmarks_run, raw_data, args)
     else:
         rel_data = {}
 
